@@ -94,6 +94,11 @@ class ProductsImport implements ToModel, WithHeadingRow
                 'description'       => $row['description'] ?? null,
                 'status'            => $row['status'] ?? 1,
                 'product_type'      => (!empty($row['sizes']) || !empty($row['colors'])) ? 'multiple' : 'single',
+                'is_featured'   => (isset($row['is_featured']) && strtolower(trim($row['is_featured'])) === 'yes') ? 1 : 0,
+                'is_new'        => (isset($row['is_new']) && strtolower(trim($row['is_new'])) === 'yes') ? 1 : 0,
+                'is_purchased'  => (isset($row['is_purchased']) && strtolower(trim($row['is_purchased'])) === 'yes') ? 1 : 0,
+                'is_bestseller' => (isset($row['is_bestseller']) && strtolower(trim($row['is_bestseller'])) === 'yes') ? 1 : 0,
+                'is_trending'   => (isset($row['is_trending']) && strtolower(trim($row['is_trending'])) === 'yes') ? 1 : 0,
             ]);
 
             if (isset($row['sizes']) && !empty(trim($row['sizes']))) {

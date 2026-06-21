@@ -2,7 +2,9 @@
 
 namespace App\Http\Controllers\backend;
 
+use App\Exports\ProductDemoExport;
 use App\Http\Controllers\Controller;
+use App\Imports\ProductsImport;
 use App\Models\Brand;
 use App\Models\Category;
 use App\Models\Color;
@@ -11,6 +13,9 @@ use App\Models\ProductColor;
 use App\Models\ProductColorImage;
 use App\Models\ProductImage;
 use App\Models\ProductSize;
+use App\Models\ProductStock;
+use App\Models\StockAdjustment;
+use App\Models\StockAdjustmentItem;
 use App\Models\SubCategory;
 use App\Models\Unit;
 use App\Models\Variation;
@@ -19,10 +24,8 @@ use Illuminate\Routing\Controllers\HasMiddleware;
 use Illuminate\Routing\Controllers\Middleware;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
-use Yajra\DataTables\Facades\DataTables;
-use App\Imports\ProductsImport;
-use App\Exports\ProductDemoExport;
 use Maatwebsite\Excel\Facades\Excel;
+use Yajra\DataTables\Facades\DataTables;
 
 class ProductController extends Controller implements HasMiddleware
 {
@@ -41,7 +44,7 @@ class ProductController extends Controller implements HasMiddleware
     public function index(Request $request)
     {
         if ($request->ajax()) {
-            $data = Product::with(['category', 'subCategory', 'brand', 'unit', 'images', 'colors.images', 'sizes','stocks.color', 'stocks.size'])->latest();
+            $data = Product::with(['category', 'subCategory', 'brand', 'unit', 'images', 'colors.images', 'sizes', 'stocks.color', 'stocks.size'])->latest();
 
             return DataTables::of($data)
                 ->addIndexColumn()
@@ -51,32 +54,34 @@ class ProductController extends Controller implements HasMiddleware
                 ->addColumn('brand_name', fn($row) => $row->brand?->name ?? '—')
                 ->addColumn('unit_name', fn($row) => $row->unit?->name ?? '—')
 
-                ->addColumn('image', fn($row) =>
+                ->addColumn(
+                    'image',
+                    fn($row) =>
                     $row->image
-                        ? '<img src="'.asset($row->image).'" width="60" height="60" class="rounded">'
+                        ? '<img src="' . asset($row->image) . '" width="60" height="60" class="rounded">'
                         : '<span class="text-muted">No Image</span>'
                 )
 
                 ->addColumn('stock', fn($row) => number_format($row->stock_quantity, 2))
 
-                ->addColumn('sizes', function($row) {
+                ->addColumn('sizes', function ($row) {
                     return $row->sizes->pluck('size')->implode(', ');
                 })
 
-                ->addColumn('colors', function($row) {
+                ->addColumn('colors', function ($row) {
                     $html = '';
                     foreach ($row->colors as $color) {
-                        $html .= '<span class="badge" style="background-color: '.$color->code.'; color:#fff; margin-right:3px;">'.$color->name.'</span>';
+                        $html .= '<span class="badge" style="background-color: ' . $color->code . '; color:#fff; margin-right:3px;">' . $color->name . '</span>';
                     }
                     return $html ?: '—';
                 })
-                ->addColumn('status', function($row) {
+                ->addColumn('status', function ($row) {
                     return $row->status == 1
                         ? '<span class="badge bg-success">Active</span>'
                         : '<span class="badge bg-danger">Inactive</span>';
                 })
 
-                ->addColumn('stock', function($row) {
+                ->addColumn('stock', function ($row) {
                     if ($row->stocks->isEmpty()) {
                         return '<span class="text-muted">No stock</span>';
                     }
@@ -112,43 +117,43 @@ class ProductController extends Controller implements HasMiddleware
                     if ($request->has('search') && $request->search['value']) {
                         $search = $request->search['value'];
 
-                        $query->where(function($q) use ($search) {
+                        $query->where(function ($q) use ($search) {
                             $q->where('name', 'like', "%{$search}%")
-                            ->orWhere('sku', 'like', "%{$search}%")
-                            ->orWhere('purchase_price', 'like', "%{$search}%")
-                            ->orWhere('selling_price', 'like', "%{$search}%")
-                            ->orWhereHas('category', function($q2) use ($search) {
-                                $q2->where('name', 'like', "%{$search}%");
-                            })
-                            ->orWhereHas('subCategory', function($q3) use ($search) {
-                                $q3->where('name', 'like', "%{$search}%");
-                            })
-                            ->orWhereHas('brand', function($q4) use ($search) {
-                                $q4->where('name', 'like', "%{$search}%");
-                            })
-                            ->orWhereHas('unit', function($q5) use ($search) {
-                                $q5->where('name', 'like', "%{$search}%");
-                            });
+                                ->orWhere('sku', 'like', "%{$search}%")
+                                ->orWhere('purchase_price', 'like', "%{$search}%")
+                                ->orWhere('selling_price', 'like', "%{$search}%")
+                                ->orWhereHas('category', function ($q2) use ($search) {
+                                    $q2->where('name', 'like', "%{$search}%");
+                                })
+                                ->orWhereHas('subCategory', function ($q3) use ($search) {
+                                    $q3->where('name', 'like', "%{$search}%");
+                                })
+                                ->orWhereHas('brand', function ($q4) use ($search) {
+                                    $q4->where('name', 'like', "%{$search}%");
+                                })
+                                ->orWhereHas('unit', function ($q5) use ($search) {
+                                    $q5->where('name', 'like', "%{$search}%");
+                                });
                         });
                     }
                 })
 
-                ->addColumn('action', function($row) {
+                ->addColumn('action', function ($row) {
 
                     // View Button
-                    $showBtn = '<button class="btn btn-icon btn-soft-info btn-show" data-id="'.$row->id.'" title="View Details">
+                    $showBtn = '<button class="btn btn-icon btn-soft-info btn-show" data-id="' . $row->id . '" title="View Details">
                                     <i class="fa-regular fa-eye"></i>
                                 </button>';
 
                     // Edit Button
-                    $editBtn = '<a href="'.route('products.edit', $row->id).'" class="btn btn-icon btn-soft-primary" title="Edit Product">
+                    $editBtn = '<a href="' . route('products.edit', $row->id) . '" class="btn btn-icon btn-soft-primary" title="Edit Product">
                                     <i class="fa-regular fa-pen-to-square"></i>
                                 </a>';
 
                     // Delete Button
                     $deleteForm = '
-                        <form class="delete-form d-inline" action="'.route('products.destroy', $row->id).'" method="POST">
-                            '.csrf_field().method_field('DELETE').'
+                        <form class="delete-form d-inline" action="' . route('products.destroy', $row->id) . '" method="POST">
+                            ' . csrf_field() . method_field('DELETE') . '
                             <button type="button" class="btn btn-icon btn-soft-danger btn-delete" title="Delete Product">
                                 <i class="fa-regular fa-trash-can"></i>
                             </button>
@@ -156,11 +161,10 @@ class ProductController extends Controller implements HasMiddleware
                     ';
 
                     // Wrapping all buttons in a centered flex div
-                    return '<div class="d-flex align-items-center justify-content-center gap-2">'.$showBtn.$editBtn.$deleteForm.'</div>';
+                    return '<div class="d-flex align-items-center justify-content-center gap-2">' . $showBtn . $editBtn . $deleteForm . '</div>';
                 })
                 ->rawColumns(['image', 'status', 'colors', 'stock', 'action'])
                 ->make(true);
-
         }
 
         $categories = Category::select('id', 'name')->get();
@@ -182,7 +186,7 @@ class ProductController extends Controller implements HasMiddleware
         $variations = Variation::all();
         $colors = Color::all();
 
-        return view('backend.product.create', compact('categories', 'brands', 'units','variations','colors'));
+        return view('backend.product.create', compact('categories', 'brands', 'units', 'variations', 'colors'));
     }
     /**
      * Store a newly created resource in storage.
@@ -227,7 +231,6 @@ class ProductController extends Controller implements HasMiddleware
                 if ($mainPrice > 0) {
                     $discountValue = ($discountAmount / $mainPrice) * 100;
                 }
-
             } elseif ($discountType === 'fixed') {
                 $discountValue = $discountAmount;
             }
@@ -285,7 +288,7 @@ class ProductController extends Controller implements HasMiddleware
                         ]);
                     }
                 }
-            } 
+            }
 
             if (!empty($request->color_image_names)) {
 
@@ -305,12 +308,12 @@ class ProductController extends Controller implements HasMiddleware
 
                             if ($image instanceof \Illuminate\Http\UploadedFile) {
 
-                                $imgName = time().'_'.uniqid().'.'.$image->getClientOriginalExtension();
+                                $imgName = time() . '_' . uniqid() . '.' . $image->getClientOriginalExtension();
                                 $image->move(public_path('uploads/product_colors'), $imgName);
 
                                 ProductColorImage::create([
                                     'product_color_id' => $color->id,
-                                    'image' => 'uploads/product_colors/'.$imgName,
+                                    'image' => 'uploads/product_colors/' . $imgName,
                                 ]);
                             }
                         }
@@ -319,10 +322,10 @@ class ProductController extends Controller implements HasMiddleware
             }
 
             DB::commit();
-            return redirect()->route('products.index')->with('success','product create successfully!');
+            return redirect()->route('products.index')->with('success', 'product create successfully!');
         } catch (\Exception $e) {
             DB::rollBack();
-            return redirect()->back()->with('error','Something wrong!');
+            return redirect()->back()->with('error', 'Something wrong!');
         }
     }
 
@@ -355,7 +358,7 @@ class ProductController extends Controller implements HasMiddleware
         } catch (\Maatwebsite\Excel\Validators\ValidationException $e) {
             $failures = $e->failures();
             return redirect()->back()
-                ->with('error', 'Validation Error on Row '.$failures[0]->row().': '.$failures[0]->errors()[0]);
+                ->with('error', 'Validation Error on Row ' . $failures[0]->row() . ': ' . $failures[0]->errors()[0]);
         } catch (\Exception $e) {
 
             return redirect()->back()
@@ -422,7 +425,7 @@ class ProductController extends Controller implements HasMiddleware
             ->where('pc.product_id', $id)
             ->select(
                 'pc.id',
-                'c.id as color_id',  
+                'c.id as color_id',
                 'c.name',
                 'c.code'
             )
@@ -438,7 +441,7 @@ class ProductController extends Controller implements HasMiddleware
                 ->toArray();
 
             $colorImages[] = [
-                'id'     => $color->color_id,  
+                'id'     => $color->color_id,
                 'name'   => $color->name,
                 'code'   => $color->code,
                 'images' => $imgs,
@@ -449,7 +452,7 @@ class ProductController extends Controller implements HasMiddleware
 
         $stocks = DB::table('product_stocks as s')
             ->leftJoin('colors as c', 'c.id', '=', 's.color_id')
-            ->leftJoin('product_sizes as sz', 'sz.id', '=', 's.size_id')  
+            ->leftJoin('product_sizes as sz', 'sz.id', '=', 's.size_id')
             ->where('s.product_id', $id)
             ->select(
                 's.quantity',
@@ -530,7 +533,7 @@ class ProductController extends Controller implements HasMiddleware
         $units = Unit::all();
         $colors = Color::all();
 
-       $variations = Variation::all();
+        $variations = Variation::all();
 
         $selectedVariationId = $product->variation_id ?? null;
 
@@ -571,9 +574,9 @@ class ProductController extends Controller implements HasMiddleware
                     @unlink(public_path($product->image));
                 }
 
-                $imageName = time().'_'.uniqid().'.'.$request->image->getClientOriginalExtension();
+                $imageName = time() . '_' . uniqid() . '.' . $request->image->getClientOriginalExtension();
                 $request->image->move(public_path('uploads/products'), $imageName);
-                $product->image = 'uploads/products/'.$imageName;
+                $product->image = 'uploads/products/' . $imageName;
             }
 
             /* ================= SIZE GUIDE ================= */
@@ -582,9 +585,9 @@ class ProductController extends Controller implements HasMiddleware
                     @unlink(public_path($product->size_guide));
                 }
 
-                $sizeGuideName = time().'_'.uniqid().'.'.$request->size_guide->getClientOriginalExtension();
+                $sizeGuideName = time() . '_' . uniqid() . '.' . $request->size_guide->getClientOriginalExtension();
                 $request->size_guide->move(public_path('uploads/products'), $sizeGuideName);
-                $product->size_guide = 'uploads/products/'.$sizeGuideName;
+                $product->size_guide = 'uploads/products/' . $sizeGuideName;
             }
 
             /* ================= DISCOUNT ================= */
@@ -637,11 +640,11 @@ class ProductController extends Controller implements HasMiddleware
 
                 // ADD NEW IMAGES
                 foreach ($request->file('images') as $image) {
-                    $imgName = time().'_'.uniqid().'.'.$image->getClientOriginalExtension();
+                    $imgName = time() . '_' . uniqid() . '.' . $image->getClientOriginalExtension();
                     $image->move(public_path('uploads/products'), $imgName);
                     ProductImage::create([
                         'product_id' => $product->id,
-                        'image'      => 'uploads/products/'.$imgName,
+                        'image'      => 'uploads/products/' . $imgName,
                     ]);
                 }
             }
@@ -680,11 +683,11 @@ class ProductController extends Controller implements HasMiddleware
                         // 🔥 INSERT NEW IMAGES
                         foreach ($newImages as $image) {
                             if ($image instanceof \Illuminate\Http\UploadedFile) {
-                                $imgName = time().'_'.uniqid().'.'.$image->getClientOriginalExtension();
+                                $imgName = time() . '_' . uniqid() . '.' . $image->getClientOriginalExtension();
                                 $image->move(public_path('uploads/product_colors'), $imgName);
                                 ProductColorImage::create([
                                     'product_color_id' => $color->id,
-                                    'image' => 'uploads/product_colors/'.$imgName,
+                                    'image' => 'uploads/product_colors/' . $imgName,
                                 ]);
                             }
                         }
@@ -694,7 +697,6 @@ class ProductController extends Controller implements HasMiddleware
 
             DB::commit();
             return redirect()->route('products.index')->with('success', 'Product updated successfully!');
-
         } catch (\Exception $e) {
             DB::rollBack();
             return redirect()->back()->with('error', $e->getMessage());
@@ -706,8 +708,7 @@ class ProductController extends Controller implements HasMiddleware
     public function destroy(string $id)
     {
         $product = Product::with(['images', 'sizes', 'colors.images'])->findOrFail($id);
-        if($product->is_purchased == 1)
-        {
+        if ($product->is_purchased == 1) {
             return response()->json([
                 'status' => 'error',
                 'message' => 'Product is purchased, cannot delete!',
@@ -747,13 +748,12 @@ class ProductController extends Controller implements HasMiddleware
                 'status' => 'success',
                 'message' => 'Product deleted successfully!',
             ]);
-
         } catch (\Exception $e) {
             DB::rollBack();
 
             return response()->json([
                 'status' => 'error',
-                'message' => 'Something went wrong: '.$e->getMessage(),
+                'message' => 'Something went wrong: ' . $e->getMessage(),
             ]);
         }
     }
@@ -783,5 +783,219 @@ class ProductController extends Controller implements HasMiddleware
             'status' => 'success'
         ]);
     }
+   
+    public function stockAdjustmentIndex(Request $request)
+    {
+        if ($request->ajax()) {
+            $data = StockAdjustment::select('id', 'adjustment_no', 'adjustment_date', 'type', 'reason', 'note')
+                ->latest();
 
+            return DataTables::of($data)
+                ->addIndexColumn()
+                ->addColumn('type', function ($row) {
+                    return $row->type === 'addition'
+                        ? '<span class="badge bg-soft-success text-success fw-bold px-3 py-2 rounded-pill"><i class="fa fa-plus me-1"></i> Addition</span>'
+                        : '<span class="badge bg-soft-danger text-danger fw-bold px-3 py-2 rounded-pill"><i class="fa fa-minus me-1"></i> Subtraction</span>';
+                })
+                ->addColumn('reason', function ($row) {
+                    return '<span class="badge bg-light text-dark border px-3 py-2 text-capitalize">'. e($row->reason) .'</span>';
+                })
+                ->addColumn('action', function($row) {
+                    // View Button
+                    $showBtn = '<button class="btn btn-icon btn-soft-info btn-show" data-id="'.$row->id.'" title="View Details">
+                                    <i class="fa-regular fa-eye"></i>
+                                </button>';
+
+                    // Edit Button
+                    $editBtn = '<a href="'.route('stock-adjustments.edit', $row->id).'" class="btn btn-icon btn-soft-primary" title="Edit Adjustment">
+                                    <i class="fa-regular fa-pen-to-square"></i>
+                                </a>';
+                    $deleteForm = '
+                        <form class="delete-form d-inline" action="'.route('stock-adjustments.destroy', $row->id).'" method="POST">
+                            '.csrf_field().method_field('DELETE').'
+                            <button type="button" class="btn btn-icon btn-soft-danger btn-delete" title="Delete Adjustment">
+                                <i class="fa-regular fa-trash-can"></i>
+                            </button>
+                        </form>
+                    ';
+
+                    return '<div class="d-flex align-items-center justify-content-center gap-2">'.$showBtn.$editBtn.$deleteForm.'</div>';
+                })
+                ->rawColumns(['type', 'reason', 'action'])
+                ->make(true);
+        }
+
+        return view('backend.stock_adjustments.index');
+    }
+
+    public function stockAdjustmentcreate()
+    {
+        $products = Product::select('id', 'name', 'sku')->where('status', 1)->get();
+        
+        $sizes = DB::table('sizes')->select('id', 'name')->get(); 
+        $colors = DB::table('colors')->select('id', 'name')->get();
+
+        return view('backend.stock_adjustments.create', compact('products', 'sizes', 'colors'));
+    }
+    
+
+    public function stockAdjustmentstore(Request $request)
+    {
+        $request->validate([
+            'adjustment_date' => 'required|date',
+            'type'            => 'required|in:addition,subtraction',
+            'products'        => 'required|array|min:1',
+            'products.*.id'   => 'required|exists:products,id',
+            'products.*.qty'  => 'required|integer|min:1',
+        ]);
+
+        DB::beginTransaction();
+
+        try {
+            $adjustmentNo = $request->reference_no ?? ('ADJ-' . strtoupper(Str::random(6)));
+
+            $adjustment = StockAdjustment::create([
+                'adjustment_no'   => $adjustmentNo,
+                'adjustment_date' => $request->adjustment_date,
+                'type'            => $request->type,
+                'reason'          => $request->reason,
+                'note'            => $request->note,
+                'created_by'      => auth()->id() ?? 1, 
+            ]);
+
+            foreach ($request->products as $item) {
+                $colorId = !empty($item['color_id']) ? $item['color_id'] : null;
+                $sizeId  = !empty($item['size_id']) ? $item['size_id'] : null;
+
+                StockAdjustmentItem::create([
+                    'stock_adjustment_id' => $adjustment->id,
+                    'product_id'          => $item['id'], 
+                    'color_id'            => $colorId,
+                    'size_id'             => $sizeId,
+                    'quantity'            => $item['qty'],
+                ]);
+
+                $productStock = ProductStock::firstOrCreate(
+                    [
+                        'product_id' => $item['id'], 
+                        'color_id'   => $colorId,
+                        'size_id'    => $sizeId,
+                    ],
+                    ['quantity' => 0]
+                );
+
+                if ($request->type === 'addition') {
+                    $productStock->increment('quantity', $item['qty']);
+                } else {
+                    $productStock->decrement('quantity', $item['qty']);
+                }
+            }
+
+            DB::commit();
+            
+            return response()->json([
+                'success' => true,
+                'message' => 'Stock adjusted successfully!'
+            ]);
+
+        } catch (\Exception $e) {
+            DB::rollBack();
+            
+            return response()->json([
+                'success' => false,
+                'message' => 'Something went wrong! ' . $e->getMessage()
+            ], 500);
+        }
+
+    }
+
+    public function stockAdjustmentShow($id)
+    {
+        $adjustment = StockAdjustment::with(['items.product', 'items.color', 'items.size'])->findOrFail($id);
+        
+        return response()->json([
+            'success' => true,
+            'data'    => $adjustment
+        ]);
+    }
+
+    public function stockAdjustmentEdit($id)
+    {
+        $adjustment = StockAdjustment::with(['items.product', 'items.color', 'items.size'])->findOrFail($id);
+        
+        $products = Product::select('id', 'name', 'sku')->latest()->get();
+
+        return view('backend.stock_adjustments.edit', compact('adjustment', 'products'));
+    }
+
+    public function stockAdjustmentUpdate(Request $request, $id)
+    {
+        $request->validate([
+            'adjustment_date' => 'required|date',
+            'type'            => 'required|in:addition,subtraction',
+            'reason'          => 'required|string',
+            'note'            => 'nullable|string',
+            'items'           => 'required|array|min:1',
+            'items.*.product_id' => 'required|exists:products,id',
+            'items.*.quantity'   => 'required|integer|min:1',
+        ]);
+
+        try {
+            DB::transaction(function () use ($request, $id) {
+                $adjustment = StockAdjustment::with('items')->findOrFail($id);
+                $oldType = $adjustment->type;
+
+                foreach ($adjustment->items as $oldItem) {
+                    $stock = ProductStock::where([
+                        'product_id' => $oldItem->product_id,
+                        'color_id'   => $oldItem->color_id,
+                        'size_id'    => $oldItem->size_id,
+                    ])->first();
+
+                    if ($stock) {
+                        if ($oldType === 'addition') {
+                            $stock->decrement('quantity', $oldItem->quantity);
+                        } else {
+                            $stock->increment('quantity', $oldItem->quantity);
+                        }
+                    }
+                }
+
+                $adjustment->items()->delete();
+
+                $adjustment->update([
+                    'adjustment_date' => $request->adjustment_date,
+                    'type'            => $request->type,
+                    'reason'          => $request->reason,
+                    'note'            => $request->note,
+                ]);
+
+                foreach ($request->items as $item) {
+                    $adjustment->items()->create([
+                        'product_id' => $item['product_id'],
+                        'color_id'   => $item['color_id'] ?? null,
+                        'size_id'    => $item['size_id'] ?? null,
+                        'quantity'   => $item['quantity'],
+                    ]);
+
+                    $stock = ProductStock::firstOrCreate([
+                        'product_id' => $item['product_id'],
+                        'color_id'   => $item['color_id'] ?? null,
+                        'size_id'    => $item['size_id'] ?? null,
+                    ]);
+
+                    if ($request->type === 'addition') {
+                        $stock->increment('quantity', $item['quantity']);
+                    } else {
+                        $stock->decrement('quantity', $item['quantity']);
+                    }
+                }
+            });
+
+            return redirect()->route('stock-adjustments.index')->with('success', 'Stock Adjustment updated successfully with inventory recalculation!');
+
+        } catch (\Exception $e) {
+            return redirect()->back()->withInput()->with('error', 'Something went wrong: ' . $e->getMessage());
+        }
+    }
 }

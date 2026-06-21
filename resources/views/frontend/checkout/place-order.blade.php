@@ -134,7 +134,7 @@
                                             <option value="">Select Division</option>
                                             @foreach($divisions as $division)
                                                 <option value="{{ $division->id }}"
-                                                    {{ auth('customer')->user()->division == $division->id ? 'selected' : '' }}>
+                                                    {{ auth('customer')->user()->division_id== $division->id ? 'selected' : '' }}>
                                                     {{ $division->name }}
                                                 </option>
                                             @endforeach

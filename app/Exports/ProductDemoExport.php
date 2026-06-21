@@ -16,7 +16,8 @@ class ProductDemoExport implements FromArray, WithHeadings, ShouldAutoSize, With
             'name', 'category', 'subcategory', 'brand', 'unit', 
             'purchase_price', 'selling_price', 'main_price', 'discount_type', 
             'alert_quantity', 'sku', 'barcode', 'sizes', 'colors', 
-            'main_image', 'short_description', 'description', 'status'
+            'main_image', 'short_description', 'description', 'status',
+            'is_featured', 'is_new', 'is_purchased', 'is_bestseller', 'is_trending'
         ];
     }
 
@@ -27,18 +28,19 @@ class ProductDemoExport implements FromArray, WithHeadings, ShouldAutoSize, With
                 'Premium Cotton T-Shirt', 'Mens Fashion', 'T-Shirts', 'Easy', 'Piece',
                 '500', '800', '1000', 'fixed', '10', 'TSH-1001', '890123456789', 
                 'S, M, L, XL', 'Red, Black, White', 'tshirt-main.jpg', 
-                'High quality cotton t-shirt', 'Full description goes here...', '1'
+                'High quality cotton t-shirt', 'Full description goes here...', '1',
+                'yes', 'yes', 'no', 'yes', 'no' 
             ],
             [
                 'Slim Fit Jeans', 'Mens Fashion', 'Pants', 'Leads', 'Piece',
                 '800', '1200', '1500', 'percent', '5', 'JNS-2002', '', 
                 '30, 32, 34', 'Blue, Grey', '', 
-                'Stretchable slim fit jeans', 'Full description...', '1'
+                'Stretchable slim fit jeans', 'Full description...', '1',
+                'no', 'no', 'yes', 'no', 'yes' 
             ]
         ];
     }
 
-    // হেডার বোল্ড করার জন্য
     public function styles(Worksheet $sheet)
     {
         return [

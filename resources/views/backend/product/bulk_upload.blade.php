@@ -103,6 +103,8 @@
                                         <li><strong>Sizes & Colors:</strong> Use commas to separate multiple options. Example: <span class="highlight-text">S, M, L, XL</span> or <span class="highlight-text">Red, Blue</span>.</li>
                                         <li><strong>Discount Type:</strong> Use either <span class="highlight-text">percent</span> or <span class="highlight-text">fixed</span>. Leave blank for no discount.</li>
                                         <li><strong>SKU:</strong> Must be unique. Leave empty to auto-generate.</li>
+                                        
+                                        <li><strong>Status Fields:</strong> Use <span class="highlight-text">yes</span> or <span class="highlight-text">no</span> for Featured, New, Purchased, Bestseller, and Trending columns.</li>
                                         <li><strong>Images:</strong> Upload the basic data via Excel first. You can add specific color-wise gallery images later from the <em>Edit Product</em> page for better accuracy.</li>
                                     </ul>
                                 </div>

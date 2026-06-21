@@ -128,6 +128,14 @@ Route::middleware('auth')->prefix('admin')->group(function () {
     Route::post('/product/bulk-upload', [ProductController::class, 'bulkUpload'])->name('products.bulk_upload');
     Route::get('/product/demo-excel', [ProductController::class, 'downloadDemo'])->name('products.demo_excel');
 
+    Route::get('/stock-adjustments', [ProductController::class, 'stockAdjustmentIndex'])->name('stock-adjustments.index');
+    Route::get('/stock-adjustments/create',[ProductController::class, 'stockAdjustmentcreate'])->name('stock-adjustments.create');
+    Route::post('/stock-adjustments/store',[ProductController::class, 'stockAdjustmentstore'])->name('stock-adjustments.store');
+    Route::get('/stock-adjustments/{id}', [ProductController::class, 'stockAdjustmentShow'])->name('stock-adjustments.show');
+    Route::get('/stock-adjustments/edit/{id}', [ProductController::class, 'stockAdjustmentEdit'])->name('stock-adjustments.edit');
+    Route::put('/stock-adjustments/update/{id}', [ProductController::class, 'stockAdjustmentUpdate'])->name('stock-adjustments.update');
+    Route::get('/stock-adjustments/destroy/{id}', [ProductController::class, 'stockAdjustmentDestroy'])->name('stock-adjustments.destroy');
+
     Route::resource('purchases', PurchaseController::class);
 
     Route::resource('sales', SaleController::class);
