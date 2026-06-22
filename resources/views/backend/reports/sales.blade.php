@@ -319,23 +319,23 @@
 
                 buttons: [{
                         extend: 'copy',
-                        className: 'btn btn-light btn-sm'
+                        text: '<i class="fa-regular fa-copy"></i> Copy'
                     },
                     {
                         extend: 'excel',
-                        className: 'btn btn-success btn-sm'
+                        text: '<i class="fa-regular fa-file-excel"></i> Excel'
                     },
                     {
                         extend: 'csv',
-                        className: 'btn btn-info btn-sm'
+                        text: '<i class="fa-solid fa-file-csv"></i> CSV'
                     },
                     {
                         extend: 'pdf',
-                        className: 'btn btn-danger btn-sm'
+                        text: '<i class="fa-regular fa-file-pdf"></i> PDF'
                     },
                     {
                         extend: 'print',
-                        className: 'btn btn-dark btn-sm'
+                        text: '<i class="fa-solid fa-print"></i> Print'
                     }
                 ],
 

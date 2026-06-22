@@ -14,6 +14,7 @@ class ReportController extends Controller
     public function totalIncome(Request $request)
     {
         $queryOrders   = Order::where('status', 'completed');
+        $queryReturns  = Order::where('status', 'return'); 
         $querySales    = Sale::query();
         $queryExpenses = Expense::query();
 
@@ -28,6 +29,7 @@ class ReportController extends Controller
                     $date = now()->toDateString();
 
                     $queryOrders->whereDate('created_at', $date);
+                    $queryReturns->whereDate('updated_at', $date); 
                     $querySales->whereDate('sale_date', $date);
                     $queryExpenses->whereDate('date', $date);
                     break;
@@ -37,6 +39,7 @@ class ReportController extends Controller
                     $year  = now()->year;
 
                     $queryOrders->whereMonth('created_at', $month)->whereYear('created_at', $year);
+                    $queryReturns->whereMonth('updated_at', $month)->whereYear('updated_at', $year);
                     $querySales->whereMonth('sale_date', $month)->whereYear('sale_date', $year);
                     $queryExpenses->whereMonth('date', $month)->whereYear('date', $year);
                     break;
@@ -45,6 +48,7 @@ class ReportController extends Controller
                     $year = now()->year;
 
                     $queryOrders->whereYear('created_at', $year);
+                    $queryReturns->whereYear('updated_at', $year);
                     $querySales->whereYear('sale_date', $year);
                     $queryExpenses->whereYear('date', $year);
                     break;
@@ -60,6 +64,7 @@ class ReportController extends Controller
             $end   = $request->end_date . ' 23:59:59';
 
             $queryOrders->whereBetween('created_at', [$start, $end]);
+            $queryReturns->whereBetween('updated_at', [$start, $end]);
             $querySales->whereBetween('sale_date', [$start, $end]);
             $queryExpenses->whereBetween('date', [$start, $end]);
         }
@@ -70,18 +75,21 @@ class ReportController extends Controller
         $orderIncome   = $queryOrders->sum('total');
         $posIncome     = $querySales->sum('paid_amount');
         $totalExpenses = $queryExpenses->sum('amount');
+        
+        $totalReturnPenalty = $queryReturns->sum('return_charge'); 
 
-        $totalIncome   = ($orderIncome + $posIncome) - $totalExpenses;
+        $totalIncome   = ($orderIncome + $posIncome) - ($totalExpenses + $totalReturnPenalty);
 
         // ========================
         // RESPONSE (AJAX)
         // ========================
         if ($request->ajax()) {
             return response()->json([
-                'orderIncome'   => $orderIncome,
-                'posIncome'     => $posIncome,
-                'totalExpenses' => $totalExpenses,
-                'totalIncome'   => $totalIncome,
+                'orderIncome'        => $orderIncome,
+                'posIncome'          => $posIncome,
+                'totalExpenses'      => $totalExpenses,
+                'totalReturnPenalty' => $totalReturnPenalty, 
+                'totalIncome'        => $totalIncome,
             ]);
         }
 
@@ -92,6 +100,7 @@ class ReportController extends Controller
             'orderIncome',
             'posIncome',
             'totalExpenses',
+            'totalReturnPenalty',
             'totalIncome'
         ));
     }

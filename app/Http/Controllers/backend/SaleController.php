@@ -611,102 +611,83 @@ class SaleController extends Controller implements HasMiddleware
     public function orderReturn(Request $request)
     {
         if ($request->ajax()) {
-            $data = Order::where('status', 'return')
-                ->latest();
-
+            $data = Order::where('status', 'return')->latest();
 
             return DataTables::of($data)
                 ->addIndexColumn()
-
-                ->addColumn('invoice_no', fn($row) => $row->order_number)
-
-                ->addColumn('customer_name', fn($row) => $row->customer_name)
-
-                ->addColumn(
-                    'order_date',
-                    fn($row) =>
-                    $row->created_at->format('d M, Y')
-                )
-
-                ->addColumn(
-                    'total_amount',
-                    fn($row) =>
-                    number_format($row->total, 2) . ' ৳'
-                )
-
+                ->addColumn('invoice_no', fn ($row) => $row->order_number)
+                ->addColumn('customer_name', fn ($row) => $row->full_name ?? $row->customer_name)
+                ->addColumn('order_date', fn ($row) => $row->created_at->format('d M, Y'))
+                ->addColumn('total_amount', fn ($row) => number_format($row->total, 2) . ' ৳')
+                ->addColumn('return_charge', fn ($row) => number_format($row->return_charge ?? 0, 2) . ' ৳')
                 ->addColumn('payment_status', function ($row) {
                     $class = match ($row->payment_status) {
                         'paid' => 'success',
-                        'due' => 'danger',
+                        'due', 'pending' => 'warning',
                         default => 'secondary',
                     };
                     return '<span class="badge bg-' . $class . '">' . ucfirst($row->payment_status) . '</span>';
                 })
-
                 ->addColumn('status', function ($row) {
-                    // Default color mapping
-                    $statusColors = [
-                        'pending'     => 'btn-warning',
-                        'accepted'    => 'btn-info',
-                        'on-the-way'  => 'btn-primary',
-                        'return'      => 'btn-secondary',
-                        'completed'   => 'btn-success',
-                        'cancelled'   => 'btn-danger',
+                    $colors = [
+                        'pending'    => '#f59e0b',
+                        'accepted'   => '#3b82f6',
+                        'on-the-way' => '#6366f1',
+                        'return'     => '#6b7280', 
+                        'completed'  => '#10b981',
+                        'cancelled'  => '#ef4444',
                     ];
 
-                    $statusText = $row->order_status ?? 'pending'; // fallback
-                    $btnClass = $statusColors[$statusText] ?? 'btn-secondary';
-                    $disabled = in_array($statusText, ['completed', 'return']) ? 'disabled' : '';
+                    $status = $row->status ?? 'return';
+                    $color = $colors[$status] ?? '#6b7280';
 
                     return '
-                        <div class="text-center">
-                            <button class="btn btn-sm ' . $btnClass . ' btn-status"
-                                data-id="' . $row->id . '" ' . $disabled . '>
-                                ' . ucfirst(str_replace('-', ' ', $statusText)) . '
-                            </button>
-                        </div>
+                        <button class="btn-order-status btn-status-change"
+                            data-id="'.$row->id.'"
+                            style="
+                                background: '.$color.'15;
+                                color: '.$color.';
+                                border: 1px solid '.$color.';
+                                padding: 4px 10px;
+                                border-radius: 6px;
+                                font-size: 12px;
+                                font-weight: 500;
+                            ">
+                            '.ucfirst(str_replace('-', ' ', $status)).'
+                        </button>
                     ';
                 })
-
                 ->addColumn('action', function ($row) {
-
-                    $viewBtn = '<button class="btn btn-sm btn-primary btn-show" data-id="' . $row->id . '" title="View">
-                                    <i class="fas fa-eye"></i>
+                    $showBtn = '<button class="btn btn-icon btn-soft-info btn-show"
+                                    data-id="'.$row->id.'" title="View Order">
+                                    <i class="fa-regular fa-eye"></i>
                                 </button>';
 
-                    $editBtn = '<a href="' . route('orders.edit', $row->id) . '" class="btn btn-sm btn-warning" title="Edit Invoice">
-                                    <i class="fas fa-edit"></i>
+                    $editBtn = '<a href="'.route('orders.edit', $row->id).'"
+                                    class="btn btn-icon btn-soft-primary" title="Edit Order">
+                                    <i class="fa-regular fa-pen-to-square"></i>
                                 </a>';
 
-                    $invoiceBtn = '<a href="' . route('orders.invoice', $row->id) . '" target="_blank" class="btn btn-sm btn-secondary" title="Invoice">
-                                    <i class="fas fa-file-invoice"></i>
-                                </a>';
+                    $invoiceBtn = '<a href="'.route('orders.invoice', $row->id).'"
+                                        target="_blank" class="btn btn-icon btn-soft-success" title="Invoice">
+                                        <i class="fa-regular fa-file-lines"></i>
+                                    </a>';
 
-                    $disabled = in_array($row->status, ['completed', 'cancelled', 'return']) ? 'disabled' : '';
-
-                    $deleteBtn = '
-                        <button type="button"
-                            class="btn btn-sm btn-danger btn-delete"
-                            data-id="' . $row->id . '"
-                            ' . $disabled . '
-                            title="Delete">
-                            <i class="fas fa-trash"></i>
-                        </button>';
-
-                    return '
-                        <div class="text-center">
-                            <div class="btn-group btn-group-sm" role="group">
-                                ' . $viewBtn . $editBtn . $invoiceBtn . $deleteBtn . '
-                            </div>
-                        </div>
-
-                        <form id="delete-form-' . $row->id . '" action="' . route('orders.destroy', $row->id) . '" method="POST" style="display:none">
-                            ' . csrf_field() . method_field('DELETE') . '
+                    $deleteForm = '
+                        <form class="delete-form d-inline"
+                            action="'.route('orders.destroy', $row->id).'" method="POST">
+                            '.csrf_field().method_field('DELETE').'
+                            <button type="button" class="btn btn-icon btn-soft-danger btn-delete" title="Delete Order">
+                                <i class="fa-regular fa-trash-can"></i>
+                            </button>
                         </form>
                     ';
-                })
 
-                ->rawColumns(['payment_status', 'status', 'action'])
+                    return '<div class="d-flex align-items-center justify-content-center gap-2">
+                                '.$showBtn.' '.$editBtn.' '.$invoiceBtn.' '.$deleteForm.'
+                            </div>';
+                })
+                ->rawColumns(['payment_status','status','action'])
                 ->make(true);
         }
         return view('backend.order.return');
@@ -715,98 +696,82 @@ class SaleController extends Controller implements HasMiddleware
     public function orderCancelled(Request $request)
     {
         if ($request->ajax()) {
-            $data = Order::where('status', 'cancelled')
-                ->latest();
-
+            $data = Order::where('status', 'cancelled')->latest();
 
             return DataTables::of($data)
                 ->addIndexColumn()
-
-                ->addColumn('invoice_no', fn($row) => $row->order_number)
-
-                ->addColumn('customer_name', fn($row) => $row->customer_name)
-
-                ->addColumn(
-                    'order_date',
-                    fn($row) =>
-                    $row->created_at->format('d M, Y')
-                )
-
-                ->addColumn(
-                    'total_amount',
-                    fn($row) =>
-                    number_format($row->total, 2) . ' ৳'
-                )
-
+                ->addColumn('invoice_no', fn ($row) => $row->order_number)
+                ->addColumn('customer_name', fn ($row) => $row->full_name ?? $row->customer_name)
+                ->addColumn('order_date', fn ($row) => $row->created_at->format('d M, Y'))
+                ->addColumn('total_amount', fn ($row) => number_format($row->total, 2) . ' ৳')
                 ->addColumn('payment_status', function ($row) {
                     $class = match ($row->payment_status) {
                         'paid' => 'success',
-                        'due' => 'danger',
+                        'due', 'pending' => 'warning',
                         default => 'secondary',
                     };
                     return '<span class="badge bg-' . $class . '">' . ucfirst($row->payment_status) . '</span>';
                 })
-
                 ->addColumn('status', function ($row) {
-                    // Default color mapping
-                    $statusColors = [
-                        'pending'     => 'btn-warning',
-                        'accepted'    => 'btn-info',
-                        'on-the-way'  => 'btn-primary',
-                        'return'      => 'btn-secondary',
-                        'completed'   => 'btn-success',
-                        'cancelled'   => 'btn-danger',
+                    $colors = [
+                        'pending'    => '#f59e0b',
+                        'accepted'   => '#3b82f6',
+                        'on-the-way' => '#6366f1',
+                        'return'     => '#6b7280',
+                        'completed'  => '#10b981',
+                        'cancelled'  => '#ef4444', // Red for cancelled
                     ];
 
-                    $statusText = $row->order_status ?? 'pending';
-                    $btnClass = $statusColors[$statusText] ?? 'btn-secondary';
-                    $disabled = in_array($statusText, ['completed', 'cancelled']) ? 'disabled' : '';
-
-                    return '<button class="btn btn-sm ' . $btnClass . ' btn-status" data-id="' . $row->id . '" ' . $disabled . '>
-                                ' . ucfirst(str_replace('-', ' ', $statusText)) . '
-                            </button>';
-                })
-
-                ->addColumn('action', function ($row) {
-
-                    $viewBtn = '<button class="btn btn-sm btn-primary btn-show" data-id="' . $row->id . '" title="View">
-                                    <i class="fas fa-eye"></i>
-                                </button>';
-
-                    $editBtn = '<a href="' . route('orders.edit', $row->id) . '" class="btn btn-sm btn-warning" title="Edit Invoice">
-                                    <i class="fas fa-edit"></i>
-                                </a>';
-
-                    $invoiceBtn = '<a href="' . route('orders.invoice', $row->id) . '" target="_blank" class="btn btn-sm btn-secondary" title="Invoice">
-                                    <i class="fas fa-file-invoice"></i>
-                                </a>';
-
-                    $disabled = in_array($row->status, ['completed', 'cancelled']) ? 'disabled' : '';
-
-                    $deleteBtn = '
-                        <button type="button"
-                            class="btn btn-sm btn-danger btn-delete"
-                            data-id="' . $row->id . '"
-                            ' . $disabled . '
-                            title="Delete">
-                            <i class="fas fa-trash"></i>
-                        </button>';
+                    $status = $row->status ?? 'cancelled';
+                    $color = $colors[$status] ?? '#ef4444';
 
                     return '
-                        <div class="btn-group" role="group">
-                            ' . $viewBtn . '
-                            ' . $editBtn . '
-                            ' . $invoiceBtn . '
-                            ' . $deleteBtn . '
-                        </div>
-
-                        <form id="delete-form-' . $row->id . '" action="' . route('orders.destroy', $row->id) . '" method="POST" style="display:none">
-                            ' . csrf_field() . method_field('DELETE') . '
-                        </form>
+                        <button class="btn-order-status btn-status-change"
+                            data-id="'.$row->id.'"
+                            style="
+                                background: '.$color.'15;
+                                color: '.$color.';
+                                border: 1px solid '.$color.';
+                                padding: 4px 10px;
+                                border-radius: 6px;
+                                font-size: 12px;
+                                font-weight: 500;
+                            ">
+                            '.ucfirst(str_replace('-', ' ', $status)).'
+                        </button>
                     ';
                 })
+                ->addColumn('action', function ($row) {
+                    $showBtn = '<button class="btn btn-icon btn-soft-info btn-show"
+                                    data-id="'.$row->id.'" title="View Order">
+                                    <i class="fa-regular fa-eye"></i>
+                                </button>';
 
-                ->rawColumns(['payment_status', 'status', 'action'])
+                    $editBtn = '<a href="'.route('orders.edit', $row->id).'"
+                                    class="btn btn-icon btn-soft-primary" title="Edit Order">
+                                    <i class="fa-regular fa-pen-to-square"></i>
+                                </a>';
+
+                    $invoiceBtn = '<a href="'.route('orders.invoice', $row->id).'"
+                                        target="_blank" class="btn btn-icon btn-soft-success" title="Invoice">
+                                        <i class="fa-regular fa-file-lines"></i>
+                                    </a>';
+
+                    $deleteForm = '
+                        <form class="delete-form d-inline"
+                            action="'.route('orders.destroy', $row->id).'" method="POST">
+                            '.csrf_field().method_field('DELETE').'
+                            <button type="button" class="btn btn-icon btn-soft-danger btn-delete" title="Delete Order">
+                                <i class="fa-regular fa-trash-can"></i>
+                            </button>
+                        </form>
+                    ';
+
+                    return '<div class="d-flex align-items-center justify-content-center gap-2">
+                                '.$showBtn.' '.$editBtn.' '.$invoiceBtn.' '.$deleteForm.'
+                            </div>';
+                })
+                ->rawColumns(['payment_status','status','action'])
                 ->make(true);
         }
         return view('backend.order.cancelled');

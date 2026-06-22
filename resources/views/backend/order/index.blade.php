@@ -283,10 +283,5 @@
             toastr.error('Something went wrong!');
         }
     }
-
-    
-   
-
-
 </script>
 @endpush
