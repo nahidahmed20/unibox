@@ -1,5 +1,5 @@
 @extends('backend.layouts.app')
-@section('title', 'Unibox | Color List')
+@section('title', 'Color List')
 
 @section('content')
     <div class="app-content-header mb-4 mt-3">

@@ -13,7 +13,7 @@ return new class extends Migration
     {
         Schema::create('orders', function (Blueprint $table) {
             $table->id();
-            $table->string('user_id')->unsignedBigInteger()->nullable();
+            $table->unsignedBigInteger('user_id')->nullable(); 
             $table->string('order_number')->nullable()->unique();
             $table->string('full_name')->nullable();
             $table->string('company_name')->nullable();
@@ -31,6 +31,9 @@ return new class extends Migration
             $table->decimal('total', 10, 2)->nullable();
             $table->text('order_note')->nullable();
             $table->string('status')->nullable();
+            $table->unsignedBigInteger('courier_id')->nullable()->comment('Linked with couriers table');
+            $table->string('tracking_number')->nullable()->comment('Courier Tracking/Consignment ID');
+            $table->decimal('return_charge', 10, 2)->default(0)->comment('Penalty amount if returned');
             $table->timestamps();
         });
 

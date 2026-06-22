@@ -430,6 +430,31 @@
                     font-size: 14px;
                     letter-spacing: 1px;
                 }
+                .bestseller-product.pt-60 {
+                    padding-top: 20px !important; 
+                }
+                .pb-100 {
+                    padding-bottom: 40px;
+                }
+                .pt-60 {
+                    padding-top: 30px;
+                }
+                .pb-60 {
+                    padding-bottom: 40px;
+                }
+                .section-heading {
+                    margin-bottom: 20px;
+                }
+                .service-section pb-60{
+                    padding-bottom: 20px;
+                }
+                section.our-process-section.py-5 {
+                    padding-top: 0px !important;
+                    padding-bottom: 30px !important;
+                }
+                .pb-80 {
+                    padding-bottom: 10px;
+                }
             }
 
             .process-timeline {
@@ -822,7 +847,7 @@
         <section class="material-section pb-60">
             <div class="container">
                 
-                <div class="row mb-4">
+                <div class="row ">
                     <div class="col-12 text-center">
                         <div class="section-heading justify-content-center">
                             <h2 class="section-title">Quality Materials</h2>

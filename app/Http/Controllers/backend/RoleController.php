@@ -52,7 +52,7 @@ class RoleController extends Controller implements HasMiddleware
                     if (auth()->user()->can('role-edit')) {
                         $buttons .= '
                             <a href="'.route('roles.edit', $row->id).'"
-                                class="btn btn-icon btn-soft-warning">
+                                class="btn btn-icon btn-soft-primary btn-edit">
                                 <i class="fa-regular fa-pen-to-square"></i>
                             </a>
                         ';

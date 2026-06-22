@@ -388,7 +388,15 @@ class HomeController extends Controller
         return view('frontend.home.terms-conditions');
     }
 
+    public function returnPolicy()
+    {
+        return view('frontend.home.return-policy');
+    }
 
+    public function shippingPolicy()
+    {
+        return view('frontend.home.shipping-policy');
+    }
 
     public function contactUs()
     {

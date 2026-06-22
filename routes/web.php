@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\backend\AboutUsController;
+use App\Http\Controllers\backend\BlockedPhoneController;
 use App\Http\Controllers\backend\BlogCategoryController;
 use App\Http\Controllers\backend\BlogController;
 use App\Http\Controllers\backend\BrandController;
@@ -8,6 +9,7 @@ use App\Http\Controllers\backend\CategoryController;
 use App\Http\Controllers\backend\ClientController;
 use App\Http\Controllers\backend\ColorController;
 use App\Http\Controllers\backend\CounterController;
+use App\Http\Controllers\backend\CourierController;
 use App\Http\Controllers\backend\CustomerController as BackendCustomerController;
 use App\Http\Controllers\backend\DashboardController;
 use App\Http\Controllers\backend\ExpenseCategoryController;
@@ -144,6 +146,12 @@ Route::middleware('auth')->prefix('admin')->group(function () {
     Route::resource('expenses', ExpenseController::class);
 
     Route::resource('user-profiles', UserProfileController::class);
+
+    Route::resource('couriers',CourierController::class);
+
+    Route::get('/blocked-phones', [BlockedPhoneController::class, 'index'])->name('blocked-phones.index');
+    Route::post('/blocked-phones/block', [BlockedPhoneController::class, 'block'])->name('blocked-phones.block');
+    Route::post('/blocked-phones/unblock', [BlockedPhoneController::class, 'unblock'])->name('blocked-phones.unblock');
 
     Route::resource('orders', OrderController::class);
     Route::get('orders/invoice/{id}',[OrderController::class, 'invoice'])->name('orders.invoice');
