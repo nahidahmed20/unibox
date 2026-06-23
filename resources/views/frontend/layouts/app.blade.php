@@ -27,7 +27,7 @@
         </div>
         <!-- /#popup-search-box -->
 
-        <div class="mobile-side-menu" style="--rr-color-theme-primary: #E53E3E">
+        <div class="mobile-side-menu" style="--rr-color-theme-primary: #008a7a">
             <div class="side-menu-content">
                 <div class="side-menu-head">
                     <a href="{{ route('home') }}">
@@ -45,7 +45,7 @@
         </div>
         <!-- /.mobile-side-menu -->
 
-        {{-- <div id="preloader" style="--rr-color-theme-primary: #E53E3E">
+        {{-- <div id="preloader" style="--rr-color-theme-primary: #008a7a">
             <div class="preloader-close">X</div>
             <div class="sk-three-bounce">
                 <div class="sk-child sk-bounce1"></div>
@@ -60,7 +60,7 @@
         @include('frontend.partials.footer')
         <!-- ./ footer-section -->
 
-        <div id="scroll-percentage" style="--rr-color-theme-primary: #E53E3E"><span id="scroll-percentage-value"></span></div>
+        <div id="scroll-percentage" style="--rr-color-theme-primary: #008a7a"><span id="scroll-percentage-value"></span></div>
         <!--scrollup-->
 
         <!-- JS here -->

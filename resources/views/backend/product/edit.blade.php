@@ -336,9 +336,17 @@
                         <h5><i class="fa-solid fa-tag text-muted"></i> Pricing & Inventory</h5>
                     </div>
                     <div class="card-body">
-                        <div class="mb-3">
-                            <label class="form-label">Selling Price (৳)</label>
-                            <input type="number" step="0.01" class="form-control fs-5 fw-bold text-success" name="selling_price" id="selling_price" value="{{ $product->selling_price }}">
+                        <div class="row">
+                            <div class="col-6 mb-3">
+                                <label class="form-label">Selling Price (Min) <span class="text-danger">*</span></label>
+                                <input type="number" step="0.01" class="form-control fs-5 fw-bold text-success" name="selling_price" id="selling_price" value="{{ old('selling_price', $product->selling_price) }}" placeholder="0.00">
+                                @error('selling_price')<small class="text-danger">{{ $message }}</small>@enderror
+                            </div>
+                            <div class="col-6 mb-3">
+                                <label class="form-label">Maximum Price</label>
+                                <input type="number" step="0.01" class="form-control fs-5 fw-bold text-primary" name="max_price" id="max_price" value="{{ old('max_price', $product->max_price) }}" placeholder="0.00">
+                                @error('max_price')<small class="text-danger">{{ $message }}</small>@enderror
+                            </div>
                         </div>
                         
                         <div class="row">

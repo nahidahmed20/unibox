@@ -67,7 +67,7 @@
         background: none;
         border: none;
         font-size: 14px;
-        color: #e74c3c;
+        color: #008a7a;
         cursor: pointer;
         display: flex;
         align-items: center;
@@ -118,7 +118,7 @@
         right: -12px !important;  
         width: 18px !important;
         height: 18px !important;
-        background: #E53E3E !important; 
+        background: #008a7a !important; 
         color: #ffffff !important;       
         border-radius: 50% !important;
         font-size: 10px !important;
@@ -233,25 +233,25 @@
 
     .unibox-floating-cart {
         position: fixed;
-        bottom: 30px; 
-        right: 30px;  
-        background-color: #E53E3E; 
+        bottom: 30px;
+        right: 30px;
+        background-color: #008a7a;
         width: 60px;
         height: 60px;
         border-radius: 50%;
         display: flex;
         justify-content: center;
         align-items: center;
-        box-shadow: 0 8px 20px rgba(229, 62, 62, 0.35); 
-        z-index: 9; 
+        box-shadow: 0 8px 20px rgba(0, 138, 122, 0.35);
+        z-index: 9;
         cursor: pointer;
         transition: all 0.3s ease;
-        }
+    }
 
     .unibox-floating-cart:hover {
-        transform: translateY(-5px); 
-        box-shadow: 0 12px 25px rgba(229, 62, 62, 0.5); 
-        }
+        transform: translateY(-5px);
+        box-shadow: 0 12px 25px rgba(0, 138, 122, 0.55);
+    }
 
     .unibox-floating-cart svg {
         width: 28px;
@@ -263,7 +263,7 @@
         top: -4px !important;
         right: -3px !important;
         background-color: #ffffff;
-        color: #E53E3E !important;
+        color: #008a7a !important;
         width: 28px;
         height: 28px;
         border-radius: 50%;
@@ -276,7 +276,7 @@
     }
 </style>
 
-<header class="header header-2 sticky-active" style="--rr-color-theme-primary: #E53E3E">
+<header class="header header-2 sticky-active" style="--rr-color-theme-primary: #008a7a">
     <div class="top-bar">
         <div class="container">
             <div class="top-bar-inner">
@@ -353,7 +353,7 @@
                             </li>
                         @else
                             <li>
-                                <a href="{{ route('user.login') }}" class="login-btn">Login / Register</a>
+                                <a href="{{ route('user.login') }}" class="login-btn">Login</a>
                             </li>
                         @endauth
                         
@@ -444,7 +444,7 @@
             @include('frontend.cart.partials.header-cart')
         </div>
         <div class="cart-footer" style="padding: 15px; border-top: 1px solid #eee;">
-            <button class="checkout-button" onclick="goToCheckout()" style="width:100%; padding: 12px; background: #E53E3E; color: #fff; border: none; border-radius: 5px; font-weight: 600; cursor: pointer;">Checkout</button>
+            <button class="checkout-button" onclick="goToCheckout()" style="width:100%; padding: 12px; background: #008a7a; color: #fff; border: none; border-radius: 5px; font-weight: 600; cursor: pointer;">Checkout</button>
         </div>
     </div>
 

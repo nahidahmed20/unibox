@@ -16,7 +16,7 @@
         .btn-submit {
             border-radius: 12px;
             transition: .3s;
-            background: #E53E3E;
+            background: #008a7a;
             color: #fff;
         }
 

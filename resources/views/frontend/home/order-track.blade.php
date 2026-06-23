@@ -19,7 +19,7 @@
                             <i class="fa-solid fa-magnifying-glass"></i>
                         </span>
                         <input type="text" name="order_id" value="{{ request('order_id') }}" class="form-control border-0 shadow-none bg-transparent" placeholder="Order ID (e.g. #ORD-12345)" required>
-                        <button type="submit" class="btn rounded-pill px-4 fw-bold" style="background-color: #E53E3E; color: white;">Track Order</button>
+                        <button type="submit" class="btn rounded-pill px-4 fw-bold" style="background-color: #008a7a; color: white;">Track Order</button>
                     </div>
                 </form>
             </div>

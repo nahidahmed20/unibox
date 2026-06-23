@@ -5,18 +5,13 @@
 @push('css')
 
 <style>
-    /* =======================================
-       FULL PREMIUM PRODUCT PAGE DESIGN
-       ======================================= */
-
-    /* 1. Main Slider Layout */
     .product-slider-wrap {
         display: flex;
         gap: 20px;
         align-items: flex-start;
     }
 
-    /* 2. Thumbnail Section */
+    /* Thumbnail Section */
     .product-gallary-thumb {
         width: 90px !important;
         flex-shrink: 0;
@@ -34,8 +29,8 @@
     }
 
     .swiper-slide-thumb-active .thumb-item {
-        border-color: #E53E3E;
-        box-shadow: 0 4px 10px rgba(229, 62, 62, 0.2);
+        border-color: #008a7a;
+        box-shadow: 0 4px 10px rgba(0, 138, 122, 0.2);
     }
 
     .thumb-item img {
@@ -46,7 +41,7 @@
         border-radius: 6px;
     }
 
-    /* 3. Main Gallery Section */
+    /* Main Gallery Section */
     .product-gallary {
         position: relative;
         flex: 1;
@@ -69,7 +64,7 @@
         transform: scale(1.03);
     }
 
-    /* 4. Slider Navigation UI */
+    /* Slider Navigation UI */
     .product-gallary .swiper-nav-next,
     .product-gallary .swiper-nav-prev {
         position: absolute;
@@ -90,7 +85,7 @@
 
     .product-gallary .swiper-nav-next:hover,
     .product-gallary .swiper-nav-prev:hover {
-        background: #E53E3E;
+        background: #008a7a;
         color: #fff;
         transform: translateY(-50%) scale(1.1);
     }
@@ -98,29 +93,34 @@
     .product-gallary .swiper-nav-next { right: 15px; }
     .product-gallary .swiper-nav-prev { left: 15px; }
 
-    /* 5. Size Selector */
+    /* --- FIXED: Size Selector Modern & Responsive Design --- */
     .size-item {
-        width: 48px;
+        min-width: 55px; /* ফিক্সড উইডথ বাদ দিয়ে মিন-উইডথ করা হলো */
         height: 44px;
-        display: flex;
+        padding: 0 15px; /* দুইপাশে পর্যাপ্ত স্পেস দেওয়া হলো যাতে বড় টেক্সট ধরে */
+        display: inline-flex;
+        flex-direction: column;
         align-items: center;
         justify-content: center;
-        border: 1px solid #E53E3E;
+        border: 1px solid #008a7a;
         border-radius: 6px;
         cursor: pointer;
         font-weight: 600;
+        font-size: 14px;
         transition: all 0.3s;
+        white-space: nowrap; /* লেখা যেন ভেঙে নিচে না যায় */
+        position: relative;
     }
 
     .size-item:hover:not(.disabled) {
-        background: #E53E3E;
+        background: #008a7a;
         color: #fff;
     }
 
     .size-item.active {
-        background: #E53E3E;
+        background: #008a7a;
         color: #fff;
-        box-shadow: 0 4px 8px rgba(229, 62, 62, 0.3);
+        box-shadow: 0 4px 8px rgba(0, 138, 122, 0.3);
     }
 
     .size-item.disabled {
@@ -128,16 +128,19 @@
         color: #a0aec0;
         background: #f7fafc;
         cursor: not-allowed;
+        padding-bottom: 10px; /* 'Out' লেখার জন্য নিচে জায়গা খালি করা হলো */
     }
 
     .size-item.disabled::after {
         content: 'Out';
-        font-size: 10px;
-        color: #E53E3E;
-        margin-top: 25px;
+        font-size: 9px;
+        color: #ef4444; /* স্টক আউটের জন্য লাল কালার দেওয়া হলো */
+        font-weight: 700;
+        position: absolute;
+        bottom: 2px;
     }
 
-    /* 6. Color Selector */
+    /* Color Selector */
     .color-box {
         width: 36px;
         height: 36px;
@@ -152,19 +155,19 @@
     .color-box:hover { transform: scale(1.1); }
 
     .color-box.active {
-        box-shadow: 0 0 0 2px #E53E3E;
+        box-shadow: 0 0 0 2px #008a7a;
         transform: scale(1.15);
     }
 
     .color-box.stock-out { opacity: 0.4; cursor: not-allowed; }
 
-    /* 7. Stock Out Overlay */
+    /* Stock Out Overlay */
     .stock-out-overlay {
         display: none;
         position: absolute;
         top: 20px;
         left: 20px;
-        background: #E53E3E;
+        background: #ef4444;
         color: #fff;
         padding: 6px 14px;
         border-radius: 6px;
@@ -175,7 +178,7 @@
 
     .stock-out-overlay.show { display: block; }
 
-    /* 8. Responsive Design */
+    /* Responsive Design */
     @media (max-width: 767px) {
         .product-slider-wrap { flex-direction: column; gap: 15px; }
         .product-gallary { width: 100% !important; }
@@ -189,10 +192,59 @@
             display: block;
         }
     }
+
+        .desc-wrap {
+            display: flex;
+            gap: 30px;
+        }
+
+        .left-content {
+            flex: 1;
+            min-width: 0; 
+        }
+
+        .right-content {
+            width: 350px;
+            flex-shrink: 0;
+        }
+
+        .right-content img {
+            width: 100%;
+            height: auto;
+            border-radius: 8px;
+            object-fit: cover;
+        }
+
+        .left-content * {
+            max-width: 100% !important; 
+            box-sizing: border-box !important;
+            word-wrap: break-word !important;
+            word-break: break-word !important;
+        }
+
+        .left-content table {
+            width: 100% !important;
+            display: block !important;
+            overflow-x: auto !important;
+            -webkit-overflow-scrolling: touch;
+            border-collapse: collapse;
+        }
+
+
+        @media (max-width: 767px) {
+
+            .desc-wrap {
+                flex-direction: column-reverse; 
+                gap: 20px;
+            }
+
+            .right-content {
+                width: 100% !important; 
+            }
+        }
 </style>
 
 @endpush
-
 @php
     $totalStock = $product->stocks->sum('quantity');
 @endphp
@@ -237,10 +289,17 @@
 
                             <span class="category">{{ $product->brand->name ?? 'Brand' }}</span>
                             <h3 class="title">{{ $product->name }}</h3>
+                            
                             <h4 class="price">
                                 ৳{{ $product->selling_price }}
+                                @if($product->max_price)
+                                    - ৳{{ $product->max_price }}
+                                @endif
+                                
                                 @if($product->main_price)
-                                    <span>৳{{ $product->main_price }}</span>
+                                    <span style="text-decoration: line-through; color: #a0aec0; font-size: 16px; margin-left: 10px;">
+                                        ৳{{ $product->main_price }}
+                                    </span>
                                 @endif
                             </h4>
 
@@ -467,211 +526,191 @@
     </div>
 </section>
 @endsection
-
 @push('javascript')
-<script>
-    $(document).ready(function () {
+    <script>
+        $(document).ready(function () {
 
-    const productType = "{{ $product->product_type }}";
-    const hasSizeData  = {{ $product->sizes->count() > 0 ? 'true' : 'false' }};
-    const hasColorData = {{ $product->colors->count() > 0 ? 'true' : 'false' }};
-    const totalStock   = {{ $product->stocks->sum('quantity') }};
+        const productType = "{{ $product->product_type }}";
+        const hasSizeData  = {{ $product->sizes->count() > 0 ? 'true' : 'false' }};
+        const hasColorData = {{ $product->colors->count() > 0 ? 'true' : 'false' }};
+        const totalStock   = {{ $product->stocks->sum('quantity') }};
 
-    const hasSize  = hasSizeData && productType !== 'single' && "{{ optional($product->sizes->first())->size }}" !== "";
-    const hasColor = hasColorData && productType !== 'single';
+        const hasSize  = hasSizeData && productType !== 'single' && "{{ optional($product->sizes->first())->size }}" !== "";
+        const hasColor = hasColorData && productType !== 'single';
 
-    const defaultImages = @json(
-        collect([$product->image])
-            ->merge($product->images->pluck('image'))
-            ->filter()
-            ->values()
-    );
+        const defaultImages = @json(
+            collect([$product->image])
+                ->merge($product->images->pluck('image'))
+                ->filter()
+                ->values()
+        );
 
-    // Swiper instances global
-    let swiperMain = null;
-    let swiperThumbs = null;
+        let swiperMain = null;
+        let swiperThumbs = null;
 
-    // =====================
-    // INIT SWIPER FUNCTION
-    // =====================
-    function initSwipers() {
-        swiperThumbs = new Swiper(".product-gallary-thumb", {
-            spaceBetween: 10,
-            slidesPerView: 4,
-            freeMode: true,
-            watchSlidesProgress: true,
-            breakpoints: {
-                768: { direction: 'vertical' },
-                0: { direction: 'horizontal' }
-            }
-        });
+        function initSwipers() {
+            swiperThumbs = new Swiper(".product-gallary-thumb", {
+                spaceBetween: 10,
+                slidesPerView: 4,
+                freeMode: true,
+                watchSlidesProgress: true,
+                breakpoints: {
+                    768: { direction: 'vertical' },
+                    0: { direction: 'horizontal' }
+                }
+            });
 
-        swiperMain = new Swiper(".product-gallary", {
-            spaceBetween: 10,
-            navigation: {
-                nextEl: ".swiper-nav-next",
-                prevEl: ".swiper-nav-prev",
-            },
-            thumbs: {
-                swiper: swiperThumbs,
-            },
-        });
-    }
-    initSwipers();
-
-    // =====================
-    // STOCK CHECK
-    // =====================
-    if (totalStock <= 0) {
-        $('#addToCartBtn').text('Stock Out').prop('disabled', true).css({background: '#ccc', cursor: 'not-allowed', borderColor: '#ccc'});
-        $('#buyNowBtn').text('Stock Out').css({pointerEvents: 'none', opacity: 0.6});
-        $('#stockOutOverlay').addClass('show');
-    }
-
-    // =====================
-    // UPDATE GALLERY
-    // =====================
-    window.updateGallery = function(images) {
-        if (!Array.isArray(images) || images.length === 0) images = defaultImages;
-        
-        let mainHtml = '', thumbHtml = '';
-        images.forEach(img => {
-            let src = img.startsWith('http') ? img : '/' + img.replace(/^\//, '');
-            mainHtml += `<div class="swiper-slide"><div class="gallary-item"><img src="${src}"></div></div>`;
-            thumbHtml += `<div class="swiper-slide"><div class="thumb-item"><img src="${src}"></div></div>`;
-        });
-
-        // Destroy previous instances
-        if (swiperMain) swiperMain.destroy(true, true);
-        if (swiperThumbs) swiperThumbs.destroy(true, true);
-
-        // Update DOM
-        $('#mainGalleryWrapper').html(mainHtml);
-        $('#thumbWrapper').html(thumbHtml);
-
-        // Re-init
+            swiperMain = new Swiper(".product-gallary", {
+                spaceBetween: 10,
+                navigation: {
+                    nextEl: ".swiper-nav-next",
+                    prevEl: ".swiper-nav-prev",
+                },
+                thumbs: {
+                    swiper: swiperThumbs,
+                },
+            });
+        }
         initSwipers();
-    };
 
-    // Color Click
-    $(document).on('click', '.color-box:not(.stock-out)', function () {
-        $('.color-box').removeClass('active');
-        $(this).addClass('active');
-        $('#selectedColorId').val($(this).data('color-id'));
-        $('#selectedColorName').text($(this).data('color-name'));
-        
-        let images = $(this).data('color-images');
-        if (typeof images === 'string') images = JSON.parse(images);
-        
-        updateGallery(images);
-    });
+        if (totalStock <= 0) {
+            $('#addToCartBtn').text('Stock Out').prop('disabled', true).css({background: '#ccc', cursor: 'not-allowed', borderColor: '#ccc'});
+            $('#buyNowBtn').text('Stock Out').css({pointerEvents: 'none', opacity: 0.6});
+            $('#stockOutOverlay').addClass('show');
+        }
 
-    // =====================
-    // OTHER LOGICS (SIZE, CART, BUY)
-    // =====================
-    $(document).on('click', '.size-item:not(.disabled)', function () {
-        $('.size-item').removeClass('active');
-        $(this).addClass('active');
-        $('#selectedSizeId').val($(this).data('size-id'));
-        $('#selectedSize').val($(this).data('size'));
-    });
+        window.updateGallery = function(images) {
+            if (!Array.isArray(images) || images.length === 0) images = defaultImages;
+            
+            let mainHtml = '', thumbHtml = '';
+            images.forEach(img => {
+                let src = img.startsWith('http') ? img : '/' + img.replace(/^\//, '');
+                mainHtml += `<div class="swiper-slide"><div class="gallary-item"><img src="${src}"></div></div>`;
+                thumbHtml += `<div class="swiper-slide"><div class="thumb-item"><img src="${src}"></div></div>`;
+            });
 
-    function validateSelection() {
-        if (productType === 'single') return true;
-        if (hasSize && !$('#selectedSizeId').val()) { Swal.fire('Select Size', 'Please select a size', 'warning'); return false; }
-        if (hasColor && !$('#selectedColorId').val()) { Swal.fire('Select Color', 'Please select a color', 'warning'); return false; }
-        return true;
-    }
+            if (swiperMain) swiperMain.destroy(true, true);
+            if (swiperThumbs) swiperThumbs.destroy(true, true);
 
-    $('#addToCartBtn').on('click', function () {
-        if (!validateSelection()) return;
-        let btn = $(this);
-        btn.prop('disabled', true).text('Adding...');
+            $('#mainGalleryWrapper').html(mainHtml);
+            $('#thumbWrapper').html(thumbHtml);
 
-        $.post("{{ url('/cart/add') }}", {
-            _token: "{{ csrf_token() }}",
-            product_id: $(this).data('id'),
-            qty: $('#qty').val(),
-            size_id: $('#selectedSizeId').val() || null,
-            color_id: $('#selectedColorId').val() || null,
-        }, function (res) {
-            if (res.success) {
-                if (res.html) {
-                    $('#cart-section').html(res.html);
-                }
-                 if (res.cart_count !== undefined) {
-                    $('.cart-item-count-render').not('.cart-badge').text(res.cart_count + ' items');
-                    $('.cart-badge').text(res.cart_count);
-                }
+            initSwipers();
+        };
 
-                if (res.cart_total) {
-                    $('.total-value').text('৳' + res.cart_total);
-                }
-                $('#cart-overlay, #cart-drawer').addClass('active');
-                Swal.fire({ 
-                    icon: 'success', 
-                    title: 'Added to Cart', 
-                    timer: 1200, 
-                    showConfirmButton: false 
-                });
-            }
-        }).always(function() {
-            btn.prop('disabled', false).text('Add To Cart');
+        $(document).on('click', '.color-box:not(.stock-out)', function () {
+            $('.color-box').removeClass('active');
+            $(this).addClass('active');
+            $('#selectedColorId').val($(this).data('color-id'));
+            $('#selectedColorName').text($(this).data('color-name'));
+            
+            let images = $(this).data('color-images');
+            if (typeof images === 'string') images = JSON.parse(images);
+            
+            updateGallery(images);
         });
-    });
 
-    $('#buyNowBtn').on('click', function (e) {
-        e.preventDefault();
-        if (!validateSelection()) return;
-        $.post("{{ url('/cart/add') }}", {
-            _token: "{{ csrf_token() }}",
-            product_id: $(this).data('id'),
-            qty: $('#qty').val(),
-            size_id: $('#selectedSizeId').val() || null,
-            color_id: $('#selectedColorId').val() || null,
-        }, function (res) {
-            if (res.success) window.location.href = "{{ url('/cart/checkout') }}";
+        $(document).on('click', '.size-item:not(.disabled)', function () {
+            $('.size-item').removeClass('active');
+            $(this).addClass('active');
+            $('#selectedSizeId').val($(this).data('size-id'));
+            $('#selectedSize').val($(this).data('size'));
         });
-    });
 
-});
-</script>
-<script>
-    $(document).ready(function() {
-        $('#star-rating li').on('click', function() {
-            let rating = $(this).data('value');
-            
-            $('#rating-value').val(rating);
-            
-            $('#star-rating li i').css('color', '#ccc');
-            
-            $('#star-rating li').each(function(index) {
-                if (index < rating) {
-                    $(this).find('i').css('color', '#ffc107');
+        function validateSelection() {
+            if (productType === 'single') return true;
+            if (hasSize && !$('#selectedSizeId').val()) { Swal.fire('Select Size', 'Please select a size', 'warning'); return false; }
+            if (hasColor && !$('#selectedColorId').val()) { Swal.fire('Select Color', 'Please select a color', 'warning'); return false; }
+            return true;
+        }
+
+        $('#addToCartBtn').on('click', function () {
+            if (!validateSelection()) return;
+            let btn = $(this);
+            btn.prop('disabled', true).text('Adding...');
+
+            $.post("{{ url('/cart/add') }}", {
+                _token: "{{ csrf_token() }}",
+                product_id: $(this).data('id'),
+                qty: $('#qty').val(),
+                size_id: $('#selectedSizeId').val() || null,
+                color_id: $('#selectedColorId').val() || null,
+            }, function (res) {
+                if (res.success) {
+                    if (res.html) {
+                        $('#cart-section').html(res.html);
+                    }
+                    if (res.cart_count !== undefined) {
+                        $('.cart-item-count-render').not('.cart-badge').text(res.cart_count + ' items');
+                        $('.cart-badge').text(res.cart_count);
+                    }
+
+                    if (res.cart_total) {
+                        $('.total-value').text('৳' + res.cart_total);
+                    }
+                    $('#cart-overlay, #cart-drawer').addClass('active');
+                    Swal.fire({ 
+                        icon: 'success', 
+                        title: 'Added to Cart', 
+                        timer: 1200, 
+                        showConfirmButton: false 
+                    });
                 }
+            }).always(function() {
+                btn.prop('disabled', false).text('Add To Cart');
             });
         });
 
-        $('#star-rating li').hover(
-            function() {
+        $('#buyNowBtn').on('click', function (e) {
+            e.preventDefault();
+            if (!validateSelection()) return;
+            $.post("{{ url('/cart/add') }}", {
+                _token: "{{ csrf_token() }}",
+                product_id: $(this).data('id'),
+                qty: $('#qty').val(),
+                size_id: $('#selectedSizeId').val() || null,
+                color_id: $('#selectedColorId').val() || null,
+            }, function (res) {
+                if (res.success) window.location.href = "{{ url('/cart/checkout') }}";
+            });
+        });
+
+    });
+    </script>
+    <script>
+        $(document).ready(function() {
+            $('#star-rating li').on('click', function() {
                 let rating = $(this).data('value');
+                $('#rating-value').val(rating);
                 $('#star-rating li i').css('color', '#ccc');
                 $('#star-rating li').each(function(index) {
                     if (index < rating) {
                         $(this).find('i').css('color', '#ffc107');
                     }
                 });
-            },
-            function() {
-                let selected = $('#rating-value').val();
-                $('#star-rating li i').css('color', '#ccc');
-                $('#star-rating li').each(function(index) {
-                    if (index < selected) {
-                        $(this).find('i').css('color', '#ffc107');
-                    }
-                });
-            }
-        );
-    });
-</script>
+            });
+
+            $('#star-rating li').hover(
+                function() {
+                    let rating = $(this).data('value');
+                    $('#star-rating li i').css('color', '#ccc');
+                    $('#star-rating li').each(function(index) {
+                        if (index < rating) {
+                            $(this).find('i').css('color', '#ffc107');
+                        }
+                    });
+                },
+                function() {
+                    let selected = $('#rating-value').val();
+                    $('#star-rating li i').css('color', '#ccc');
+                    $('#star-rating li').each(function(index) {
+                        if (index < selected) {
+                            $(this).find('i').css('color', '#ffc107');
+                        }
+                    });
+                }
+            );
+        });
+    </script>
 @endpush
+

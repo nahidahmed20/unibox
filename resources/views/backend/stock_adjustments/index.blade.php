@@ -175,29 +175,7 @@
                 }
             });
 
-            // ================= SWEETALERT2 DELETE HANDLER =================
-            $(document).on('click', '.btn-delete', function() {
-                let form = $(this).closest('form');
 
-                Swal.fire({
-                    title: 'Are you sure?',
-                    text: 'This stock adjustment record will be deleted permanently!',
-                    icon: 'warning',
-                    showCancelButton: true,
-                    confirmButtonColor: '#000032',
-                    cancelButtonColor: '#d33',
-                    confirmButtonText: 'Yes, delete it!'
-                }).then((res) => {
-                    if (res.isConfirmed) {
-                        $.post(form.attr('action'), form.serialize(), function(res) {
-                            toastr.success(res.message || "Record deleted successfully!");
-                            table.ajax.reload();
-                        }).fail(function() {
-                            toastr.error("Something went wrong while deleting!");
-                        });
-                    }
-                });
-            });
 
             $(document).on('click', '.btn-show', function() {
                 let id = $(this).data('id');

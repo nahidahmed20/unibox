@@ -59,7 +59,7 @@
 
     /* ===== BUTTON ===== */
     .btn-primary {
-        background: #E53E3E;
+        background: #008a7a;
         border: none;
         padding: 10px 22px;
         border-radius: 3px;
@@ -70,7 +70,7 @@
 
     .btn-primary:hover {
         transform: translateY(-1px);
-        background: #E53E3E;
+        background: #008a7a;
     }
 
     /* ===== IMAGE ===== */
@@ -98,7 +98,7 @@
     }
 
     .custom-select:focus {
-        border-color: #E53E3E;
+        border-color: #008a7a;
         box-shadow: 0 0 0 0.15rem rgba(229, 62, 62, 0.15);
     }
 

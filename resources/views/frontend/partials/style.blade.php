@@ -16,7 +16,7 @@
         display:flex;
         justify-content:space-between;
         align-items:center;
-        background:#E53E3E;
+        background:#008a7a;
         color:#fff;
         border-bottom:1px solid rgba(255,255,255,0.08);
     }
@@ -50,9 +50,9 @@
 
     #cart-close:hover {
         background: #f5f5f5;
-        color: #e53e3e; 
+        color: #008a7a; 
         transform: scale(1.1);
-        border-color: #e53e3e;
+        border-color: #008a7a;
     }
 
 
@@ -137,7 +137,7 @@
     }
 
     .remove-item:hover{
-        color:red;
+        color:008a7a;
         transform:scale(1.2);
     }
 
@@ -155,7 +155,7 @@
     .checkout-button{
         width:100%;
         padding:12px;
-        background:#E53E3E;
+        background:#008a7a;
         color:#fff;
         border:none;
         cursor:pointer;
@@ -167,7 +167,7 @@
     }
 
     .checkout-button:hover{
-        background:#e95f5f;
+        background:#59b8ad;
     }
 
     /* =========================
@@ -188,9 +188,10 @@
     CART COUNT TEXT
     ========================= */
     #cart-count{
-        font-size:13px;
-        margin-left:5px;
-        color:#fff;
+        font-size: 16px;
+        margin-left: -16px;
+        color: #fff;
+        margin-bottom: 14px;
     }
     .cart-summary{
     padding:15px 10px;

@@ -40,7 +40,7 @@
                         </div>
 
                         <div class="shop-content">
-                            <span class="category">{{ $product->category_name }}</span>
+                            <span class="category">{{ $product->category->name ?? 'Uncategorized' }}</span>
 
                             <h3 class="title">
                                 <a href="{{ route('product.show', $product->slug) }}">
@@ -114,7 +114,7 @@
                     </div>
 
                     <div class="shop-content">
-                        <span class="category">{{ $product->category_name }}</span>
+                        <span class="category">{{ $product->category->name ?? 'Uncategorized' }}</span>
 
                         <h3 class="title">
                             <a href="{{ route('product.show', $product->slug) }}">
@@ -126,7 +126,6 @@
                             {{ \Illuminate\Support\Str::limit(strip_tags($product->short_description), 120) }}
                         </p>
 
-                        {{-- প্রাইস লজিক Grid View এর মতো ঠিক করা হলো --}}
                         <span class="price">
                             ৳{{ $product->selling_price }}
                             @if ($product->main_price)

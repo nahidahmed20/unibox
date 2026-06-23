@@ -125,11 +125,11 @@
     </section>
 
     <style>
-        .text-primary-theme { color: #E53E3E !important; }
-        .hover-primary:hover { color: #E53E3E !important; transition: 0.3s; }
-        .cat-link:hover { color: #E53E3E !important; padding-left: 5px; transition: 0.3s; }
+        .text-primary-theme { color: #008a7a !important; }
+        .hover-primary:hover { color: #008a7a !important; transition: 0.3s; }
+        .cat-link:hover { color: #008a7a !important; padding-left: 5px; transition: 0.3s; }
         .share-btn { transition: all 0.3s ease; }
-        .share-btn:hover { background-color: #E53E3E !important; color: white !important; transform: translateY(-3px); }
+        .share-btn:hover { background-color: #008a7a !important; color: white !important; transform: translateY(-3px); }
         .blog-description img { max-width: 100%; height: auto; border-radius: 8px; margin: 15px 0; }
     </style>
 @endsection

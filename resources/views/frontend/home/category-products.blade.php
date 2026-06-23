@@ -10,7 +10,7 @@
             display: flex;
             align-items: center;
             justify-content: center;
-            border: 1px solid #E53E3E;
+            border: 1px solid #008a7a;
             border-radius: 4px;
             cursor: pointer;
             font-size: 14px;
@@ -18,9 +18,9 @@
         }
 
         .size-box.active {
-            background: #ff6600;
+            background: #008a7a;
             color: #fff;
-            border-color: #ff6600;
+            border-color: #008a7a;
         }
 
         .color-box-modal {
@@ -108,7 +108,7 @@
             justify-content: center;
             width: 130px;
             height: 52px;
-            background: #E53E3E;
+            background: #008a7a;
             /* screenshot color */
             border-radius: 0;
             overflow: hidden;

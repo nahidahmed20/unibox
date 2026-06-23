@@ -197,7 +197,7 @@ class ProductController extends Controller implements HasMiddleware
             'name'           => 'required|string|max:255',
             'category_id'    => 'required|integer',
             'image'          => 'required|image|mimes:jpeg,png,jpg,gif,webp',
-            'purchase_price' => 'required|numeric',
+            'purchase_price' => 'nullable|numeric',
             'selling_price'  => 'required|numeric',
         ]);
 
@@ -252,6 +252,7 @@ class ProductController extends Controller implements HasMiddleware
                 'discount_type'     => $request->discount_type,
                 'discount_value'    => $discountValue,
                 'main_price'        => $request->main_price ?? 0,
+                'max_price'         => $request->max_price ?? 0,
                 'alert_quantity'    => $request->alert_quantity ?? 0,
                 'tax_rate'          => $request->tax_rate ?? 0,
                 'weight'            => $request->weight ?? null,
@@ -283,7 +284,7 @@ class ProductController extends Controller implements HasMiddleware
                     if ($sizeName) {
                         ProductSize::create([
                             'product_id'       => $product->id,
-                            'size_id'             => $sizeName,
+                            'size'             => $sizeName,
                             'additional_price' => $request->size_prices[$index] ?? 0,
                         ]);
                     }
@@ -556,7 +557,7 @@ class ProductController extends Controller implements HasMiddleware
         $request->validate([
             'name'           => 'required|string|max:255',
             'category_id'    => 'required|integer',
-            'purchase_price' => 'required|numeric',
+            'purchase_price' => 'nullable|numeric',
             'selling_price'  => 'required|numeric',
         ]);
 
@@ -602,7 +603,6 @@ class ProductController extends Controller implements HasMiddleware
                 $discountValue = $discountAmount;
             }
 
-            /* ================= PRODUCT UPDATE ================= */
             $product->update([
                 'name'              => $request->name,
                 'slug'              => $slug,
@@ -615,6 +615,7 @@ class ProductController extends Controller implements HasMiddleware
                 'purchase_price'    => $request->purchase_price,
                 'selling_price'     => $request->selling_price,
                 'main_price'        => $request->main_price,
+                'max_price'         => $request->max_price,
                 'discount_type'     => $request->discount_type,
                 'discount_value'    => $discountValue,
                 'alert_quantity'    => $request->alert_quantity ?? 0,
@@ -996,6 +997,42 @@ class ProductController extends Controller implements HasMiddleware
 
         } catch (\Exception $e) {
             return redirect()->back()->withInput()->with('error', 'Something went wrong: ' . $e->getMessage());
+        }
+    }
+
+    public function stockAdjustmentDestroy($id)
+    {
+        DB::beginTransaction();
+        try {
+            $adjustment = StockAdjustment::with('items')->findOrFail($id);
+            foreach ($adjustment->items as $item) {
+                $stock = ProductStock::where([
+                    'product_id' => $item->product_id,
+                    'color_id'   => $item->color_id,
+                    'size_id'    => $item->size_id,
+                ])->first();
+                if ($stock) {
+                    if ($adjustment->type === 'addition') {
+                        $stock->decrement('quantity', $item->quantity);
+                    } else {
+                        $stock->increment('quantity', $item->quantity);
+                    }
+                }
+            }
+
+            $adjustment->items()->delete();
+            $adjustment->delete();
+            DB::commit();
+            return response()->json([
+                'status'  => 'success',
+                'message' => 'Stock Adjustment deleted successfully.'
+            ]);
+        } catch (\Exception $e) {
+            DB::rollBack();
+            return response()->json([
+                'status'  => 'error',
+                'message' => 'Something went wrong: ' . $e->getMessage()
+            ], 500);
         }
     }
 }

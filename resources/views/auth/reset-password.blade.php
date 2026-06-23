@@ -19,7 +19,7 @@
             --rr-color-common-white: #ffffff;
             --rr-color-heading-primary: #141414;
             --rr-color-text-body: #74787C;
-            --rr-color-theme-primary: #E53E3E;
+            --rr-color-theme-primary: #008a7a;
             --rr-color-theme-secondary: #885B3A;
             --rr-color-bg-1: #11151C;
             --rr-color-border-1: #E8E8E8;

@@ -8,6 +8,7 @@ use App\Models\Blog;
 use App\Models\BlogCategory;
 use App\Models\Brand;
 use App\Models\Category;
+use App\Models\Subcategory;
 use App\Models\Client;
 use App\Models\Contact;
 use App\Models\Newsletter;
@@ -33,29 +34,20 @@ class HomeController extends Controller
                     ->where('status', 1)
                     ->orderBy('created_at', 'desc')
                     ->get();
-        $categories = DB::table('categories')
-                    ->leftJoin('products', function ($join) {
-                        $join->on('categories.id', '=', 'products.category_id')
-                            ->where('products.status', 1);
-                    })
-                    ->where('categories.status', 1)
-                    ->select(
-                        'categories.id',
-                        'categories.name',
-                        'categories.image',
-                        'categories.slug',
-                        DB::raw('COUNT(products.id) as products_count')
-                    )
-                    ->groupBy(
-                        'categories.id',
-                        'categories.name',
-                        'categories.image',
-                        'categories.slug'
-                    )
-                    ->orderBy('categories.created_at', 'desc')
-                    ->get();
+        
 
-        // Categories with product count
+        $categories = Category::where('status', 1)
+                ->with(['subcategories' => function ($query) {
+                    $query->withCount(['products' => function ($q) {
+                        $q->where('status', 1);
+                    }]);
+                }])
+                ->withCount(['products' => function ($query) {
+                    $query->where('status', 1); 
+                }])
+                ->orderBy('created_at', 'asc')
+                ->get();
+
         $filteredCategories = DB::table('categories')
                 ->join('products', function ($join) {
                     $join->on('categories.id', '=', 'products.category_id')
@@ -190,17 +182,29 @@ class HomeController extends Controller
 
     public function categoryProducts(Request $request, $slug)
     {
-        $category = Category::where('slug', $slug)
+        $category = Category::with('subcategories')
+            ->where('slug', $slug)
             ->where('status', 1)
-            ->firstOrFail();
+            ->first();
 
-        $query = Product::with([
-                'category',
-                'brand',
-                'sizes'
-            ])
-            ->where('status', 1)
-            ->where('category_id', $category->id);
+        $isSubcategory = false;
+
+        if (!$category) {
+            $category = Subcategory::where('slug', $slug)
+                ->firstOrFail(); 
+                
+            $isSubcategory = true;
+        }
+
+        $query = Product::with(['category', 'brand', 'sizes'])->where('status', 1);
+
+        if (!$isSubcategory) {
+            $categoryIds = $category->subcategories->pluck('id')->push($category->id)->toArray();
+            $query->whereIn('category_id', $categoryIds);
+        } else {
+            $query->where('subcategory_id', $category->id); 
+        }
+
         if ($request->filled('categories')) {
             $query->whereIn('category_id', $request->categories);
         }
@@ -239,7 +243,13 @@ class HomeController extends Controller
         }
 
         $products = $query->paginate(12)->appends($request->all());
+
         $categories = Category::where('status', 1)
+            ->with(['subcategories' => function ($q) {
+                $q->withCount(['products' => function ($q) {
+                    $q->where('status', 1);
+                }]);
+            }])
             ->withCount(['products' => function ($q) {
                 $q->where('status', 1);
             }])
@@ -259,13 +269,10 @@ class HomeController extends Controller
 
         if ($request->ajax()) {
             return response()->json([
-                'html' => view(
-                    'frontend.home.partials.product_list',
-                    compact('products')
-                )->render()
-
+                'html' => view('frontend.home.partials.product_list', compact('products'))->render()
             ]);
         }
+
         return view('frontend.home.category-products', compact(
             'category',
             'products',

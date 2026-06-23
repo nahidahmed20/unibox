@@ -195,27 +195,6 @@
                 }
             });
 
-            // ================= DELETE =================
-            $(document).on('click', '.btn-delete', function() {
-
-                let form = $(this).closest('form');
-
-                Swal.fire({
-                    title: 'Delete?',
-                    text: 'This purchase will be deleted!',
-                    icon: 'warning',
-                    showCancelButton: true
-                }).then((res) => {
-                    if (res.isConfirmed) {
-
-                        $.post(form.attr('action'), form.serialize(), function(res) {
-                            toastr.success(res.message);
-                            table.ajax.reload();
-                        });
-                    }
-                });
-
-            });
 
             // ================= SHOW MODAL =================
             $(document).on('click', '.btn-show', function() {

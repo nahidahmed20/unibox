@@ -187,26 +187,26 @@
                     <div class="card-body">
                         <div class="mb-4">
                             <label class="form-label">Product Title</label>
-                            <input type="text" class="form-control form-control-lg" id="name" name="name" placeholder="e.g. Premium Cotton T-Shirt">
+                            <input type="text" class="form-control form-control-lg" id="name" name="name" value="{{ old('name') }}" placeholder="e.g. Premium Cotton T-Shirt">
                             @error('name')<small class="text-danger mt-1 d-block">{{ $message }}</small>@enderror
                         </div>
 
                         <div class="row mb-4">
                             <div class="col-md-6">
                                 <label class="form-label">Product Slug</label>
-                                <input type="text" class="form-control" id="slug" name="slug" placeholder="auto-generated-slug" readonly>
+                                <input type="text" class="form-control" id="slug" name="slug" value="{{ old('slug') }}" placeholder="auto-generated-slug" readonly>
                                 @error('slug')<small class="text-danger">{{ $message }}</small>@enderror
                             </div>
                             <div class="col-md-6">
                                 <label class="form-label">Short Description</label>
-                                <textarea name="short_description" class="form-control" rows="1" placeholder="Brief summary..."></textarea>
+                                <textarea name="short_description" class="form-control" rows="1" placeholder="Brief summary...">{{ old('short_description') }}</textarea>
                                 @error('short_description')<small class="text-danger">{{ $message }}</small>@enderror
                             </div>
                         </div>
 
                         <div>
                             <label class="form-label">Full Description</label>
-                            <textarea name="description" class="form-control summernote"></textarea>
+                            <textarea name="description" class="form-control summernote">{{ old('description') }}</textarea>
                             @error('description')<small class="text-danger">{{ $message }}</small>@enderror
                         </div>
                     </div>
@@ -247,8 +247,8 @@
                             <div class="col-md-6 mb-4">
                                 <label class="form-label">Product Type</label>
                                 <select name="product_type" id="product_type" class="form-select">
-                                    <option value="single" selected>Single Product</option>
-                                    <option value="multiple">Variable Product (Sizes, Colors)</option>
+                                    <option value="single" {{ old('product_type') == 'single' ? 'selected' : '' }}>Single Product</option>
+                                    <option value="multiple" {{ old('product_type') == 'multiple' ? 'selected' : '' }}>Variable Product (Sizes, Colors)</option>
                                 </select>
                             </div>
 
@@ -261,7 +261,7 @@
                                         <select id="variation_select" class="form-select" name="variation_id">
                                             <option value="">Select Variation Base</option>
                                             @foreach($variations as $variation)
-                                                <option value="{{ $variation->id }}" data-values='@json($variation->values)'>
+                                                <option value="{{ $variation->id }}" data-values='@json($variation->values)' {{ old('variation_id') == $variation->id ? 'selected' : '' }}>
                                                     {{ $variation->name }}
                                                 </option>
                                             @endforeach
@@ -308,29 +308,37 @@
                         <h5><i class="fa-solid fa-tag text-muted"></i> Pricing & Inventory</h5>
                     </div>
                     <div class="card-body">
-                        <div class="mb-3">
-                            <label class="form-label">Selling Price (৳)</label>
-                            <input type="number" step="0.01" class="form-control fs-5 fw-bold text-success" name="selling_price" id="selling_price" placeholder="0.00">
-                            @error('selling_price')<small class="text-danger">{{ $message }}</small>@enderror
+                        <div class="row">
+                            <div class="col-6 mb-3">
+                                <label class="form-label">Selling Price (Min) (৳) <span class="text-danger">*</span></label>
+                                <input type="number" step="0.01" class="form-control fs-5 fw-bold text-success" name="selling_price" id="selling_price" value="{{ old('selling_price') }}" placeholder="e.g. 5000">
+                                @error('selling_price')<small class="text-danger">{{ $message }}</small>@enderror
+                            </div>
+                            
+                            <div class="col-6 mb-3">
+                                <label class="form-label">Maximum Price (৳) <small class="text-muted fw-normal">(Optional for variables)</small></label>
+                                <input type="number" step="0.01" class="form-control fs-5 fw-bold text-primary" name="max_price" id="max_price" value="{{ old('max_price') }}" placeholder="e.g. 7000">
+                                @error('max_price')<small class="text-danger">{{ $message }}</small>@enderror
+                            </div>
                         </div>
                         
                         <div class="row">
                             <div class="col-6 mb-3">
                                 <label class="form-label">Cost Price</label>
-                                <input type="number" step="0.01" class="form-control" name="purchase_price" placeholder="0.00">
+                                <input type="number" step="0.01" class="form-control" name="purchase_price" value="{{ old('purchase_price') }}" placeholder="0.00">
                             </div>
                             <div class="col-6 mb-3">
                                 <label class="form-label">Discount Price</label>
-                                <input type="number" step="0.01" class="form-control" name="main_price" placeholder="0.00">
+                                <input type="number" step="0.01" class="form-control" name="main_price" value="{{ old('main_price') }}" placeholder="0.00">
                             </div>
                         </div>
 
                         <div class="mb-3">
                             <label class="form-label">Discount Type</label>
                             <select name="discount_type" id="discount_type" class="form-select">
-                                <option value="">No Discount</option>
-                                <option value="percent">Percentage (%)</option>
-                                <option value="fixed">Fixed Amount</option>
+                                <option value="" {{ old('discount_type') == '' ? 'selected' : '' }}>No Discount</option>
+                                <option value="percent" {{ old('discount_type') == 'percent' ? 'selected' : '' }}>Percentage (%)</option>
+                                <option value="fixed" {{ old('discount_type') == 'fixed' ? 'selected' : '' }}>Fixed Amount</option>
                             </select>
                         </div>
 
@@ -338,17 +346,17 @@
 
                         <div class="mb-3">
                             <label class="form-label">SKU (Stock Keeping Unit)</label>
-                            <input type="text" class="form-control font-monospace" id="sku" name="sku" placeholder="Auto-generated" readonly>
+                            <input type="text" class="form-control font-monospace" id="sku" name="sku" value="{{ old('sku') }}" placeholder="Auto-generated" readonly>
                         </div>
                         
                         <div class="row">
                             <div class="col-6 mb-3">
                                 <label class="form-label">Barcode</label>
-                                <input type="text" class="form-control" name="barcode" placeholder="Optional">
+                                <input type="text" class="form-control" name="barcode" value="{{ old('barcode') }}" placeholder="Optional">
                             </div>
                             <div class="col-6 mb-3">
                                 <label class="form-label">Alert Qty</label>
-                                <input type="number" class="form-control" name="alert_quantity" placeholder="e.g. 5">
+                                <input type="number" class="form-control" name="alert_quantity" value="{{ old('alert_quantity') }}" placeholder="e.g. 5">
                             </div>
                         </div>
                     </div>
@@ -364,7 +372,7 @@
                             <select name="category_id" id="category_id" class="form-select">
                                 <option value="">Search Category...</option>
                                 @foreach($categories as $cat)
-                                    <option value="{{ $cat->id }}">{{ $cat->name }}</option>
+                                    <option value="{{ $cat->id }}" {{ old('category_id') == $cat->id ? 'selected' : '' }}>{{ $cat->name }}</option>
                                 @endforeach
                             </select>
                             @error('category_id')<small class="text-danger">{{ $message }}</small>@enderror
@@ -372,7 +380,7 @@
 
                         <div class="mb-3">
                             <label class="form-label">Subcategory</label>
-                            <select name="subcategory_id" id="subcategory_id" class="form-select">
+                            <select name="subcategory_id" id="subcategory_id" class="form-select" data-old="{{ old('subcategory_id') }}">
                                 <option value="">Select Subcategory</option>
                             </select>
                         </div>
@@ -382,7 +390,7 @@
                             <select name="brand_id" class="form-select">
                                 <option value="">Select Brand</option>
                                 @foreach($brands as $brand)
-                                    <option value="{{ $brand->id }}">{{ $brand->name }}</option>
+                                    <option value="{{ $brand->id }}" {{ old('brand_id') == $brand->id ? 'selected' : '' }}>{{ $brand->name }}</option>
                                 @endforeach
                             </select>
                         </div>
@@ -392,7 +400,7 @@
                             <select name="unit_id" class="form-select">
                                 <option value="">Select Unit (Piece, Kg, etc)</option>
                                 @foreach($units as $unit)
-                                    <option value="{{ $unit->id }}">{{ $unit->name }}</option>
+                                    <option value="{{ $unit->id }}" {{ old('unit_id') == $unit->id ? 'selected' : '' }}>{{ $unit->name }}</option>
                                 @endforeach
                             </select>
                         </div>
@@ -408,40 +416,40 @@
                             <div class="col-6 mb-3">
                                 <label class="form-label">Featured</label>
                                 <select name="is_featured" class="form-select">
-                                    <option value="1">Yes</option>
-                                    <option value="0" selected>No</option>
+                                    <option value="1" {{ old('is_featured') == '1' ? 'selected' : '' }}>Yes</option>
+                                    <option value="0" {{ old('is_featured', '0') == '0' ? 'selected' : '' }}>No</option>
                                 </select>
                             </div>
                             
                             <div class="col-6 mb-3">
                                 <label class="form-label">New Arrival</label>
                                 <select name="is_new" class="form-select">
-                                    <option value="1" selected>Yes</option>
-                                    <option value="0">No</option>
+                                    <option value="1" {{ old('is_new', '1') == '1' ? 'selected' : '' }}>Yes</option>
+                                    <option value="0" {{ old('is_new') == '0' ? 'selected' : '' }}>No</option>
                                 </select>
                             </div>
 
                             <div class="col-6 mb-3">
                                 <label class="form-label">Best Seller</label>
                                 <select name="is_bestseller" class="form-select">
-                                    <option value="1">Yes</option>
-                                    <option value="0" selected>No</option>
+                                    <option value="1" {{ old('is_bestseller') == '1' ? 'selected' : '' }}>Yes</option>
+                                    <option value="0" {{ old('is_bestseller', '0') == '0' ? 'selected' : '' }}>No</option>
                                 </select>
                             </div>
 
                             <div class="col-6 mb-3">
                                 <label class="form-label">Trending</label>
                                 <select name="is_trending" class="form-select">
-                                    <option value="1">Yes</option>
-                                    <option value="0" selected>No</option>
+                                    <option value="1" {{ old('is_trending') == '1' ? 'selected' : '' }}>Yes</option>
+                                    <option value="0" {{ old('is_trending', '0') == '0' ? 'selected' : '' }}>No</option>
                                 </select>
                             </div>
 
                             <div class="col-12 mt-2">
                                 <label class="form-label">Status</label>
-                                <select name="status" class="form-select bg-success text-white border-0" id="statusSelect">
-                                    <option value="1" selected>Active (Published)</option>
-                                    <option value="0">Inactive (Draft)</option>
+                                <select name="status" class="form-select {{ old('status', '1') == '1' ? 'bg-success text-white border-0' : 'bg-secondary text-white border-0' }}" id="statusSelect">
+                                    <option value="1" {{ old('status', '1') == '1' ? 'selected' : '' }}>Active (Published)</option>
+                                    <option value="0" {{ old('status') == '0' ? 'selected' : '' }}>Inactive (Draft)</option>
                                 </select>
                             </div>
                         </div>

@@ -52,7 +52,7 @@
     .dashboard-menu li a:hover,
     .dashboard-menu li a.active,
     .logout-btn:hover{
-        background: #E53E3E;
+        background: #008a7a;
         color: #fff;
     }
     .dashboard-card{
@@ -70,7 +70,7 @@
         width: 60px;
         height: 60px;
         border-radius: 50%;
-        background: #E53E3E;
+        background: #008a7a;
         color: #fff;
         display: flex;
         align-items: center;
@@ -96,7 +96,7 @@
     }
     .order-btn,
     .view-all-btn{
-        background: #E53E3E;
+        background: #008a7a;
         color: #fff;
         padding: 7px 14px;
         border-radius: 5px;
@@ -105,7 +105,7 @@
     }
     .order-btn:hover,
     .view-all-btn:hover{
-        background: #E53E3E;
+        background: #008a7a;
         color: #fff;
     }
     @media(max-width: 991px){

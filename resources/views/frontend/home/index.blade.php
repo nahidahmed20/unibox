@@ -58,7 +58,7 @@
                 display: flex;
                 align-items: center;
                 justify-content: center;
-                border: 1px solid #E53E3E;
+                border: 1px solid #008a7a;
                 border-radius: 4px;
                 cursor: pointer;
                 font-size: 14px;
@@ -66,9 +66,9 @@
             }
 
             .size-box.active {
-                background: #ff6600;
+                background: #008a7a;
                 color: #fff;
-                border-color: #ff6600;
+                border-color: #008a7a;
             }
 
             .color-box-modal {
@@ -156,7 +156,7 @@
                 justify-content: center;
                 width: 130px;
                 height: 52px;
-                background: #E53E3E;
+                background: #008a7a;
                 /* screenshot color */
                 border-radius: 0;
                 overflow: hidden;
@@ -472,7 +472,7 @@
                 left: 8%;
                 right: 8%;
                 height: 3px;
-                background-color: #E53E3E; 
+                background-color: #008a7a; 
                 z-index: 0;
             }
 
@@ -488,7 +488,7 @@
             .process-icon {
                 width: 75px;
                 height: 75px;
-                background-color: #E53E3E; 
+                background-color: #008a7a;
                 color: #ffffff;
                 font-size: 28px;
                 border-radius: 50%;
@@ -496,14 +496,14 @@
                 align-items: center;
                 justify-content: center;
                 margin-bottom: 20px;
-                border: 6px solid #ffffff; 
-                box-shadow: 0 0 0 2px rgba(229, 62, 62, 0.2); 
+                border: 6px solid #ffffff;
+                box-shadow: 0 0 0 2px rgba(0, 138, 122, 0.25);
                 transition: transform 0.3s ease;
             }
 
-            /* Hover Effect on Icon */
-            .process-step:hover .process-icon {
-                transform: scale(1.1);
+            .process-icon:hover {
+                transform: scale(1.05);
+                box-shadow: 0 0 0 4px rgba(0, 138, 122, 0.35);
             }
 
             /* Text Styles */
@@ -553,48 +553,429 @@
                     margin-top: 10px;
                 }
             }
+            .carousel-item {
+                height: 400px;
+            }
+
+            .category-img {
+                width: 100%;
+                height: 190px;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                overflow: hidden;
+            }
+
+            .category-img img {
+                width: 100%;
+                height: 100%;
+                object-fit: cover;
+                border-radius: 8px;
+            }
+
+            .hero-list-wrap {
+                max-height: 400px;
+                overflow-y: auto;
+                overflow-x: hidden;
+                background: #ffffff;
+                border: 1px solid #eee;
+                border-radius: 8px;
+            }
+
+            .hero-list-wrap::-webkit-scrollbar {
+                width: 6px;
+            }
+
+            .hero-list-wrap::-webkit-scrollbar-thumb {
+                background: #008a7a;
+                border-radius: 10px;
+            }
+
+            @media (max-width: 767px) {
+                .carousel-item {
+                    height: 140px;
+                }
+            }
+
+            /* --- Sidebar Category Click-to-Open Styles --- */
+            .hero-list {
+                list-style: none;
+                padding: 0;
+                margin: 0;
+            }
+
+            .hero-list > li {
+                border-bottom: 1px solid #f0f0f0;
+            }
+
+            .hero-list > li:last-child {
+                border-bottom: none;
+            }
+
+            /* Category Item Wrapper */
+            .category-item-wrap {
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+                transition: background 0.3s;
+            }
+
+            .category-item-wrap:hover {
+                background-color: #fcfcfc;
+            }
+
+            /* Main Link */
+            .category-link {
+                flex-grow: 1;
+                padding: 12px 15px;
+                color: #333;
+                text-decoration: none;
+                font-weight: 600;
+                font-size: 15px;
+                display: flex;
+                align-items: center;
+                gap: 10px;
+            }
+
+            .category-link i {
+                color: #008a7a;
+                font-size: 14px;
+            }
+            
+            .category-link:hover {
+                color: #008a7a;
+            }
+
+            /* Toggle Button (Arrow) */
+            .cat-toggle-btn {
+                background: transparent;
+                border: none;
+                padding: 12px 15px;
+                color: #777;
+                display: flex;
+                align-items: center;
+                gap: 8px;
+                cursor: pointer;
+                transition: color 0.3s;
+            }
+
+            .cat-toggle-btn:hover {
+                color: #008a7a;
+            }
+
+            /* Arrow Animation on Click */
+            .arrow-icon {
+                transition: transform 0.35s ease;
+                font-size: 12px;
+            }
+
+            .cat-toggle-btn[aria-expanded="true"] .arrow-icon {
+                transform: rotate(180deg);
+                color: #008a7a;
+            }
+
+            /* Subcategory List */
+            .sub-category-list {
+                list-style: none;
+                padding: 5px 15px 15px 35px;
+                margin: 0;
+                background: #fdfdfd;
+            }
+
+            .sub-category-list li {
+                margin-bottom: 5px;
+            }
+
+            .sub-category-list li:last-child {
+                margin-bottom: 0;
+            }
+
+            .sub-category-list a {
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+                padding: 8px 12px;
+                color: #555;
+                text-decoration: none;
+                font-size: 14px;
+                border-radius: 5px;
+                transition: all 0.3s ease;
+                border: 1px solid transparent;
+            }
+
+            .sub-category-list a:hover {
+                color: #008a7a;
+                background: #ffffff;
+                border-color: rgba(0, 138, 122, 0.2);
+                box-shadow: 0 2px 5px rgba(0,0,0,0.02);
+            }
+            
+
+
+
+
+
+            .carousel-item {
+                height: 400px;
+            }
+
+            .category-img {
+                width: 100%;
+                height: 190px;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                overflow: hidden;
+            }
+
+            .category-img img {
+                width: 100%;
+                height: 100%;
+                object-fit: cover;
+                border-radius: 8px;
+            }
+
+            .hero-list-wrap {
+                max-height: 400px;
+                overflow-y: auto;
+                overflow-x: hidden;
+                background: #ffffff;
+                border: 1px solid #eee;
+                border-radius: 8px;
+            }
+
+            .hero-list-wrap::-webkit-scrollbar {
+                width: 6px;
+            }
+
+            .hero-list-wrap::-webkit-scrollbar-thumb {
+                background: #008a7a;
+                border-radius: 10px;
+            }
+
+            @media (max-width: 767px) {
+                .carousel-item {
+                    height: 140px;
+                }
+            }
+
+            .modal-product-image {
+                max-height: 350px;
+                object-fit: contain;
+            }
+
+            /* --- Sidebar Category Click Styles --- */
+            .hero-list {
+                list-style: none;
+                padding: 0;
+                margin: 0;
+            }
+
+            .hero-list > li {
+                position: relative;
+                border-bottom: 1px solid #f0f0f0;
+                display: block !important;
+            }
+
+            .hero-list > li:last-child {
+                border-bottom: none;
+            }
+
+            /* Item Wrap */
+            .category-item-wrap {
+                transition: background-color 0.3s ease;
+            }
+
+            .category-item-wrap:hover {
+                background-color: #fcfcfc;
+            }
+
+            /* Main Category Link/Toggle */
+            .category-link {
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+                width: 100%;
+                padding: 12px 15px;
+                color: #333;
+                text-decoration: none;
+                font-weight: 600;
+                font-size: 15px;
+                transition: all 0.3s ease;
+                cursor: pointer;
+            }
+
+            .category-link .cat-name {
+                display: flex;
+                align-items: center;
+                gap: 10px;
+            }
+
+            .category-link i {
+                color: #008a7a;
+                font-size: 14px;
+            }
+
+            .category-link:hover {
+                color: #008a7a;
+            }
+
+            /* Toggle Action (Count and Icon) */
+            .toggle-indicator {
+                display: flex;
+                align-items: center;
+                gap: 8px;
+                color: #333;
+            }
+
+            .category-link:hover .toggle-indicator {
+                color: #008a7a;
+            }
+
+            .arrow-icon {
+                font-size: 12px;
+                transition: transform 0.3s ease;
+            }
+
+            /* Rotate arrow when open */
+            .category-link[aria-expanded="true"] .arrow-icon {
+                transform: rotate(180deg);
+                color: #008a7a;
+            }
+
+            /* Subcategory List */
+            .sub-category-list {
+                list-style: none;
+                padding: 5px 15px 15px 35px; /* Indented padding */
+                margin: 0;
+                background: #fcfcfc;
+            }
+
+            .sub-category-list li {
+                display: block !important;
+                margin-bottom: 5px;
+            }
+
+            .sub-category-list li:last-child {
+                margin-bottom: 0;
+            }
+
+            .sub-category-list a {
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+                padding: 8px 12px;
+                color: #555;
+                text-decoration: none;
+                font-size: 14px;
+                border-radius: 5px;
+                transition: all 0.3s ease;
+                background: #ffffff;
+                border: 1px solid #eee;
+            }
+
+            .sub-category-list a .sub-cat-name {
+                display: flex;
+                align-items: center;
+                gap: 8px;
+            }
+
+            .sub-category-list a i {
+                font-size: 10px;
+                color: #999;
+                transition: transform 0.3s ease;
+            }
+
+            .sub-category-list a:hover {
+                color: #008a7a;
+                border-color: rgba(0, 138, 122, 0.3);
+                box-shadow: 0 2px 5px rgba(0,0,0,0.02);
+            }
+
+            .sub-category-list a:hover i {
+                color: #008a7a;
+                transform: translateX(3px); /* Small slide effect on hover */
+            }
         </style>
     @endpush
-    <section class="hero-section-2 pt-60">
+   <section class="hero-section-2 pt-60">
         <div class="container">
             <div class="row gy-lg-0 gy-4 justify-content-center">
                 <div class="col-md-3 d-none d-md-block">
                     <div class="hero-list-wrap">
                         <ul class="hero-list">
                             @foreach ($categories as $category)
+                                @php
+                                    $hasSubcategories = $category->subcategories && $category->subcategories->count() > 0;
+                                @endphp
                                 <li>
-                                    <a href="{{ route('category.show', $category->slug) }}">
-                                        <i class="fa-regular fa-plus"></i>
-                                        {{ $category->name }}
-                                        <span>({{ $category->products_count }})</span>
-                                    </a>
+                                    <div class="category-item-wrap">
+                                        @if($hasSubcategories)
+                                            <a href="javascript:void(0)" class="category-link" data-bs-toggle="collapse" data-bs-target="#collapseCat{{ $category->id }}" aria-expanded="false" aria-controls="collapseCat{{ $category->id }}">
+                                                <div class="cat-name">
+                                                    <i class="fa-solid fa-folder-plus"></i>
+                                                    {{ $category->name }}
+                                                </div>
+                                                <div class="toggle-indicator">
+                                                    <span>({{ $category->products_count }})</span>
+                                                </div>
+                                            </a>
+                                        @else
+                                            <a href="{{ route('category.show', $category->slug) }}" class="category-link">
+                                                <div class="cat-name">
+                                                    <i class="fa-solid fa-list"></i>
+                                                    {{ $category->name }}
+                                                </div>
+                                                <div class="toggle-indicator">
+                                                    <span>({{ $category->products_count }})</span>
+                                                </div>
+                                            </a>
+                                        @endif
+                                    </div>
+
+                                    <!-- Collapsible Subcategory List -->
+                                    @if($hasSubcategories)
+                                        <div class="collapse" id="collapseCat{{ $category->id }}">
+                                            <ul class="sub-category-list">
+                                                @foreach($category->subcategories as $subcategory)
+                                                    <li>
+                                                        <a href="{{ route('category.show', $subcategory->slug) }}">
+                                                            <div class="sub-cat-name">
+                                                                <i class="fa-solid fa-chevron-right"></i>
+                                                                {{ $subcategory->name }}
+                                                            </div>
+                                                            <span class="badge bg-light text-dark border">
+                                                                {{ $subcategory->products_count }}
+                                                            </span>
+                                                        </a>
+                                                    </li>
+                                                @endforeach
+                                            </ul>
+                                        </div>
+                                    @endif
                                 </li>
                             @endforeach
                         </ul>
                     </div>
                 </div>
+
+                <!-- Slider Section Keeps Unchanged -->
                 <div class="col-md-9">
                     <div id="heroSlider" class="carousel slide" data-bs-ride="carousel">
                         <div class="carousel-inner">
-
                             @foreach ($sliders as $key => $slider)
                                 <div class="carousel-item {{ $key == 0 ? 'active' : '' }}">
-                                    <div class="hero-item" style="background-image: url('{{ asset($slider->image) }}');">
+                                    <div class="hero-item" style="background-image: url('{{ asset($slider->image) }}'); border-radius: 8px;">
                                         <div class="product-overlay"></div>
                                     </div>
                                 </div>
                             @endforeach
-
                         </div>
 
-                        <!-- Controls -->
-                        <button class="carousel-control-prev" type="button" data-bs-target="#heroSlider"
-                            data-bs-slide="prev">
+                        <button class="carousel-control-prev" type="button" data-bs-target="#heroSlider" data-bs-slide="prev">
                             <span class="carousel-control-prev-icon"></span>
                         </button>
-
-                        <button class="carousel-control-next" type="button" data-bs-target="#heroSlider"
-                            data-bs-slide="next">
+                        <button class="carousel-control-next" type="button" data-bs-target="#heroSlider" data-bs-slide="next">
                             <span class="carousel-control-next-icon"></span>
                         </button>
                     </div>

@@ -44,6 +44,7 @@ use App\Http\Controllers\frontend\FontOrderController;
 use App\Http\Controllers\frontend\HomeController as FrontendHomeController;
 use App\Http\Controllers\frontend\ReviewController;
 use App\Http\Controllers\frontend\UserController as FrontendUserController;
+use Laravel\Socialite\Facades\Socialite;
 use App\Http\Controllers\ProfileController;
 use Illuminate\Support\Facades\Route;
 
@@ -62,6 +63,15 @@ Route::post('/contact-us/send-message',[FrontendHomeController::class, 'contactU
 Route::get('/about-us',[FrontendHomeController::class, 'about'])->name('about.us');
 Route::post('/newsletter/subscribe', [FrontendHomeController::class, 'newsletterSubscribe'])->name('newsletter.subscribe');
 Route::post('/product/{id}/review', [ReviewController::class, 'store'])->name('product.review.store');
+
+Route::get('/login/google', [FrontendUserController::class, 'redirectToGoogle'])->name('login.google');
+Route::get('/login/google/callback', [FrontendUserController::class, 'handleGoogleCallback']);
+Route::get('/login/facebook', [FrontendUserController::class, 'redirectToFacebook'])->name('login.facebook');
+Route::get('/login/facebook/callback', [FrontendUserController::class, 'handleFacebookCallback']);
+
+Route::post('/send-otp', [FrontendUserController::class, 'sendOtp'])->name('user.login.send_otp');
+Route::post('/verify-otp', [FrontendUserController::class, 'verifyOtp'])->name('user.login.verify_otp');
+Route::get('/cancel-otp', [FrontendUserController::class, 'cancelOtp'])->name('user.login.cancel_otp');
 
 
 Route::get('/category/{slug}', [FrontendHomeController::class, 'categoryProducts'])->name('category.show');
@@ -136,7 +146,7 @@ Route::middleware('auth')->prefix('admin')->group(function () {
     Route::get('/stock-adjustments/{id}', [ProductController::class, 'stockAdjustmentShow'])->name('stock-adjustments.show');
     Route::get('/stock-adjustments/edit/{id}', [ProductController::class, 'stockAdjustmentEdit'])->name('stock-adjustments.edit');
     Route::put('/stock-adjustments/update/{id}', [ProductController::class, 'stockAdjustmentUpdate'])->name('stock-adjustments.update');
-    Route::get('/stock-adjustments/destroy/{id}', [ProductController::class, 'stockAdjustmentDestroy'])->name('stock-adjustments.destroy');
+    Route::delete('/stock-adjustments/destroy/{id}', [ProductController::class, 'stockAdjustmentDestroy'])->name('stock-adjustments.destroy');
 
     Route::resource('purchases', PurchaseController::class);
 
@@ -228,9 +238,9 @@ Route::middleware('auth')->prefix('admin')->group(function () {
 
 Route::middleware('customer.guest')->group(function () {
     Route::get('user-login',[FrontendUserController::class, 'userLogin'])->name('user.login');
-    Route::post('user-login',[FrontendUserController::class, 'storeLogin'])->name('user.login.store');
-    Route::get('user-register',[FrontendUserController::class, 'userRegister'])->name('user.register');
-    Route::post('user-register',[FrontendUserController::class, 'storeRegister'])->name('user.register.store');
+    // Route::post('user-login',[FrontendUserController::class, 'storeLogin'])->name('user.login.store');
+    // Route::get('user-register',[FrontendUserController::class, 'userRegister'])->name('user.register');
+    // Route::post('user-register',[FrontendUserController::class, 'storeRegister'])->name('user.register.store');
 
 });
 Route::middleware(['customer'])->group(function(){

@@ -20,7 +20,7 @@
     .success-top{
         padding:55px 30px;
         text-align:center;
-        background:linear-gradient(135deg,#E53E3E,#C53030);
+        background:#008a7a;
         color:#fff;
         position:relative;
     }
@@ -29,7 +29,7 @@
         width:90px;
         height:90px;
         background:#fff;
-        color:#E53E3E;
+        color:#008a7a;
         border-radius:50%;
         display:flex;
         align-items:center;
@@ -89,7 +89,7 @@
 
     .info-box:hover{
         transform:translateY(-4px);
-        border-color:#E53E3E;
+        border-color:#008a7a;
     }
 
     .info-box label{
@@ -113,7 +113,7 @@
     }
 
     .order-table thead th{
-        background:#E53E3E;
+        background:#008a7a;
         color:#fff;
         padding:16px;
         font-size:14px;
@@ -148,10 +148,10 @@
     .summary-item:last-child{
         margin-bottom:0;
         padding-top:18px;
-        border-top:2px dashed #E53E3E;
+        border-top:2px dashed #008a7a;
         font-size:22px;
         font-weight:700;
-        color:#E53E3E;
+        color:#008a7a;
     }
 
     .payment-badge{
@@ -159,7 +159,7 @@
         align-items:center;
         gap:8px;
         background:#ffeaea;
-        color:#E53E3E;
+        color:#008a7a;
         padding:8px 15px;
         border-radius:50px;
         font-size:13px;
@@ -182,7 +182,7 @@
     }
 
     .btn-dark-custom{
-        background:#E53E3E;
+        background:#008a7a;
         color:#fff;
     }
 
@@ -194,12 +194,12 @@
 
     .btn-light-custom{
         background:#fff;
-        color:#E53E3E;
-        border:1px solid #E53E3E;
+        color:#008a7a;
+        border:1px solid #008a7a;
     }
 
     .btn-light-custom:hover{
-        background:#E53E3E;
+        background:#008a7a;
         color:#fff;
     }
 
@@ -275,7 +275,7 @@
             position:absolute;
             left:15px;
             font-weight:700;
-            color:#E53E3E;
+            color:#008a7a;
         }
 
     }
@@ -360,7 +360,7 @@
                                             @if(!empty($item->color))
                                                 <span style="
                                                     display:inline-block;
-                                                    background:#E53E3E;
+                                                    background:#008a7a;
                                                     color:#fff;
                                                     padding:4px 12px;
                                                     border-radius:20px;
@@ -374,7 +374,7 @@
                                             @if(!empty($item->size))
                                                 <span style="
                                                     display:inline-block;
-                                                    background:#E53E3E;
+                                                    background:#008a7a;
                                                     color:#fff;
                                                     padding:4px 12px;
                                                     border-radius:20px;

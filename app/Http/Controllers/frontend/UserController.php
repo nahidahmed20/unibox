@@ -9,15 +9,13 @@ use App\Models\Location;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Str; // For generating random passwords
+use Laravel\Socialite\Facades\Socialite; // For Social Login
 
 class UserController extends Controller
 {
-    /**
-     * Show Customer Login Form
-     */
     public function userLogin()
     {
-        // Prevent admin/staff from accessing customer login page
         if (Auth::check() && Auth::user()->type !== 'customer') {
             return redirect('/')->with('error', 'Please logout from your administrative account first.');
         }
@@ -25,120 +23,162 @@ class UserController extends Controller
         return view('frontend.user.login');
     }
 
-    /**
-     * Show Customer Registration Form
-     */
-    public function userRegister()
-    {
-        // Prevent admin/staff from accessing customer register page
-        if (Auth::check() && Auth::user()->type !== 'customer') {
-            return redirect('/')->with('error', 'Please logout from your administrative account first.');
-        }
-
-        return view('frontend.user.register');
-    }
-
-    /**
-     * Handle Customer Registration
-     */
-    public function storeRegister(Request $request)
-    {
-        if (Auth::check() && Auth::user()->type !== 'customer') {
-            return back()->with('error', 'An administrative account is already logged in. Please logout first.');
-        }
-
-        $request->validate([
-            'name'     => 'required|string|max:100',
-            'email'    => 'nullable|email|unique:users,email',
-            'phone'    => [
-                'required',
-                'regex:/^(?:\+88|88)?01[3-9]\d{8}$/',
-                'unique:users,phone'
-            ],
-            'password' => 'required|min:6|confirmed',
-        ]);
-
-        $user = User::create([
-            'name'     => $request->name,
-            'email'    => $request->email,
-            'phone'    => $request->phone,
-            'password' => Hash::make($request->password),
-            'type'     => 'customer', // Strictly assign as customer
-            'status'   => 1, // Default Active
-        ]);
-
-        Auth::guard('customer')->login($user);
-        $request->session()->regenerate();
-
-        $redirect = session()->pull('redirect_after_login', route('customer.dashboard'));
-
-        return redirect($redirect)->with('success', 'Registration successful!');
-    }
-
-    /**
-     * Handle Customer Login
-     */
-    public function storeLogin(Request $request)
+    public function sendOtp(Request $request)
     {
         if (Auth::guard('customer')->check()) {
             return redirect()->route('customer.dashboard');
         }
 
-        if (Auth::check() && Auth::user()->type !== 'customer') {
-            return back()->with('error', 'Please logout from your admin account first.');
-        }
-
         $request->validate([
-            'name'     => 'required', // Can be email or phone
-            'password' => 'required',
+            'name' => 'required',
+        ], [
+            'name.required' => 'Please enter your phone number or email.',
         ]);
 
-        $login    = trim($request->name);
-        $password = $request->password;
-
+        $login = trim($request->name);
         $field = filter_var($login, FILTER_VALIDATE_EMAIL) ? 'email' : 'phone';
 
-        // Search ONLY for customers
+        // Generate a 4-digit OTP
+        $otp = rand(1000, 9999); 
+        
+        session()->put('otp_login', $login);
+        // session()->put('otp_code', $otp);
+        session()->put('otp_code', '1234');
+        session()->put('otp_field', $field);
+        session()->put('otp_expires_at', now()->addMinutes(2)->timestamp);
+
+        // TODO: SMS or Email Gateway integration
+        \Log::info("OTP for {$login} is: {$otp}");
+
+        return back()->with('success', 'OTP sent successfully!');
+    }
+
+    public function verifyOtp(Request $request)
+    {
+        $request->validate([
+            'otp' => 'required|numeric|digits:4',
+        ]);
+
+        if (now()->timestamp > session('otp_expires_at')) {
+            return back()->with('error', 'OTP has expired! Please request a new one.')->withInput();
+        }
+
+        $sessionOtp = session()->get('otp_code');
+        $login      = session()->get('otp_login');
+        $field      = session()->get('otp_field');
+
+        if ($request->otp != $sessionOtp) {
+            return back()->with('error', 'Invalid OTP! Please try again.')->withInput();
+        }
+
         $user = User::where($field, $login)->where('type', 'customer')->first();
 
         if (!$user) {
-            return back()->withInput($request->only('name', 'remember'))->with('error', 'This account for admin not a customer.');
+            $user = User::create([
+                'name'     => 'New Customer',
+                $field     => $login,
+                'password' => Hash::make(\Illuminate\Support\Str::random(12)),
+                'type'     => 'customer',
+                'status'   => 1,
+            ]);
+        } else {
+            if ($user->status == 0) {
+                return redirect()->route('user.login')->with('error', 'Your account is inactive.');
+            }
         }
 
-        if ($user->status == 0) {
-            return back()->with('error', 'Your account is inactive. Please contact support.');
-        }
-
-        if (!Hash::check($password, $user->password)) {
-            return back()->withInput($request->only('name', 'remember'))->with('error', 'Incorrect password.');
-        }
-
-        // Login user with 'customer' guard
-        $remember = $request->has('remember'); // Make sure your blade input name is 'remember'
-        Auth::guard('customer')->login($user, $remember);
-
-        $request->session()->regenerate();
+        Auth::guard('customer')->login($user, true);
+        session()->forget(['otp_login', 'otp_code', 'otp_field', 'otp_expires_at']);
 
         $redirect = session()->pull('redirect_after_login', route('customer.dashboard'));
-
-        return redirect($redirect)->with('success', 'Login successful!');
+        return redirect($redirect)->with('success', 'Successfully logged in!');
     }
-    /**
-     * Customer Dashboard
-     */
+
+    public function cancelOtp()
+    {
+        session()->forget(['otp_login', 'otp_code', 'otp_field', 'otp_expires_at']);
+        return redirect()->route('user.login');
+    }
+
+    public function redirectToGoogle()
+    {
+        return Socialite::driver('google')->redirect();
+    }
+
+    public function handleGoogleCallback()
+    {
+        try {
+            $socialUser = Socialite::driver('google')->user();
+            return $this->processSocialLogin($socialUser);
+        } catch (\Exception $e) {
+            return redirect()->route('user.login')->with('error', 'Google login failed or cancelled.');
+        }
+    }
+
+    public function redirectToFacebook()
+    {
+        return Socialite::driver('facebook')->redirect();
+    }
+
+    public function handleFacebookCallback()
+    {
+        try {
+            $socialUser = Socialite::driver('facebook')->user();
+            return $this->processSocialLogin($socialUser);
+        } catch (\Exception $e) {
+            return redirect()->route('user.login')->with('error', 'Facebook login failed or cancelled.');
+        }
+    }
+
+    private function processSocialLogin($socialUser)
+    {
+        if (!$socialUser->getEmail()) {
+            return redirect()->route('user.login')->with('error', 'Email is required from your social account.');
+        }
+
+        $user = User::where('email', $socialUser->getEmail())->where('type', 'customer')->first();
+
+        if (!$user) {
+            // Google ba Facebook theke profile image URL niye asha
+            $avatarUrl = $socialUser->getAvatar(); 
+
+            $user = User::create([
+                'name'     => $socialUser->getName() ?? 'New Customer',
+                'email'    => $socialUser->getEmail(),
+                'image'    => $avatarUrl, // Eikhane google image URL save hobe
+                'password' => Hash::make(Str::random(16)), 
+                'type'     => 'customer',
+                'status'   => 1,
+            ]);
+        } else {
+            // Purono user er jodi image database e na thake, tobe update kore neya
+            if (!$user->image && $socialUser->getAvatar()) {
+                $user->update([
+                    'image' => $socialUser->getAvatar()
+                ]);
+            }
+
+            if ($user->status == 0) {
+                return redirect()->route('user.login')->with('error', 'Your account is inactive. Please contact support.');
+            }
+        }
+
+        Auth::guard('customer')->login($user, true);
+
+        $redirect = session()->pull('redirect_after_login', route('customer.dashboard'));
+        return redirect($redirect)->with('success', 'Successfully logged in!');
+    }
+
     public function dashboard()
     {
         $userId = auth('customer')->id();
-
         if (!$userId) {
             return redirect()->route('user.login');
         }
-
         $orders = Order::where('user_id', $userId)->latest()->paginate(5);
         $totalOrders = Order::where('user_id', $userId)->count();
         $processingOrders = Order::where('user_id', $userId)->whereIn('status', ['pending', 'processing'])->count();
         $completedOrders = Order::where('user_id', $userId)->where('status', 'delivered')->count();
-
         return view('frontend.customer.dashboard', compact(
             'orders',
             'totalOrders',
@@ -147,76 +187,54 @@ class UserController extends Controller
         ));
     }
 
-    /**
-     * Customer Orders List
-     */
     public function orders()
     {
         $userId = auth('customer')->id();
-
         if (!$userId) {
             return redirect()->route('user.login');
         }
-        
         $orders = Order::where('user_id', $userId)->latest()->paginate(10);
-
         return view('frontend.customer.orders', compact('orders'));
     }
 
-    /**
-     * Single Order Details
-     */
     public function orderShow($orderNumber)
     {
         $userId = auth('customer')->id();
-
         if (!$userId) {
             return redirect()->route('user.login');
         }
-
         $order = Order::where('user_id', $userId)->where('order_number', $orderNumber)->firstOrFail();
-
         return view('frontend.customer.order_show', compact('order'));
     }
 
-    /**
-     * Customer Profile Form
-     */
     public function profile()
     {
         $customer = auth('customer')->user();
-
         if (!$customer) {
             return redirect()->route('user.login');
         }
-
         $divisions = Location::where('type', 'division')->get();
         return view('frontend.customer.profile', compact('customer', 'divisions'));
     }
 
-    /**
-     * Update Customer Profile
-     */
     public function profileUpdate(Request $request)
     {
         $user = auth('customer')->user();
-
         if (!$user) {
             return redirect()->route('user.login');
         }
-
         $request->validate([
-            'name'        => 'required|string|max:255',
-            'email'       => 'nullable|email|unique:users,email,' . $user->id,
-            'phone'       => 'nullable|string|unique:users,phone,' . $user->id,
-            'address'     => 'nullable|string',
+            'name'          => 'required|string|max:255',
+            'email'         => 'nullable|email|unique:users,email,' . $user->id,
+            'phone'         => 'nullable|string|unique:users,phone,' . $user->id,
+            'address'       => 'nullable|string',
             'office_address'=> 'nullable|string',
-            'division_id' => 'nullable|exists:locations,id',
-            'district_id' => 'nullable|exists:locations,id',
-            'upazila_id'  => 'nullable|exists:locations,id',
-            'country'     => 'nullable|string|max:100',
-            'birth_date'  => 'nullable|date',
-            'image'       => 'nullable|image|mimes:jpg,jpeg,png,webp|max:2048',
+            'division_id'   => 'nullable|exists:locations,id',
+            'district_id'   => 'nullable|exists:locations,id',
+            'upazila_id'    => 'nullable|exists:locations,id',
+            'country'       => 'nullable|string|max:100',
+            'birth_date'    => 'nullable|date',
+            'image'         => 'nullable|image|mimes:jpg,jpeg,png,webp|max:2048',
         ]);
 
         $data = $request->only([
@@ -224,13 +242,10 @@ class UserController extends Controller
             'district_id', 'upazila_id', 'country', 'birth_date'
         ]);
 
-        // Image Upload Logic
         if ($request->hasFile('image')) {
-            // Delete old image if it exists
             if ($user->image && file_exists(public_path($user->image))) {
                 unlink(public_path($user->image));
             }
-
             $file = $request->file('image');
             $fileName = time() . '_' . $file->getClientOriginalName();
             $file->move(public_path('uploads/users'), $fileName);
@@ -241,48 +256,33 @@ class UserController extends Controller
         return back()->with('success', 'Profile updated successfully.');
     }
 
-    /**
-     * Change Password Form
-     */
     public function customerChangePassword()
     {
         $customer = auth('customer')->user();
-
         if (!$customer) {
             return redirect()->route('user.login');
         }
-
         return view('frontend.customer.change_password', compact('customer'));
     }
 
-    /**
-     * Update Password
-     */
     public function updatePassword(Request $request)
     {
         $request->validate([
             'current_password' => 'required',
             'password'         => 'required|min:8|confirmed',
         ]);
-
         $user = auth('customer')->user();
-
         if (!Hash::check($request->current_password, $user->password)) {
             return back()->withErrors([
                 'current_password' => 'Current password is incorrect.'
             ]);
         }
-
         $user->update([
             'password' => Hash::make($request->password)
         ]);
-
         return back()->with('success', 'Password updated successfully.');
     }
 
-    /**
-     * Logout Customer
-     */
     public function logout()
     {
         Auth::guard('customer')->logout();

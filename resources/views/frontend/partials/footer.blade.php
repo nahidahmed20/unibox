@@ -166,105 +166,142 @@
     <div class="copyright-area py-4 border-top">
         <div class="container">
             <div class="row align-items-center">
+                
                 <div class="col-md-6 text-center text-md-start mb-3 mb-md-0">
                     <p class="mb-0 text-muted small">
-                        Copyright &copy; {{ date('Y') }} <span class="fw-bold text-dark">{{ setting('site_name', 'Unibox') }}</span>. All Rights Reserved.
+                        Copyright &copy; {{ date('Y') }}
+                        <span class="fw-bold text-dark">
+                            {{ setting('site_name', 'Unibox') }}
+                        </span>.
+                        All Rights Reserved.
                     </p>
                 </div>
+
                 <div class="col-md-6 text-center text-md-end">
                     <span class="me-2 text-muted small">Secure Payments:</span>
-                    <img src="{{ asset('frontend/assets/img/images/footer-img-1.png') }}" alt="Payment Gateways" style="height: 30px; object-fit: contain;">
+
+                    <img src="{{ asset('frontend/assets/img/payment/bkash.jpg') }}"
+                        alt="bKash"
+                        class="payment-icon">
+
+                    <img src="{{ asset('frontend/assets/img/payment/nagad.jpg') }}"
+                        alt="Nagad"
+                        class="payment-icon">
+
+                    <img src="{{ asset('frontend/assets/img/payment/rocket.jpg') }}"
+                        alt="Rocket"
+                        class="payment-icon">
+
+                    <img src="{{ asset('frontend/assets/img/payment/visa.jpg') }}"
+                        alt="Visa"
+                        class="payment-icon">
+
+                    <img src="{{ asset('frontend/assets/img/payment/mastercard.jpg') }}"
+                        alt="MasterCard"
+                        class="payment-icon">
                 </div>
+
             </div>
         </div>
     </div>
 </footer>
 <style>
+    .payment-icon{
+        height: 28px;
+        width: auto;
+        margin-left: 8px;
+        object-fit: contain;
+        transition: 0.3s ease;
+    }
+
+    .payment-icon:hover{
+        transform: translateY(-2px);
+    }
     /* Theme Colors */
-.text-primary-theme {
-    color: #E53E3E !important; /* Your Brand Color */
-}
-.btn-theme-primary {
-    background-color: #E53E3E;
-    color: #ffffff;
-    transition: all 0.3s ease;
-}
-.btn-theme-primary:hover {
-    background-color: #c53030;
-    color: #ffffff;
-    transform: scale(1.05);
-}
+    .text-primary-theme {
+        color: #008a7a !important; /* Your Brand Color */
+    }
+    .btn-theme-primary {
+        background-color: #008a7a;
+        color: #ffffff;
+        transition: all 0.3s ease;
+    }
+    .btn-theme-primary:hover {
+        background-color: #008a7a;
+        color: #ffffff;
+        transform: scale(1.05);
+    }
 
-/* Footer Feature Items */
-.footer-feature-item {
-    padding: 15px;
-    border-radius: 12px;
-    transition: background-color 0.3s ease;
-}
-.footer-feature-item:hover {
-    background-color: #ffffff;
-    box-shadow: 0 4px 15px rgba(0,0,0,0.03);
-}
-.footer-feature-item .icon-box img {
-    width: 45px;
-    height: 45px;
-    object-fit: contain;
-    transition: transform 0.3s ease;
-}
-.footer-feature-item:hover .icon-box img {
-    transform: translateY(-3px);
-}
+    /* Footer Feature Items */
+    .footer-feature-item {
+        padding: 15px;
+        border-radius: 12px;
+        transition: background-color 0.3s ease;
+    }
+    .footer-feature-item:hover {
+        background-color: #ffffff;
+        box-shadow: 0 4px 15px rgba(0,0,0,0.03);
+    }
+    .footer-feature-item .icon-box img {
+        width: 45px;
+        height: 45px;
+        object-fit: contain;
+        transition: transform 0.3s ease;
+    }
+    .footer-feature-item:hover .icon-box img {
+        transform: translateY(-3px);
+    }
 
-/* Footer Links with Hover Slide Effect */
-.footer-link {
-    color: #64748b;
-    text-decoration: none;
-    transition: all 0.3s ease;
-    display: inline-block;
-    position: relative;
-}
-.footer-link::before {
-    content: '\f105'; /* FontAwesome angle-right */
-    font-family: 'Font Awesome 6 Free';
-    font-weight: 900;
-    position: absolute;
-    left: 0;
-    opacity: 0;
-    transition: all 0.3s ease;
-    color: #E53E3E;
-}
-.footer-link:hover {
-    color: #E53E3E;
-    transform: translateX(15px);
-}
-.footer-link:hover::before {
-    opacity: 1;
-    left: -15px;
-}
+    /* Footer Links with Hover Slide Effect */
+    .footer-link {
+        color: #64748b;
+        text-decoration: none;
+        transition: all 0.3s ease;
+        display: inline-block;
+        position: relative;
+    }
+    .footer-link::before {
+        content: '\f105'; /* FontAwesome angle-right */
+        font-family: 'Font Awesome 6 Free';
+        font-weight: 900;
+        position: absolute;
+        left: 0;
+        opacity: 0;
+        transition: all 0.3s ease;
+        color: #008a7a;
+    }
+    .footer-link:hover {
+        color: #008a7a;
+        transform: translateX(15px);
+    }
+    .footer-link:hover::before {
+        opacity: 1;
+        left: -15px;
+    }
 
-/* Social Buttons */
-.social-btn {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    width: 38px;
-    height: 38px;
-    background-color: #ffffff;
-    color: #475569;
-    border-radius: 50%;
-    box-shadow: 0 2px 8px rgba(0,0,0,0.05);
-    text-decoration: none;
-    transition: all 0.3s ease;
-}
-.social-btn:hover {
-    background-color: #E53E3E;
-    color: #ffffff;
-    transform: translateY(-3px);
-    box-shadow: 0 5px 15px rgba(229, 62, 62, 0.3);
-}
+    /* Social Buttons */
+    .social-btn {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        width: 38px;
+        height: 38px;
+        background-color: #ffffff;
+        color: #475569;
+        border-radius: 50%;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+        text-decoration: none;
+        transition: all 0.3s ease;
+    }
+    .social-btn:hover {
+        background-color: #008a7a;
+        color: #ffffff;
+        transform: translateY(-3px);
+        box-shadow: 0 5px 15px rgba(229, 62, 62, 0.3);
+    }
 
-/* Newsletter Input Focus */
-.newsletter-form .form-control:focus {
-    box-shadow: 0 0 0 3px rgba(229, 62, 62, 0.15) !important;
-}
+    /* Newsletter Input Focus */
+    .newsletter-form .form-control:focus {
+        box-shadow: 0 0 0 3px rgba(229, 62, 62, 0.15) !important;
+    }
 </style>

@@ -7,7 +7,7 @@
         
         <div class="row justify-content-center mb-5">
             <div class="col-lg-6 text-center">
-                <span class="badge rounded-pill mb-2 py-2 px-3" style="background-color: rgba(229, 62, 62, 0.1); color: #E53E3E; font-weight: 600;">
+                <span class="badge rounded-pill mb-2 py-2 px-3" style="background-color: rgba(229, 62, 62, 0.1); color: #008a7a; font-weight: 600;">
                     <i class="fa-regular fa-circle-question me-1"></i> Support Center
                 </span>
                 <h2 class="fw-bold mb-3" style="color: #2b3445; font-size: 38px;">How can we help you?</h2>
@@ -93,9 +93,9 @@
     .faq-header { padding: 22px 25px; display: flex; justify-content: space-between; align-items: center; background-color: transparent; transition: background-color 0.3s; }
     .faq-header[aria-expanded="true"] { background-color: rgba(229, 62, 62, 0.03); }
     .faq-title { font-size: 17px; font-weight: 600; color: #2b3445; margin: 0; transition: color 0.3s; }
-    .faq-header[aria-expanded="true"] .faq-title { color: #E53E3E; }
+    .faq-header[aria-expanded="true"] .faq-title { color: #008a7a; }
     .faq-icon { position: relative; width: 24px; height: 24px; display: flex; align-items: center; justify-content: center; color: #7d879c; transition: color 0.3s; }
-    .faq-header[aria-expanded="true"] .faq-icon { color: #E53E3E; }
+    .faq-header[aria-expanded="true"] .faq-icon { color: #008a7a; }
     .plus-icon, .minus-icon { position: absolute; transition: all 0.3s ease; font-size: 16px; }
     .faq-header[aria-expanded="true"] .plus-icon { opacity: 0; transform: rotate(90deg); }
     .faq-header.collapsed .minus-icon { opacity: 0; transform: rotate(-90deg); }
