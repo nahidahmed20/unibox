@@ -198,16 +198,13 @@
 
             // ================= SHOW MODAL =================
             $(document).on('click', '.btn-show', function() {
-
                 let id = $(this).data('id');
 
                 $.get('/admin/purchases/' + id, function(res) {
-
                     let p = res.data;
 
                     let html = `
                         <div class="row g-3 mb-3">
-
                             <div class="col-md-6">
                                 <div class="shopify-box">
                                     <p><b>Invoice:</b> ${p.invoice_no}</p>
@@ -215,78 +212,69 @@
                                     <p><b>Date:</b> ${p.purchase_date}</p>
                                 </div>
                             </div>
-
                             <div class="col-md-6">
                                 <div class="shopify-box">
-                                    <p><b>Status:</b>
-                                        ${p.status == 1
-                                        ? `<span class="badge-active">Active</span>`
-                                        : `<span class="badge-inactive">Inactive</span>`}
-                                    </p>
+                                    <p><b>Status:</b> ${p.status == 1 ? '<span class="badge bg-success">Active</span>' : '<span class="badge bg-danger">Inactive</span>'}</p>
                                     <p><b>Total:</b> ${p.total_amount}</p>
                                 </div>
                             </div>
-
                         </div>
 
                         <div class="table-responsive">
-                        <table class="table table-bordered table-striped">
-                            <thead>
-                                <tr>
-                                    <th>#</th>
-                                    <th>Product</th>
-                                    <th>SKU</th>
-                                    <th>Size</th>
-                                    <th>Color</th>
-                                    <th>Price</th>
-                                    <th>Qty</th>
-                                    <th>Total</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                        `;
+                            <table class="table table-bordered table-striped">
+                                <thead>
+                                    <tr>
+                                        <th>#</th>
+                                        <th>Product</th>
+                                        <th>SKU</th>
+                                        <th>Size</th>
+                                        <th>Color</th>
+                                        <th>Price</th>
+                                        <th>Qty</th>
+                                        <th>Total</th>
+                                    </tr>
+                                </thead>
+                                <tbody>`;
 
-                    if (p.details.length) {
-
+                    if (p.details.length > 0) {
                         p.details.forEach((item, i) => {
+                            let sizeName = item.size?.name || item.size?.size || item.product_size_id || '-';
+                            let sizeDisplay = (sizeName !== '-') ? `S: ${sizeName}` : '-';
+
+                            let colorName = item.color?.name || '-';
+                            let colorDisplay = (colorName !== '-') ? `C: ${colorName}` : '-';
 
                             html += `
                                 <tr>
-                                    <td>${i+1}</td>
+                                    <td>${i + 1}</td>
                                     <td>${item.product?.name ?? '-'}</td>
                                     <td>${item.product?.sku ?? '-'}</td>
-
-                                    <!-- ✅ FIXED SIZE -->
-                                    <td>${item.size?.size ?? '-'}</td>
-
-                                    <td>${item.color?.name ?? '-'}</td>
-                                    <td>${item.buying_price}</td>
+                                    <td>${sizeDisplay}</td> 
+                                    <td>${colorDisplay}</td> 
+                                    <td>${parseFloat(item.buying_price).toFixed(2)}</td>
                                     <td>${item.quantity}</td>
-                                    <td>${(item.buying_price*item.quantity).toFixed(2)}</td>
+                                    <td>${parseFloat(item.total_price).toFixed(2)}</td>
                                 </tr>`;
-                                        });
+                        });
+                    }
+                    else {
+                        html += `<tr><td colspan="8" class="text-center">No Data Found</td></tr>`;
+                    }
 
-                                    } else {
-                                        html += `<tr><td colspan="8" class="text-center">No Data</td></tr>`;
-                                    }
-
-                                    html += `
-                            </tbody>
-                            <tfoot>
-                                <tr>
-                                    <th colspan="7" class="text-end">Grand Total</th>
-                                    <th>${p.total_amount}</th>
-                                </tr>
-                            </tfoot>
-                        </table>
+                    html += `</tbody>
+                                <tfoot>
+                                    <tr>
+                                        <th colspan="7" class="text-end">Grand Total</th>
+                                        <th>${p.total_amount}</th>
+                                    </tr>
+                                </tfoot>
+                            </table>
                         </div>`;
 
                     $('#purchaseModalBody').html(html);
                     $('#purchaseModal').modal('show');
                 });
-
             });
-
         });
     </script>
 @endpush

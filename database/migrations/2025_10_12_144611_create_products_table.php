@@ -30,6 +30,7 @@ return new class extends Migration
             $table->decimal('main_price', 15, 2)->default(0)->nullable();
             $table->decimal('max_price', 15, 2)->default(0)->nullable();
             $table->decimal('alert_quantity', 15, 2)->default(0)->nullable();
+            $table->integer('stock')->default(0)->nullable();
             $table->decimal('tax_rate', 15, 2)->default(0)->nullable();
             $table->decimal('weight', 15, 2)->nullable()->nullable();
             $table->string('dimensions', 100)->nullable();

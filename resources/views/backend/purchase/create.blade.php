@@ -301,46 +301,44 @@
             function addProduct(p) {
                 $("#searchResults").hide();
                 $("#productSearch").val("");
-                let sizes = p.sizes || [];
-                let colors = p.colors || [];
-                let sizeHtml = "";
-                if (sizes.length > 0) {
-                    sizeHtml = `
-                    <select
-                        name="products[${rowIndex}][size_id]" class="form-select form-select-sm mb-1">
-                        ${sizes.map(function (s) {
-                            return `
-                                    <option value="${s.id}">
-                                        ${s.size}
-                                    </option>
+                
+                let variantHtml = "";
+
+                // Product Type 'multiple' hole variants asbe
+                if (p.product_type === 'multiple' && p.variants && p.variants.length > 0) {
+                    variantHtml = `
+                        <select name="products[${rowIndex}][variant_id]" class="form-select form-select-sm mb-1 variant-select" required>
+                            <option value="">Select Variant</option>
+                            ${p.variants.map(function(v) {
+                                let variantNameParts = [];
+                                
+                                if (v.color && v.color.name) {
+                                    variantNameParts.push(`C: ${v.color.name}`);
+                                }
+                                
+                                if (v.size) {
+                                    let sizeName = v.size.name || v.size.size || v.size_id;
+                                    variantNameParts.push(`S: ${sizeName}`);
+                                } else if (v.size_id && isNaN(v.size_id)) {
+                                    variantNameParts.push(`S: ${v.size_id}`);
+                                }
+
+                                let label = variantNameParts.length > 0 ? variantNameParts.join(' - ') : 'Standard';
+                                
+                                return `
+                                <option value="${v.id}" data-price="${v.purchase_price}">${label}</option>
                                 `;
-                        }).join("")}
-                    </select>
-                `;
+                            }).join("")}
+                        </select>
+                    `;
+                } else {
+                    // Single Product hole
+                    variantHtml = `
+                        <span class="badge bg-light text-dark border px-2 py-1">Standard</span>
+                        <input type="hidden" name="products[${rowIndex}][variant_id]" value="">
+                    `;
                 }
-                let colorHtml = "";
-                    if (colors.length > 0) {
-                        colorHtml = `
-                            <select
-                                name="products[${rowIndex}][color_id]"
-                                class="form-select form-select-sm">
-                                ${colors.map(function(c){
-                                    let colorName = "";
-                                    if(c.color){
-                                        colorName = c.color.name;
-                                    }
-                                    return `
-                                        <option value="${c.color_id}">
-                                            ${colorName}
-                                        </option>
-                                    `;
 
-                                }).join("")}
-
-                            </select>
-                        `;
-
-                    }
                 let row = `
                 <tr>
                     <td>
@@ -353,11 +351,10 @@
                         </div>
                     </td>
                     <td>
-                        ${sizeHtml}
-                        ${colorHtml}
+                        ${variantHtml}
                     </td>
                     <td>
-                        <input type="number" class="form-control price" name="products[${rowIndex}][price]"  value="${p.purchase_price}" step="0.01">
+                        <input type="number" class="form-control price" name="products[${rowIndex}][price]"  value="${p.product_type === 'multiple' ? 0 : p.purchase_price}" step="0.01">
                     </td>
                     <td>
                         <input  type="number" class="form-control qty"  name="products[${rowIndex}][qty]" value="1" min="1">
@@ -371,14 +368,21 @@
                         </button>
                     </td>
                 </tr>
-            `;
+                `;
+                
                 $("#selectedProducts tbody").append(row);
                 rowIndex++;
                 calculateTotal();
             }
 
-
             $(document).on("input", ".price,.qty", function() {
+                calculateTotal();
+            });
+
+            $(document).on('change', '.variant-select', function() {
+                let price = $(this).find(':selected').data('price') || 0;
+                let row = $(this).closest('tr');
+                row.find('.price').val(price);
                 calculateTotal();
             });
 

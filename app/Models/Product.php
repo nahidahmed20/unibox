@@ -60,5 +60,10 @@ class Product extends Model
         return $this->hasMany(Review::class);
     }
 
+    public function variants()
+    {
+        return $this->hasMany(ProductVariant::class, 'product_id');
+    }
+
     
 }

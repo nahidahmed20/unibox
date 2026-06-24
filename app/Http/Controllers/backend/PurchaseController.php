@@ -5,9 +5,9 @@ namespace App\Http\Controllers\backend;
 use App\Models\Product;
 use App\Models\Purchase;
 use App\Models\Supplier;
-use App\Models\ProductStock;
-use Illuminate\Http\Request;
+use App\Models\ProductVariant; // নতুন ভ্যারিয়েন্ট মডেল
 use App\Models\PurchaseDetail;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use App\Http\Controllers\Controller;
 use Yajra\DataTables\Facades\DataTables;
@@ -25,58 +25,35 @@ class PurchaseController extends Controller implements HasMiddleware
             new Middleware('permission:destroy purchase', only: ['destroy']),
         ];
     }
-    /**
-     * Display a listing of the resource.
-     */
+
     public function index(Request $request)
     {
         if ($request->ajax()) {
-
             $data = Purchase::with('supplier')
                 ->select('id', 'supplier_id', 'invoice_no', 'purchase_date', 'total_amount', 'status', 'created_at')
                 ->latest();
 
             return DataTables::of($data)
-
                 ->addIndexColumn()
-
-                // Supplier
                 ->addColumn('supplier_name', fn($row) => $row->supplier?->name ?? '—')
-
-                // Status (safe version)
                 ->addColumn('status', function ($row) {
                     return $row->status == 1
                         ? '<span class="badge-soft-success">Active</span>'
                         : '<span class="badge-soft-danger">Inactive</span>';
                 })
-
-                // ACTION (modern UI)
                 ->addColumn('action', function($row) {
-
-                    // View Button
-                    $showBtn = '<button class="btn btn-icon btn-soft-info btn-show" data-id="'.$row->id.'" title="View Details">
-                                    <i class="fa-regular fa-eye"></i>
-                                </button>';
-
-                    // Edit Button
-                    $editBtn = '<a href="'.route('purchases.edit', $row->id).'" class="btn btn-icon btn-soft-primary" title="Edit Product">
-                                    <i class="fa-regular fa-pen-to-square"></i>
-                                </a>';
-
-                    // Delete Button
+                    $showBtn = '<button class="btn btn-icon btn-soft-info btn-show" data-id="'.$row->id.'" title="View Details"><i class="fa-regular fa-eye"></i></button>';
+                    $editBtn = '<a href="'.route('purchases.edit', $row->id).'" class="btn btn-icon btn-soft-primary" title="Edit Purchase"><i class="fa-regular fa-pen-to-square"></i></a>';
                     $deleteForm = '
                         <form class="delete-form d-inline" action="'.route('purchases.destroy', $row->id).'" method="POST">
                             '.csrf_field().method_field('DELETE').'
-                            <button type="button" class="btn btn-icon btn-soft-danger btn-delete" title="Delete Product">
+                            <button type="button" class="btn btn-icon btn-soft-danger btn-delete" title="Delete Purchase">
                                 <i class="fa-regular fa-trash-can"></i>
                             </button>
                         </form>
                     ';
-
-                    // Wrapping all buttons in a centered flex div
                     return '<div class="d-flex align-items-center justify-content-center gap-2">'.$showBtn.$editBtn.$deleteForm.'</div>';
                 })
-
                 ->rawColumns(['status', 'action'])
                 ->make(true);
         }
@@ -84,63 +61,51 @@ class PurchaseController extends Controller implements HasMiddleware
         return view('backend.purchase.index');
     }
 
-    /**
-     * Show the form for creating a new resource.
-     */
     public function create()
     {
-        $suppliers = Supplier::all();
+        $suppliers = Supplier::where('status', 1)->get();
         $lastInvoice = Purchase::orderBy('id', 'desc')->first();
-
         $nextInvoiceNo = 'INV-' . str_pad(($lastInvoice ? $lastInvoice->id + 1 : 1), 5, '0', STR_PAD_LEFT);
 
         return view('backend.purchase.create', compact('suppliers', 'nextInvoiceNo'));
     }
 
+    // [MODIFIED] Search ekti product er sathe tar variants gulo pull korbe
     public function search(Request $request)
     {
         $query = $request->q;
 
         $products = Product::query()
-            ->select(['id', 'name', 'sku', 'purchase_price'])
+            ->select(['id', 'name', 'sku', 'purchase_price', 'product_type'])
             ->where(function ($q) use ($query) {
                 $q->where('name', 'like', "%{$query}%")
-                    ->orWhere('sku', 'like', "%{$query}%");
+                  ->orWhere('sku', 'like', "%{$query}%");
             })
             ->where('status', 1)
-            ->with(['sizes', 'colors.color'])
+            ->with(['variants.color', 'variants.size']) 
             ->limit(10)
             ->get();
 
         return response()->json($products);
     }
 
-    /**
-     * Store a newly created resource in storage.
-     */
     public function store(Request $request)
     {
         $request->validate([
-            'supplier_id'        => 'required|exists:suppliers,id',
-            'invoice_no'         => 'required|unique:purchases,invoice_no',
-            'purchase_date'      => 'required|date',
-
-            'products'           => 'required|array|min:1',
-
-            'products.*.id'      => 'required|exists:products,id',
-            'products.*.size_id' => 'nullable',
-            'products.*.color_id' => 'nullable',
-            'products.*.qty'     => 'required|numeric|min:1',
-            'products.*.price'   => 'required|numeric|min:0',
+            'supplier_id'         => 'required|exists:suppliers,id',
+            'invoice_no'          => 'required|unique:purchases,invoice_no',
+            'purchase_date'       => 'required|date',
+            'products'            => 'required|array|min:1',
+            'products.*.id'       => 'required|exists:products,id',
+            'products.*.variant_id'=> 'nullable', // Added variant_id
+            'products.*.qty'      => 'required|numeric|min:1',
+            'products.*.price'    => 'required|numeric|min:0',
         ]);
 
         DB::beginTransaction();
 
         try {
-
-            $totalAmount = collect($request->products)->sum(function ($item) {
-                return $item['qty'] * $item['price'];
-            });
+            $totalAmount = collect($request->products)->sum(fn($item) => $item['qty'] * $item['price']);
 
             $purchase = Purchase::create([
                 'supplier_id'    => $request->supplier_id,
@@ -149,300 +114,184 @@ class PurchaseController extends Controller implements HasMiddleware
                 'total_amount'   => $totalAmount,
                 'status'         => 1,
                 'payment_status' => 1,
-                'notes'          => $request->notes,
+                'notes'          => $request->notes ?? null,
             ]);
 
             foreach ($request->products as $item) {
-
-                $sizeId  = !empty($item['size_id']) ? $item['size_id'] : null;
-                $colorId = !empty($item['color_id']) ? $item['color_id'] : null;
+                $variantId = $item['variant_id'] ?? null;
+                $variant = $variantId ? ProductVariant::find($variantId) : null;
 
                 PurchaseDetail::create([
-                    'purchase_id'  => $purchase->id,
-                    'product_id'   => $item['id'],
-                    'product_size_id' => $sizeId,
-                    'color_id'     => $colorId,
-                    'quantity'     => $item['qty'],
-                    'buying_price' => $item['price'],
-                    'total_price'  => $item['qty'] * $item['price'],
+                    'purchase_id'        => $purchase->id,
+                    'product_id'         => $item['id'],
+                    'product_variant_id' => $variantId,
+                    'quantity'           => $item['qty'],
+                    'buying_price'       => $item['price'],
+                    'total_price'        => $item['qty'] * $item['price'],
                 ]);
 
-                $stock = ProductStock::where([
-                    'product_id' => $item['id'],
-                    'size_id'    => $sizeId,
-                    'color_id'   => $colorId,
-                ])->first();
+                // Update Stock
+                $this->adjustStock($item['id'], $variantId, $item['qty'], 'add');
 
-                if ($stock) {
-                    $stock->increment('quantity', $item['qty']);
-                } else {
-                    ProductStock::create([
-                        'product_id' => $item['id'],
-                        'size_id'    => $sizeId,
-                        'color_id'   => $colorId,
-                        'quantity'   => $item['qty'],
-                    ]);
-                }
-                Product::where('id', $item['id'])
-                    ->update([
-                        'is_purchased' => 1
-                    ]);
+                // Mark product as purchased
+                Product::where('id', $item['id'])->update(['is_purchased' => 1]);
             }
+
             DB::commit();
-            return response()->json([
-                'status'  => 'success',
-                'message' => 'Purchase created successfully & stock updated!'
-            ]);
+            return response()->json(['status' => 'success', 'message' => 'Purchase created successfully & stock updated!']);
         } catch (\Exception $e) {
             DB::rollBack();
-            return response()->json([
-                'status'  => 'error',
-                'message' => $e->getMessage()
-            ], 500);
+            return response()->json(['status' => 'error', 'message' => $e->getMessage()], 500);
         }
     }
 
-    /**
-     * Display the specified resource.
-     */
     public function show($id)
     {
-        $purchase = Purchase::with(['supplier', 'details.product', 'details.color', 'details.size'])->findOrFail($id);
-// dd($purchase);
+        $purchase = Purchase::with([
+            'supplier',
+            'details.product',
+            'details.variant'
+        ])->findOrFail($id);
+
         return response()->json([
             'status' => 'success',
             'data'   => $purchase
         ]);
     }
 
-
-    /**
-     * Show the form for editing the specified resource.
-     */
     public function edit($id)
     {
         $purchase = Purchase::with([
             'supplier',
-            'details',
-            'details.product',
-            'details.product.sizes',
-            'details.product.colors.color',
+            'details.product.variants.color',
+            'details.product.variants.size', 
         ])->findOrFail($id);
 
-        $suppliers = Supplier::where('status', 1)
-            ->select('id', 'name')
-            ->get();
+        $suppliers = Supplier::where('status', 1)->select('id', 'name')->get();
 
-        return view(
-            'backend.purchase.edit',
-            compact(
-                'purchase',
-                'suppliers'
-            )
-        );
+        return view('backend.purchase.edit', compact('purchase', 'suppliers'));
     }
 
-
-    /**
-     * Update the specified resource in storage.
-     */
     public function update(Request $request, $id)
     {
         $request->validate([
             'supplier_id' => 'required|exists:suppliers,id',
-            'invoice_no' => 'required|unique:purchases,invoice_no,' . $id,
-            'purchase_date' => 'required|date',
-
-            'products' => 'required|array|min:1',
-
-            'products.*.product_id' => 'required|exists:products,id',
+            'invoice_no'  => 'required|unique:purchases,invoice_no,' . $id,
+            'purchase_date'=> 'required|date',
+            'products'    => 'required|array|min:1',
+            'products.*.id'=> 'required|exists:products,id',
+            'products.*.variant_id'=> 'nullable',
             'products.*.qty' => 'required|numeric|min:1',
-            'products.*.price' => 'required|numeric|min:0',
-            'products.*.size_id' => 'nullable',
-            'products.*.color_id' => 'nullable',
+            'products.*.price'=> 'required|numeric|min:0',
         ]);
 
         DB::beginTransaction();
 
         try {
-
             $purchase = Purchase::with('details')->findOrFail($id);
 
-            /*
-            =====================================================
-            1. REVERT OLD STOCK
-            =====================================================
-            */
+            // 1. REVERT OLD STOCK
             foreach ($purchase->details as $old) {
-
-                $stock = ProductStock::where('product_id', $old->product_id)
-                    ->where(function ($q) use ($old) {
-                        $old->size_id
-                            ? $q->where('size_id', $old->size_id)
-                            : $q->whereNull('size_id');
-                    })
-                    ->where(function ($q) use ($old) {
-                        $old->color_id
-                            ? $q->where('color_id', $old->color_id)
-                            : $q->whereNull('color_id');
-                    })
-                    ->first();
-
-                if ($stock) {
-                    $stock->decrement('quantity', $old->quantity);
-
-                    if ($stock->quantity < 0) {
-                        $stock->update(['quantity' => 0]);
-                    }
-                }
+                $this->adjustStock($old->product_id, $old->product_variant_id, $old->quantity, 'subtract');
             }
 
-            /*
-            =====================================================
-            2. UPDATE PURCHASE MAIN
-            =====================================================
-            */
-            $total = collect($request->products)->sum(function ($item) {
-                return $item['qty'] * $item['price'];
-            });
-
+            // 2. UPDATE MAIN PURCHASE
+            $totalAmount = collect($request->products)->sum(fn($item) => $item['qty'] * $item['price']);
             $purchase->update([
-                'supplier_id' => $request->supplier_id,
-                'invoice_no' => $request->invoice_no,
+                'supplier_id'   => $request->supplier_id,
+                'invoice_no'    => $request->invoice_no,
                 'purchase_date' => $request->purchase_date,
-                'total_amount' => $total,
+                'total_amount'  => $totalAmount,
             ]);
 
-            /*
-            =====================================================
-            3. DELETE OLD DETAILS
-            =====================================================
-            */
+            // 3. DELETE OLD DETAILS
             $purchase->details()->delete();
 
-            /*
-            =====================================================
-            4. INSERT NEW + STOCK UPDATE
-            =====================================================
-            */
+            // 4. INSERT NEW & UPDATE NEW STOCK
             foreach ($request->products as $item) {
-
-                $productId = $item['product_id'];
-                $sizeId = $item['size_id'] ?? null;
-                $colorId = $item['color_id'] ?? null;
+                $variantId = $item['variant_id'] ?? null;
+                $variant = $variantId ? ProductVariant::find($variantId) : null;
 
                 PurchaseDetail::create([
-                    'purchase_id' => $purchase->id,
-                    'product_id' => $productId,
-                    'product_size_id' => $sizeId,
-                    'color_id' => $colorId,
-                    'quantity' => $item['qty'],
-                    'buying_price' => $item['price'],
-                    'total_price' => $item['qty'] * $item['price'],
+                    'purchase_id'        => $purchase->id,
+                    'product_id'         => $item['id'],
+                    'product_variant_id' => $variantId,
+                    'color_id'           => $variant ? $variant->color_id : null,
+                    'product_size_id'    => $variant ? $variant->size_id : null,
+                    'quantity'           => $item['qty'],
+                    'buying_price'       => $item['price'],
+                    'total_price'        => $item['qty'] * $item['price'],
                 ]);
 
-                $stock = ProductStock::where('product_id', $productId)
-                    ->where(function ($q) use ($sizeId) {
-                        $sizeId ? $q->where('size_id', $sizeId) : $q->whereNull('size_id');
-                    })
-                    ->where(function ($q) use ($colorId) {
-                        $colorId ? $q->where('color_id', $colorId) : $q->whereNull('color_id');
-                    })
-                    ->first();
-
-                if ($stock) {
-                    $stock->increment('quantity', $item['qty']);
-                } else {
-                    ProductStock::create([
-                        'product_id' => $productId,
-                        'size_id' => $sizeId,
-                        'color_id' => $colorId,
-                        'quantity' => $item['qty'],
-                    ]);
-                }
-
-                Product::where('id', $productId)
-                    ->update(['is_purchased' => 1]);
+                $this->adjustStock($item['id'], $variantId, $item['qty'], 'add');
             }
 
             DB::commit();
-
-            return response()->json([
-                'status' => 'success',
-                'message' => 'Purchase updated successfully!'
-            ]);
+            return response()->json(['status' => 'success', 'message' => 'Purchase updated successfully!']);
         } catch (\Exception $e) {
-
             DB::rollBack();
-
-            return response()->json([
-                'status' => 'error',
-                'message' => $e->getMessage()
-            ], 500);
+            return response()->json(['status' => 'error', 'message' => $e->getMessage()], 500);
         }
     }
 
-    /**
-     * Remove the specified resource from storage.
-     */
     public function destroy($id)
     {
         DB::beginTransaction();
-
         try {
             $purchase = Purchase::with('details')->findOrFail($id);
 
             if ($purchase->is_sale == 1) {
-                return response()->json([
-                    'status' => 'error',
-                    'message' => 'Purchase has been sold, cannot delete!',
-                ], 400);
+                return response()->json(['status' => 'error', 'message' => 'Purchase has been sold, cannot delete!'], 400);
             }
 
             $productIds = [];
-
             foreach ($purchase->details as $detail) {
-
                 $productIds[] = $detail->product_id;
-
-                $stock = ProductStock::where('product_id', $detail->product_id)
-                    ->where('color_id', $detail->color_id)
-                    ->where('size_id', $detail->size_id)
-                    ->first();
-
-                if ($stock) {
-
-                    $newQty = $stock->quantity - $detail->quantity;
-
-                    $stock->update([
-                        'quantity' => max(0, $newQty)
-                    ]);
-                }
+                // Subtract stock
+                $this->adjustStock($detail->product_id, $detail->product_variant_id, $detail->quantity, 'subtract');
             }
 
-            // delete details FIRST using relation data already loaded
             $purchase->details()->delete();
-
-            // update products safely
-            Product::whereIn('id', array_unique($productIds))
-                ->update(['is_purchased' => 0]);
-
-            // delete purchase
+            Product::whereIn('id', array_unique($productIds))->update(['is_purchased' => 0]);
             $purchase->delete();
 
             DB::commit();
-
-            return response()->json([
-                'status' => 'success',
-                'message' => 'Purchase deleted successfully & stock adjusted!',
-            ]);
+            return response()->json(['status' => 'success', 'message' => 'Purchase deleted successfully & stock adjusted!']);
         } catch (\Exception $e) {
             DB::rollBack();
+            return response()->json(['status' => 'error', 'message' => 'Failed to delete purchase: ' . $e->getMessage()], 500);
+        }
+    }
 
-            return response()->json([
-                'status' => 'error',
-                'message' => 'Failed to delete purchase: ' . $e->getMessage(),
-            ], 500);
+    // ==========================================
+    // REUSABLE STOCK ADJUSTMENT HELPER
+    // ==========================================
+    private function adjustStock($productId, $variantId, $qty, $action = 'add')
+    {
+        $product = Product::find($productId);
+        if (!$product) return;
+
+        // Add or Subtract Main Product Stock
+        if ($action === 'add') {
+            $product->increment('stock', $qty);
+        } else {
+            $newStock = max(0, $product->stock - $qty);
+            $product->update([
+                'stock' => $newStock
+            ]);
+        }
+
+        // Add or Subtract Variant Stock
+        if ($product->product_type === 'multiple' && $variantId) {
+            $variant = ProductVariant::find($variantId);
+            if ($variant) {
+                if ($action === 'add') {
+                    $variant->increment('stock', $qty);
+                } else {
+                    $variant->decrement('stock', $qty);
+                    if ($variant->stock < 0) $variant->update(['stock' => 0]);
+                }
+            }
         }
     }
 }

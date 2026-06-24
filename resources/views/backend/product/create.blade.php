@@ -7,7 +7,7 @@
 <style>
     /* Modern E-commerce Dashboard UI */
     .app-content {
-        background-color: #f4f6f8; /* Soft background */
+        background-color: #f4f6f8; 
         padding-bottom: 50px;
     }
 
@@ -143,6 +143,56 @@
         background-color: #000;
         color: #fff;
     }
+    .premium-variation-wrapper {
+        background: #fafafa;
+        border-radius: 12px;
+        padding: 24px;
+        border: 1px solid #f0f0f0;
+    }
+    
+    .premium-variation-label {
+        font-size: 0.85rem;
+        font-weight: 700;
+        color: #878a99;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        margin-bottom: 15px;
+        display: block;
+    }
+
+    /* Premium Size Pill Styling */
+    .premium-size-btn {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        min-width: 50px;
+        min-height: 42px;
+        padding: 8px 18px;
+        background-color: #ffffff;
+        border: 2px solid #e9ebec;
+        color: #495057;
+        font-weight: 600;
+        font-size: 14px;
+        border-radius: 8px; 
+        cursor: pointer;
+        transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+        user-select: none;
+    }
+
+    /* Hover Effect */
+    .premium-size-btn:hover {
+        border-color: #ced4da;
+        background-color: #f8f9fa;
+    }
+
+    /* Active/Checked Effect */
+    .btn-check:checked + .premium-size-btn {
+        background-color: #111827; /* Deep Dark Color */
+        border-color: #111827;
+        color: #ffffff;
+        box-shadow: 0 8px 16px rgba(17, 24, 39, 0.2);
+        transform: scale(1.05); 
+    }
 </style>
 @endpush
 
@@ -179,7 +229,6 @@
             @csrf
             
             <div class="col-lg-8">
-                
                 <div class="card modern-card">
                     <div class="modern-card-header">
                         <h5><i class="fa-regular fa-file-lines text-muted"></i> General Information</h5>
@@ -244,7 +293,7 @@
                     </div>
                     <div class="card-body">
                         <div class="row">
-                            <div class="col-md-6 mb-4">
+                            <div class="col-md-4 mb-4">
                                 <label class="form-label">Product Type</label>
                                 <select name="product_type" id="product_type" class="form-select">
                                     <option value="single" {{ old('product_type') == 'single' ? 'selected' : '' }}>Single Product</option>
@@ -256,21 +305,26 @@
                                 <hr class="text-muted mb-4">
                                 
                                 <div class="row">
-                                    <div class="col-md-5 mb-4">
+                                    <div class="col-md-4 mb-4">
                                         <label class="form-label">Variation Group (e.g., Sizes)</label>
-                                        <select id="variation_select" class="form-select" name="variation_id">
-                                            <option value="">Select Variation Base</option>
+                                        <select name="variation_id" id="variation_select" class="form-select rounded-3">
+                                            <option value="">Select Variation Group</option>
                                             @foreach($variations as $variation)
-                                                <option value="{{ $variation->id }}" data-values='@json($variation->values)' {{ old('variation_id') == $variation->id ? 'selected' : '' }}>
+                                                <option value="{{ $variation->id }}" data-values="{{ json_encode($variation->sizes) }}" {{ old('variation_id') == $variation->id ? 'selected' : '' }}>
                                                     {{ $variation->name }}
                                                 </option>
                                             @endforeach
                                         </select>
                                     </div>
 
-                                    <div class="col-md-7 mb-4" id="variationSizesWrapper" style="display: none;">
-                                        <label class="form-label">Available Options</label>
-                                        <div id="variationSizes" class="size-checkbox-wrapper"></div>
+                                    <div class="col-md-8 mb-4" id="variationSizesWrapper" style="display: none;">
+                                        <div class="premium-variation-wrapper shadow-sm">
+                                            <label class="premium-variation-label">
+                                                <i class="fa-solid fa-gem text-dark me-1"></i> Available Sizes
+                                            </label>
+                                            <div id="variationSizes" class="d-flex flex-wrap gap-3 align-items-center">
+                                                </div>
+                                        </div>
                                     </div>
                                 </div>
 
@@ -279,7 +333,7 @@
                                         <span>Color Variants & Specific Images</span>
                                     </label>
                                     <div id="colorImageWrapper">
-                                        <div class="color-image-group d-flex align-items-center gap-3 mb-3">
+                                        <div class="color-image-group d-flex align-items-center gap-3 mb-3" data-index="0">
                                             <select name="color_image_names[0]" class="form-select color-select" style="max-width:180px;">
                                                 <option value="">Select Color</option>
                                                 @foreach($colors as $color)
@@ -291,6 +345,25 @@
                                                 <i class="fa fa-plus me-1"></i> Add
                                             </button>
                                         </div>
+                                    </div>
+                                </div>
+                                
+                                <div class="mt-4" id="variantCombinationsWrapper" style="display: none;">
+                                    <label class="form-label text-dark fw-bold mb-3">Variant Price & Stock Setup</label>
+                                    <div class="table-responsive border rounded-3">
+                                        <table class="table table-hover align-middle mb-0 bg-white">
+                                            <thead class="table-light">
+                                                <tr>
+                                                    <th>Variant (Color - Size)</th>
+                                                    <th>SKU <span class="text-danger">*</span></th>
+                                                    <th>Purchase Price</th>
+                                                    <th>Selling Price <span class="text-danger">*</span></th>
+                                                    <th>Stock <span class="text-danger">*</span></th>
+                                                </tr>
+                                            </thead>
+                                            <tbody id="variantCombinationsTableBody">
+                                                </tbody>
+                                        </table>
                                     </div>
                                 </div>
 
@@ -316,7 +389,7 @@
                             </div>
                             
                             <div class="col-6 mb-3">
-                                <label class="form-label">Maximum Price (৳) <small class="text-muted fw-normal">(Optional for variables)</small></label>
+                                <label class="form-label">Maximum Price (৳) <small class="text-muted fw-normal">(Optional)</small></label>
                                 <input type="number" step="0.01" class="form-control fs-5 fw-bold text-primary" name="max_price" id="max_price" value="{{ old('max_price') }}" placeholder="e.g. 7000">
                                 @error('max_price')<small class="text-danger">{{ $message }}</small>@enderror
                             </div>
@@ -325,7 +398,7 @@
                         <div class="row">
                             <div class="col-6 mb-3">
                                 <label class="form-label">Cost Price</label>
-                                <input type="number" step="0.01" class="form-control" name="purchase_price" value="{{ old('purchase_price') }}" placeholder="0.00">
+                                <input type="number" step="0.01" class="form-control" name="purchase_price" id="base_purchase_price" value="{{ old('purchase_price') }}" placeholder="0.00">
                             </div>
                             <div class="col-6 mb-3">
                                 <label class="form-label">Discount Price</label>
@@ -349,14 +422,20 @@
                             <input type="text" class="form-control font-monospace" id="sku" name="sku" value="{{ old('sku') }}" placeholder="Auto-generated" readonly>
                         </div>
                         
+                        <div class="mb-3">
+                            <label class="form-label">Barcode</label>
+                            <input type="text" class="form-control" name="barcode" value="{{ old('barcode') }}" placeholder="Optional">
+                        </div>
+
                         <div class="row">
-                            <div class="col-6 mb-3">
-                                <label class="form-label">Barcode</label>
-                                <input type="text" class="form-control" name="barcode" value="{{ old('barcode') }}" placeholder="Optional">
-                            </div>
                             <div class="col-6 mb-3">
                                 <label class="form-label">Alert Qty</label>
                                 <input type="number" class="form-control" name="alert_quantity" value="{{ old('alert_quantity') }}" placeholder="e.g. 5">
+                            </div>
+                            <div class="col-6 mb-3" id="singleProductStockWrapper">
+                                <label class="form-label">Opening Stock <span class="text-danger">*</span></label>
+                                <input type="number" class="form-control fw-bold" name="stock" value="{{ old('stock', 0) }}" placeholder="e.g. 50">
+                                <small class="text-muted">For single product</small>
                             </div>
                         </div>
                     </div>
@@ -474,9 +553,12 @@
 @push('scripts')
 <script>
     $(document).ready(function() {
-        $('.summernote').summernote({ height: 250 });
+        // Initialize Summernote
+        if ($('.summernote').length > 0) {
+            $('.summernote').summernote({ height: 250 });
+        }
 
-        // Auto Generate Slug & SKU
+        // Auto Generate Slug & SKU from Product Title
         $('#name').on('keyup', function() {
             let name = $(this).val().trim();
             let slug = name.toLowerCase().replace(/[^a-z0-9]+/g, '-');
@@ -487,24 +569,40 @@
             } else {
                 $('#sku').val('');
             }
+            if($('#product_type').val() === 'multiple') {
+                generateVariantMatrix();
+            }
         });
 
-        // Toggle Variable Products
-            function toggleProductOptions() {
-                if($('#product_type').val() === 'single'){
-                    $('.product-options').slideUp(300);
-                    $('#variation_select').prop('disabled', true).val('');
-                    $('.color-select').prop('disabled', true).val('');
-                    $('.size-check-input').prop('disabled', true).prop('checked', false);
-                } else {
-                    $('.product-options').slideDown(300);
-                    $('#variation_select').prop('disabled', false);
-                    $('.color-select').prop('disabled', false);
-                    $('.size-check-input').prop('disabled', false);
-                }
+        // Live update Matrix Selling Price when Main Selling Price changes
+        $('#selling_price').on('keyup change', function() {
+            if($('#product_type').val() === 'multiple') {
+                generateVariantMatrix();
             }
-            toggleProductOptions();
-            $('#product_type').on('change', toggleProductOptions);
+        });
+
+        // Toggle Single vs Variable Products view
+        function toggleProductOptions() {
+            if($('#product_type').val() === 'single') {
+                $('.product-options').slideUp(300);
+                $('#variantCombinationsWrapper').slideUp(300);
+                $('#singleProductStockWrapper').slideDown(300);
+                
+                $('#variation_select').prop('disabled', true).val('');
+                $('.color-select').prop('disabled', true).val('');
+                $('.size-check-input').prop('disabled', true).prop('checked', false);
+            } else {
+                $('.product-options').slideDown(300);
+                $('#singleProductStockWrapper').slideUp(300);
+                
+                $('#variation_select').prop('disabled', false);
+                $('.color-select').prop('disabled', false);
+                $('.size-check-input').prop('disabled', false);
+                generateVariantMatrix();
+            }
+        }
+        toggleProductOptions();
+        $('#product_type').on('change', toggleProductOptions);
 
         // Status Select Color Toggle
         $('#statusSelect').on('change', function(){
@@ -515,36 +613,7 @@
             }
         });
 
-        // Image Previews (Main)
-        $('input[name="image"]').on('change', function() {
-            $('#mainImagePreview').remove();
-            let file = this.files[0];
-            if(file){
-                let reader = new FileReader();
-                reader.onload = function(e){
-                    $('<img id="mainImagePreview" class="img-thumbnail mt-3 shadow-sm" style="max-height:120px; border-radius:10px;">')
-                        .attr('src', e.target.result)
-                        .insertAfter('input[name="image"]');
-                };
-                reader.readAsDataURL(file);
-            }
-        });
-
-        // Image Previews (Gallery)
-        $('input[name="images[]"]').on('change', function() {
-            $('#imagesPreview').remove();
-            let wrapper = $('<div id="imagesPreview" class="d-flex flex-wrap gap-2 mt-3"></div>');
-            Array.from(this.files).forEach(file => {
-                let reader = new FileReader();
-                reader.onload = function(e){
-                    $('<img class="img-thumbnail shadow-sm" style="height:80px; width:80px; object-fit:cover; border-radius:10px;">').attr('src', e.target.result).appendTo(wrapper);
-                };
-                reader.readAsDataURL(file);
-            });
-            $(this).after(wrapper);
-        });
-
-        // Unique Color Selection Logic
+        // Unique Color Selection & Live Matrix Trigger
         let selectedColors = [];
         $(document).on('change', '.color-select', function () {
             let value = $(this).val();
@@ -554,17 +623,30 @@
                 selectedColors = selectedColors.filter(c => c !== prevValue);
             }
             if (value !== '') {
-                if (selectedColors.includes(value)) {
+                let isDuplicate = false;
+                let currentSelect = this;
+                $('.color-select').not(currentSelect).each(function() {
+                    if($(this).val() === value) {
+                        isDuplicate = true;
+                    }
+                });
+
+                if (isDuplicate) {
                     alert('This color is already selected!');
                     $(this).val('');
+                    $(this).data('prev', '');
+                    generateVariantMatrix();
                     return;
                 }
                 selectedColors.push(value);
                 $(this).data('prev', value);
+            } else {
+                $(this).data('prev', '');
             }
+            generateVariantMatrix();
         });
 
-        // Add New Color Row
+        // Add Dynamic Color Row
         let colorImageIndex = 1;
         $(document).on('click', '.addColorImage', function () {
             let index = colorImageIndex++;
@@ -582,7 +664,7 @@
                     </select>
                     <input type="file" name="color_images[${index}][]" class="form-control" multiple>
                     <button type="button" class="btn btn-outline-danger removeColorImage text-nowrap rounded-3">
-                        <i class="fa fa-trash"></i>
+                        <i class="fa fa-trash"></i> Remove
                     </button>
                 </div>
             `;
@@ -597,18 +679,21 @@
             if (value && selectedColors.includes(value)) {
                 selectedColors = selectedColors.filter(c => c !== value);
             }
-            group.slideUp(300, function(){ $(this).remove(); });
+            group.slideUp(300, function(){ 
+                $(this).remove(); 
+                generateVariantMatrix(); 
+            });
         });
 
-        // Fetch Subcategories via AJAX
-        $('select[name="category_id"]').on('change', function(){
+        // Category to Subcategory AJAX
+        $('#category_id').on('change', function(){
             let category_id = $(this).val();
-            let subDropdown = $('select[name="subcategory_id"]');
+            let subDropdown = $('#subcategory_id');
             subDropdown.empty().append('<option value="">Loading...</option>');
 
             if(category_id){
                 $.ajax({
-                    url: '/admin/get-subcategories/' + category_id,
+                    url: '/admin/get-subcategories/' + category_id, 
                     type: "GET",
                     dataType: "json",
                     success:function(data){
@@ -626,10 +711,10 @@
             }
         });
 
-        // Generate Variation Sizes (Pill Checkboxes)
+        // --- FIXED SIZE OPTIONS GENERATOR ---
         $(document).on('change', '#variation_select', function () {
             let option = $(this).find(':selected');
-            let values = option.attr('data-values');
+            let values = option.data('values') || option.attr('data-values');
             let wrapper = $('#variationSizes');
             let mainWrapper = $('#variationSizesWrapper');
             
@@ -637,23 +722,38 @@
 
             if (!values || values === "") {
                 mainWrapper.hide();
+                generateVariantMatrix();
                 return;
             }
 
-            try {
-                values = JSON.parse(values);
-            } catch (e) {
-                values = [];
+            if (typeof values === 'string') {
+                try { values = JSON.parse(values); } catch (e) { values = []; }
             }
 
             if (Array.isArray(values) && values.length > 0) {
                 mainWrapper.fadeIn();
                 let html = ``;
-                values.forEach(function (val, index) {
+                
+                values.forEach(function (item, index) {
+                    let displayValue = '';
+                    let sizeId = '';
+                    
+                    if (item !== null && typeof item === 'object') {
+                        displayValue = item.value || item.name || item.text;
+                        sizeId = item.id; // Size ID
+                    } else {
+                        displayValue = item;
+                        sizeId = item;
+                    }
+
+                    if (!displayValue || displayValue.toString().trim() === "") return;
+
                     html += `
-                        <div>
-                            <input class="size-check-input" type="checkbox" name="variation_sizes[]" value="${val}" id="size_${index}">
-                            <label class="size-check-label" for="size_${index}">${val}</label>
+                        <div class="position-relative">
+                            <input type="checkbox" class="btn-check size-check-input" name="variation_sizes[]" value="${sizeId}" data-name="${displayValue}" id="size_${index}" autocomplete="off">
+                            <label class="premium-size-btn" for="size_${index}">
+                                ${displayValue}
+                            </label>
                         </div>
                     `;
                 });
@@ -661,12 +761,106 @@
             } else {
                 mainWrapper.hide();
             }
+            generateVariantMatrix();
+        });
+        // Re-trigger Matrix Table on size check change
+        $(document).on('change', '.size-check-input', function() {
+            generateVariantMatrix();
         });
 
-        // Auto Hide Error Alerts
+        // --- FIXED VARIATION MATRIX GENERATOR ---
+        function generateVariantMatrix() {
+            if($('#product_type').val() === 'single') {
+                $('#variantCombinationsWrapper').hide();
+                return;
+            }
+
+            let selectedSizes = [];
+            $('.size-check-input:checked').each(function() {
+                selectedSizes.push({
+                    id: $(this).val(),        // size_id
+                    name: $(this).data('name') // size_name (for label)
+                });
+            });
+
+            let selectedColors = [];
+            $('.color-select').each(function() {
+                let colorId = $(this).val();
+                let colorName = $(this).find('option:selected').text().trim();
+                if (colorId && colorId !== "" && colorName !== "Select Color") {
+                    selectedColors.push({ id: colorId, name: colorName });
+                }
+            });
+
+            let tbody = $('#variantCombinationsTableBody');
+            tbody.empty();
+
+            if (selectedSizes.length === 0 && selectedColors.length === 0) {
+                $('#variantCombinationsWrapper').hide();
+                return;
+            }
+
+            let combinations = [];
+            if (selectedColors.length > 0 && selectedSizes.length > 0) {
+                selectedColors.forEach(color => {
+                    selectedSizes.forEach(size => { combinations.push({ color: color, size: size }); });
+                });
+            } else if (selectedColors.length > 0) {
+                selectedColors.forEach(color => { combinations.push({ color: color, size: null }); });
+            } else if (selectedSizes.length > 0) {
+                selectedSizes.forEach(size => { combinations.push({ color: null, size: size }); });
+            }
+
+            if (combinations.length > 0) {
+                $('#variantCombinationsWrapper').fadeIn();
+                let baseSku = $('#sku').val() || 'PROD';
+                let defaultSellingPrice = $('#selling_price').val() || '';
+                let defaultPurchasePrice = $('#base_purchase_price').val() || '';
+
+                combinations.forEach((variant, index) => {
+                    let variantName = '';
+                    let colorVal = variant.color ? variant.color.id : '';
+                    let sizeVal = variant.size ? variant.size.id : ''; // size_id
+                    
+                    if (variant.color) variantName += variant.color.name;
+                    if (variant.color && variant.size) variantName += ' - ';
+                    if (variant.size) variantName += variant.size.name;
+
+                    let colorCode = variant.color ? variant.color.name.substring(0,3).toUpperCase() : '';
+                    let sizeCode = variant.size ? variant.size.name.toString().replace(/[^a-zA-Z0-9]/g, '').toUpperCase() : '';
+                    
+                    let variantSku = baseSku + (colorCode ? '-' + colorCode : '') + (sizeCode ? '-' + sizeCode : '');
+
+                    let row = `
+                        <tr>
+                            <td>
+                                <span class="badge bg-light text-dark border px-3 py-2 rounded-2 fw-bold">${variantName}</span>
+                                <input type="hidden" name="variants[${index}][color_id]" value="${colorVal}">
+                                <input type="hidden" name="variants[${index}][size_id]" value="${sizeVal}">
+                            </td>
+                            <td><input type="text" name="variants[${index}][sku]" class="form-control font-monospace form-control-sm" value="${variantSku}" required></td>
+                            <td><input type="number" step="0.01" name="variants[${index}][purchase_price]" class="form-control form-control-sm" value="${defaultPurchasePrice}"></td>
+                            <td><input type="number" step="0.01" name="variants[${index}][selling_price]" class="form-control form-control-sm text-success fw-bold" value="${defaultSellingPrice}" required></td>
+                            <td><input type="number" name="variants[${index}][stock]" class="form-control form-control-sm" value="1" required></td>
+                        </tr>
+                    `;
+                    tbody.append(row);
+                });
+            } else {
+                $('#variantCombinationsWrapper').hide();
+            }
+        }
+        // Auto fadeout error alert
         setTimeout(function () {
             $('#errorAlert').fadeOut('slow', function(){ $(this).remove(); });
         }, 5000); 
+
+        // Button submission loader
+        $('#productForm').on('submit', function() {
+            let $btn = $('#submitBtn');
+            $btn.html('<i class="fa-solid fa-spinner fa-spin me-2"></i> Saving...');
+            $btn.prop('disabled', true); 
+        });
     });
 </script>
 @endpush

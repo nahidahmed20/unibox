@@ -6,15 +6,16 @@ use Illuminate\Database\Eloquent\Model;
 
 class Variation extends Model
 {
-    protected $fillable = [
-        'name',
-        'values',
-        'status'
-    ];
+    protected $guarded = ['id'];
 
-    protected $casts = [
-        'values' => 'array'
-    ];
+    public function items()
+    {
+        return $this->hasMany(VariationItem::class);
+    }
 
+    public function sizes()
+    {
+        return $this->belongsToMany(Size::class, 'variation_items', 'variation_id', 'size_id');
+    }
     
 }

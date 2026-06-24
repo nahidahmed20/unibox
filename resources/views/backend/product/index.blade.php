@@ -3,7 +3,6 @@
 
 @section('content')
 
-
 <div class="app-content-header mb-4 mt-3">
     <div class="container-fluid">
         <div class="row align-items-center">
@@ -22,7 +21,6 @@
 
 <div class="app-content">
     <div class="container-fluid">
-        
         <div class="card modern-card">
             <div class="modern-card-header">
                 <h4 class="card-title"><i class="fa-solid fa-list-ul text-muted me-2"></i> All Products</h4>
@@ -43,7 +41,7 @@
                                 <th>Image</th>
                                 <th>Cost (<span class="taka-symbol">৳</span>)</th>
                                 <th>Selling (<span class="taka-symbol">৳</span>)</th>
-                                <th>Status</th>
+                                <th>Stock</th> <th>Status</th>
                                 <th width="12%" class="text-center">Action</th>
                             </tr>
                         </thead>
@@ -53,19 +51,18 @@
                                 <th colspan="5" class="text-end text-uppercase text-muted" style="font-size: 12px;">Page Total:</th>
                                 <th id="totalPurchase" class="text-danger fw-bold fs-6"></th>
                                 <th id="totalSelling" class="text-success fw-bold fs-6"></th>
-                                <th colspan="2"></th>
+                                <th colspan="3"></th>
                             </tr>
                         </tfoot>
                     </table>
                 </div>
             </div>
         </div>
-
     </div>
 </div>
 
 <div class="modal fade" id="productModal" tabindex="-1" aria-hidden="true">
-    <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable">
+    <div class="modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable">
         <div class="modal-content">
             <div class="modal-header modal-header-modern">
                 <h5 class="modal-title modal-title-modern">
@@ -74,11 +71,7 @@
                 <button type="button" class="btn-close shadow-none" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body" id="productModalBody">
-                <div class="text-center py-5">
-                    <div class="spinner-border text-dark" role="status" style="width: 3rem; height: 3rem;"></div>
-                    <p class="mt-3 text-muted fw-bold">Loading details...</p>
                 </div>
-            </div>
             <div class="modal-footer border-top-0 bg-light">
                 <button type="button" class="btn btn-secondary px-4 rounded-pill fw-bold" data-bs-dismiss="modal">Close</button>
             </div>
@@ -90,8 +83,9 @@
 
 @push('scripts')
 <script>
-    $(document).ready(function () {
+$(document).ready(function () {
 
+    // --- DataTable Initialization ---
     var table = $('#productsTable').DataTable({
         processing: true,
         serverSide: true,
@@ -104,32 +98,12 @@
             { data: 'image',          name: 'image',          orderable: false, searchable: false },
             { data: 'purchase_price', name: 'purchase_price', className: 'fw-bold' },
             { data: 'selling_price',  name: 'selling_price', className: 'fw-bold text-success' },
+            { data: 'stock',          name: 'stock',          orderable: false, searchable: false }, // JS এ ম্যাপ করা হলো
             { data: 'status',         name: 'status' },
             { data: 'action',         name: 'action',         orderable: false, searchable: false, className: 'text-center' },
         ],
         dom: '<"row align-items-center mb-4"<"col-md-4"l><"col-md-4 d-flex justify-content-center"B><"col-md-4 d-flex justify-content-end"f>>rt<"d-flex justify-content-between align-items-center mt-4"ip>',
-        buttons: [
-            {
-                extend: 'copy', text: '<i class="fa-regular fa-copy"></i> Copy',
-                exportOptions: { columns: ':not(:nth-child(5)):not(:nth-child(9))' }
-            },
-            {
-                extend: 'excel', text: '<i class="fa-regular fa-file-excel"></i> Excel',
-                exportOptions: { columns: ':not(:nth-child(5)):not(:nth-child(9))' }
-            },
-            {
-                extend: 'csv', text: '<i class="fa-solid fa-file-csv"></i> CSV',
-                exportOptions: { columns: ':not(:nth-child(5)):not(:nth-child(9))' }
-            },
-            {
-                extend: 'pdf', text: '<i class="fa-regular fa-file-pdf"></i> PDF',
-                exportOptions: { columns: ':not(:nth-child(5)):not(:nth-child(9))' }
-            },
-            {
-                extend: 'print', text: '<i class="fa-solid fa-print"></i> Print',
-                exportOptions: { columns: ':not(:nth-child(5)):not(:nth-child(9))' }
-            }
-        ],
+        buttons: ['copy', 'excel', 'csv', 'pdf', 'print'],
         order: [[1, 'asc']],
         responsive: true,
         language: {
@@ -143,7 +117,6 @@
         },
         footerCallback: function (row, data, start, end, display) {
             let api = this.api();
-
             let intVal = function (i) {
                 return typeof i === 'string'
                     ? i.replace(/[\$,]/g, '') * 1
@@ -153,47 +126,45 @@
             let totalPurchase = api.column(5, { page: 'current' }).data().reduce((a, b) => intVal(a) + intVal(b), 0);
             let totalSelling  = api.column(6, { page: 'current' }).data().reduce((a, b) => intVal(a) + intVal(b), 0);
 
-            $('#totalPurchase').html('<span class="taka-symbol">৳</span>' + totalPurchase.toLocaleString(undefined, {minimumFractionDigits: 2}));
-            $('#totalSelling').html('<span class="taka-symbol">৳</span>' + totalSelling.toLocaleString(undefined, {minimumFractionDigits: 2}));
+            $('#totalPurchase').html('<span class="taka-symbol">৳</span> ' + totalPurchase.toLocaleString('en-IN', {minimumFractionDigits: 2}));
+            $('#totalSelling').html('<span class="taka-symbol">৳</span> ' + totalSelling.toLocaleString('en-IN', {minimumFractionDigits: 2}));
         }
     });
 
- 
+    // --- Delete Confirmation ---
+    $(document).on('click', '.btn-delete', function (e) {
+        e.preventDefault();
+        let form = $(this).closest('form');
+        if (confirm("Are you sure you want to delete this product? This action cannot be undone.")) {
+            form.submit();
+        }
+    });
 
     $(document).on('click', '.btn-show', function () {
         let id = $(this).data('id');
-
-        // Show loading spinner
-        $('#productModalBody').html(`
-            <div class="text-center py-5">
-                <div class="spinner-border text-dark" role="status" style="width: 3rem; height: 3rem;"></div>
-                <p class="mt-3 text-muted fw-bold">Loading details...</p>
-            </div>
-        `);
+        let btn = $(this);
+        
+        let originalHtml = btn.html();
+        btn.prop('disabled', true).html('<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>');
 
         $.ajax({
             url: '/admin/products/' + id,
             type: 'GET',
             success: function (res) {
+                btn.prop('disabled', false).html(originalHtml);
 
-                // --- Main Image ---
                 let mainImageHtml = res.image
                     ? `<img src="${res.image}" class="img-fluid rounded-4 mb-2 shadow-sm border" style="max-height:220px; width:100%; object-fit:cover;">`
                     : '<div class="bg-light rounded-4 border p-4 text-center text-muted"><i class="fa-regular fa-image fs-1 mb-2"></i><br>No image</div>';
 
-                // --- Size Guide ---
                 let sizeGuideHtml = res.size_guide
                     ? `<img src="${res.size_guide}" class="img-fluid rounded-4 mb-2 shadow-sm border" style="max-height:220px; width:100%; object-fit:cover;">`
                     : '<span class="text-muted fst-italic">Not uploaded</span>';
 
-                // --- Multiple Images ---
                 let multipleImagesHtml = (res.images && res.images.length)
-                    ? res.images.map(img =>
-                        `<img src="${img}" class="img-thumbnail rounded-3 shadow-sm me-2 mb-2" style="width:70px; height:70px; object-fit:cover;">`
-                    ).join('')
+                    ? res.images.map(img => `<img src="${img}" class="img-thumbnail rounded-3 shadow-sm me-2 mb-2" style="width:70px; height:70px; object-fit:cover;">`).join('')
                     : '<span class="text-muted fst-italic">No gallery images</span>';
 
-                // --- Color Images ---
                 let colorImagesHtml = (res.colors && res.colors.length)
                     ? res.colors.map(c => {
                         if (c.images && c.images.length) {
@@ -204,9 +175,7 @@
                                         <strong class="text-dark">${c.name}</strong>
                                     </div>
                                     <div class="d-flex flex-wrap">
-                                        ${c.images.map(img =>
-                                            `<img src="${img}" class="img-thumbnail rounded-3 shadow-sm me-2 mb-2" style="width:65px; height:65px; object-fit:cover;">`
-                                        ).join('')}
+                                        ${c.images.map(img => `<img src="${img}" class="img-thumbnail rounded-3 shadow-sm me-2 mb-2" style="width:65px; height:65px; object-fit:cover;">`).join('')}
                                     </div>
                                 </div>`;
                         }
@@ -223,21 +192,17 @@
                     ? res.sizes.map(s => `<span class="badge bg-dark rounded-pill px-3 py-2 me-1 mb-1">${s.size}</span>`).join('')
                     : '<span class="text-muted">-</span>';
 
-                // --- Stock (Size & Color wise) ---
                 let sizeWiseStockHtml = '';
-
                 if (res.stocks && res.stocks.length > 0) {
                     let grouped = {};
-
                     res.stocks.forEach(stock => {
-                        let sizeName = stock.size?.size ?? '—';
+                        let sizeName = stock.size?.size ?? 'Standard';
                         if (!grouped[sizeName]) grouped[sizeName] = [];
                         grouped[sizeName].push(stock);
                     });
 
                     Object.keys(grouped).forEach(size => {
-                        let totalQty = grouped[size].reduce((sum, s) => sum + (s.quantity || 0), 0);
-
+                        let totalQty = grouped[size].reduce((sum, s) => sum + parseInt(s.quantity || 0), 0);
                         sizeWiseStockHtml += `
                             <div class="mb-4">
                                 <h6 class="fw-bold mb-3 d-flex align-items-center">
@@ -259,7 +224,6 @@
                             let colorName = stock.color?.name ?? '—';
                             let colorCode = stock.color?.code ?? null;
                             let qty       = stock.quantity ?? 0;
-
                             sizeWiseStockHtml += `
                                 <tr>
                                     <td class="align-middle">
@@ -274,29 +238,23 @@
                                 </tr>
                             `;
                         });
-
                         sizeWiseStockHtml += `</tbody></table></div></div>`;
                     });
-
                 } else {
                     sizeWiseStockHtml = '<div class="alert alert-light border text-center text-muted">No stock variations available</div>';
                 }
 
-                // --- Build Full Modal HTML ---
                 let html = `
                     <div class="row g-4">
-
                         <div class="col-lg-4 col-md-5">
                             <div class="bg-white rounded-4 p-3 border shadow-sm mb-4">
                                 <h6 class="fw-bold text-uppercase text-muted mb-3" style="font-size: 12px; letter-spacing: 1px;">Primary Image</h6>
                                 ${mainImageHtml}
                             </div>
-
                             <div class="bg-white rounded-4 p-3 border shadow-sm mb-4">
                                 <h6 class="fw-bold text-uppercase text-muted mb-3" style="font-size: 12px; letter-spacing: 1px;">Size Guide</h6>
                                 ${sizeGuideHtml}
                             </div>
-
                             <div class="bg-white rounded-4 p-3 border shadow-sm mb-4">
                                 <h6 class="fw-bold text-uppercase text-muted mb-3" style="font-size: 12px; letter-spacing: 1px;">Gallery</h6>
                                 <div class="d-flex flex-wrap">${multipleImagesHtml}</div>
@@ -304,10 +262,9 @@
                         </div>
 
                         <div class="col-lg-8 col-md-7">
-                            
                             <div class="bg-white rounded-4 p-4 border shadow-sm mb-4">
                                 <h4 class="fw-bold text-dark mb-1">${res.name ?? 'Unnamed Product'}</h4>
-                                <div class="d-flex gap-3 mb-4 text-muted" style="font-size: 14px;">
+                                <div class="d-flex flex-wrap gap-3 mb-4 text-muted" style="font-size: 14px;">
                                     <span><i class="fa-solid fa-barcode me-1"></i> ${res.sku ?? '-'}</span>
                                     <span><i class="fa-solid fa-folder me-1"></i> ${res.category?.name ?? '-'}</span>
                                     <span><i class="fa-solid fa-tag me-1"></i> ${res.brand?.name ?? '-'}</span>
@@ -372,27 +329,19 @@
                                     ${res.description || 'No full description provided.'}
                                 </div>
                             </div>
-
                         </div>
                     </div>
                 `;
 
                 $('#productModalBody').html(html);
-                $('#productModal').modal('show');
+                $('#productModal').modal('show'); 
             },
-
             error: function () {
-                $('#productModalBody').html(`
-                    <div class="alert alert-danger rounded-4 border-0 shadow-sm text-center py-4">
-                        <i class="fa-solid fa-circle-exclamation fs-1 mb-3 text-danger"></i>
-                        <h5>Oops! Something went wrong.</h5>
-                        <p class="mb-0 text-muted">Failed to load product details. Please try again.</p>
-                    </div>
-                `);
+                btn.prop('disabled', false).html(originalHtml);
+                alert('Failed to load product details.');
             }
         });
     });
-
 });
 </script>
 @endpush

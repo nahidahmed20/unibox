@@ -23,4 +23,18 @@ class ProductStock extends Model
         return $this->belongsTo(ProductSize::class, 'size_id');
     }
 
+    public static function updateStock($productId, $colorId, $sizeId, $quantity)
+    {
+        return self::updateOrCreate(
+            [
+                'product_id' => $productId,
+                'color_id'   => $colorId,
+                'size_id'    => $sizeId, 
+            ],
+            [
+                'quantity'   => \Illuminate\Support\Facades\DB::raw("quantity + " . (int)$quantity)
+            ]
+        );
+    }
+
 }
