@@ -1,111 +1,307 @@
 @extends('backend.layouts.app')
 @section('title', 'Edit Purchase')
 @section('content')
-    @push('styles')
-        <style>
-            .shopify-card {
-                background: #fff;
-                border: 1px solid #e1e3e5;
-                border-radius: 12px;
-                box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
-                overflow: hidden;
-            }
+   @push('styles')
+    <style>
+        #searchResults {
+            border: 1px solid #e2e8f0 !important;
+            border-radius: 14px !important;
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.05), 0 10px 10px -5px rgba(0, 0, 0, 0.03) !important;
+            overflow: hidden;
+            margin-top: 8px;
+            background: #ffffff;
+        }
+        
+        .search-item {
+            padding: 14px 20px !important;
+            border-bottom: 1px solid #f1f5f9 !important;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            cursor: pointer;
+            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        
+        .search-item:last-child {
+            border-bottom: none !important;
+        }
+        
+        .search-item:hover {
+            background-color: #f8fafc !important;
+            transform: translateX(6px); 
+        }
 
-            .shopify-input {
-                border: 1px solid #c9cccf;
-                border-radius: 8px;
-                padding: 12px;
-                transition: all 0.2s;
-            }
+        .product-name-text {
+            font-size: 0.95rem;
+            font-weight: 600;
+            color: #0f172a;
+        }
 
-            .shopify-input:focus {
-                border-color: #000032;
-                box-shadow: 0 0 0 3px rgba(0, 128, 96, 0.15);
-                outline: none;
-            }
+        .product-sku-text {
+            font-size: 0.8rem;
+            color: #64748b;
+        }
 
-            .table-container {
-                border: 1px solid #e1e3e5;
-                border-radius: 12px;
-            }
+        .modal-content {
+            border: 1px solid rgba(0, 0, 0, 0.03) !important;
+            border-radius: 24px !important;
+            box-shadow: 0 25px 50px -12px rgba(15, 23, 42, 0.08) !important;
+            background: #ffffff;
+        }
 
-            .table thead {
-                background: #fbfbfb;
-                border-bottom: 1px solid #e1e3e5;
-            }
+        .modal-header {
+            border-bottom: none !important;
+            padding: 24px 32px !important;
+            background: #0f172a !important; 
+            position: relative;
+        }
 
-            .table thead th {
-                color: #5c5f62;
-                font-size: 13px;
-                font-weight: 600;
-                text-transform: uppercase;
-                padding: 16px;
-            }
+        .modal-header-icon-box {
+            width: 42px;
+            height: 42px;
+            background: rgba(255, 255, 255, 0.12) !important;
+            border: 1px solid rgba(255, 255, 255, 0.2) !important;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #ffffff !important;
+        }
 
-            .btn-shopify {
-                background: #000032;
-                color: #fff;
-                border-radius: 8px;
-                padding: 10px 24px;
-                font-weight: 500;
-            }
+        .modal-header .btn-close {
+            background-color: rgba(255, 255, 255, 0.1) !important;
+            filter: invert(1) grayscale(1) brightness(2); 
+            padding: 10px !important;
+            border-radius: 50% !important;
+            opacity: 0.8;
+            transition: all 0.2s ease;
+        }
 
-            .btn-shopify:hover {
-                background: #000032;
-                color: #fff;
-            }
+        .modal-header .btn-close:hover {
+            background-color: rgba(255, 255, 255, 0.2) !important;
+            transform: rotate(90deg) scale(1.05);
+            opacity: 1;
+        }
 
-            .search-dropdown {
-                border-radius: 12px;
-                border: 1px solid #e1e3e5;
-                box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
-            }
+        .modal-footer {
+            border-top: 1px solid #f1f5f9 !important;
+            padding: 20px 32px !important;
+            background: #f8fafc;
+            border-bottom-left-radius: 24px !important;
+            border-bottom-right-radius: 24px !important;
+        }
 
-            #searchResults {
-                position: absolute;
-                width: 100%;
-                background: #fff;
-                border: 1px solid #ddd;
-                border-radius: 10px;
-                max-height: 300px;
-                overflow-y: auto;
-                z-index: 999;
-                display: none;
-            }
+        .table {
+            border-color: #f1f5f9 !important;
+        }
 
-            .search-item {
-                padding: 12px 15px;
-                display: flex;
-                justify-content: space-between;
-                align-items: center;
-                cursor: pointer;
-                border-bottom: 1px solid #f1f1f1;
-                transition: .3s;
-            }
+        .table thead th {
+            font-weight: 700 !important;
+            text-transform: uppercase;
+            font-size: 0.75rem !important;
+            letter-spacing: 0.8px;
+            background-color: #f8fafc !important;
+            color: #64748b !important;
+            padding: 14px 20px !important;
+            border-bottom: 1px solid #e2e8f0 !important;
+        }
 
-            .search-item:hover {
-                background: #f8f9fa;
-            }
+        .table tbody td {
+            padding: 16px 20px !important;
+            color: #334155;
+            font-size: 0.9rem;
+        }
 
-            .product-name-text {
-                font-size: 15px;
-                font-weight: 700;
-                color: #222;
-            }
+        #variantMatrixTable tbody tr {
+            transition: all 0.15s ease;
+            border-bottom: 1px solid #f1f5f9;
+        }
+        
+        #variantMatrixTable tbody tr:hover {
+            background-color: #f8fafc !important;
+        }
 
-            .product-sku-text {
-                font-size: 12px;
-                color: #777;
-            }
-        </style>
-    @endpush
+        #variantMatrixTable tbody tr.row-active {
+            background-color: rgba(15, 23, 42, 0.02) !important;
+        }
+        
+        #variantMatrixTable tbody tr.row-active td {
+            color: #0f172a !important;
+        }
 
+        .variant-title-text {
+            font-size: 0.9rem;
+            color: #1e293b;
+            font-weight: 600;
+        }
+
+        .modal-price, .modal-qty, .price, .qty, .premium-modal-input {
+            border-radius: 10px !important;
+            border: 1.5px solid #e2e8f0 !important;
+            padding: 8px 14px !important;
+            font-weight: 700 !important;
+            color: #0f172a !important;
+            font-size: 0.9rem !important;
+            text-align: center;
+            background-color: #ffffff;
+            box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.02) !important;
+            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1) !important;
+        }
+
+        .modal-price:focus, .modal-qty:focus, .price:focus, .qty:focus, .premium-modal-input:focus {
+            border-color: #0f172a !important; 
+            box-shadow: 0 0 0 4px rgba(15, 23, 42, 0.08) !important;
+            background-color: #ffffff !important;
+            outline: none;
+        }
+
+        .premium-modal-input.has-value {
+            border-color: #3b82f6 !important;
+            background-color: rgba(59, 130, 246, 0.02) !important;
+            color: #3b82f6 !important;
+        }
+
+        input::-webkit-outer-spin-button,
+        input::-webkit-inner-spin-button {
+            -webkit-appearance: none;
+            margin: 0;
+        }
+        input[type=number] {
+            -moz-appearance: textfield;
+        }
+
+        .badge {
+            font-size: 0.78rem !important;
+            font-weight: 600 !important;
+            border-radius: 8px !important;
+            padding: 6px 12px !important;
+            letter-spacing: 0.3px;
+        }
+        
+        .bg-light {
+            background-color: #f1f5f9 !important;
+            color: #475569 !important;
+            border: 1px solid #e2e8f0 !important;
+        }
+
+        .btn-sm {
+            border-radius: 10px !important;
+            padding: 8px 12px !important;
+            font-weight: 600;
+            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        
+        .btn-danger:hover {
+            background-color: #ef4444 !important;
+            border-color: #ef4444 !important;
+            transform: scale(1.05);
+            box-shadow: 0 4px 12px rgba(239, 68, 68, 0.2);
+        }
+
+        #btnModalAddProducts:hover {
+            background: #1e293b !important;
+            border-color: #1e293b !important;
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px -5px rgba(15, 23, 42, 0.15) !important;
+        }
+        
+        #btnModalAddProducts:active {
+            transform: translateY(0px);
+        }
+
+        .btn-close {
+            transition: all 0.2s;
+        }
+        .btn-close:hover {
+            transform: rotate(90deg);
+        }
+
+        .premium-summary-card {
+            background: #ffffff !important;
+            border: 1px solid #e2e8f0 !important;
+            border-radius: 20px !important;
+            box-shadow: 0 10px 25px -5px rgba(15, 23, 42, 0.03), 0 8px 10px -6px rgba(15, 23, 42, 0.03) !important;
+            position: sticky;
+            top: 20px; 
+        }
+
+        .summary-icon-box {
+            width: 38px;
+            height: 38px;
+            background-color: #f1f5f9;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .custom-input-label {
+            font-size: 0.8rem !important;
+            font-weight: 600 !important;
+            color: #475569 !important;
+            margin-bottom: 6px !important;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .modern-dashboard-input {
+            border-radius: 10px !important;
+            border: 1.5px solid #e2e8f0 !important;
+            padding: 10px 14px !important;
+            font-size: 0.9rem !important;
+            color: #334155 !important;
+            background-color: #ffffff !important;
+            box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.02) !important;
+            transition: all 0.2s ease-in-out !important;
+        }
+
+        .modern-dashboard-input:focus {
+            border-color: #0f172a !important;
+            box-shadow: 0 0 0 4px rgba(15, 23, 42, 0.08) !important;
+            outline: none;
+        }
+
+        .btn-modern-action {
+            background: #0f172a !important;
+            color: #ffffff !important;
+            border: 1px solid #0f172a !important;
+            border-radius: 10px !important;
+            padding: 0 16px !important;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s ease;
+        }
+
+        .btn-modern-action:hover {
+            background: #1e293b !important;
+            border-color: #1e293b !important;
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(15, 23, 42, 0.15) !important;
+        }
+
+        .btn-modern-action:active {
+            transform: translateY(1px);
+        }
+
+        .dashed-separator {
+            border-top: 1.5px dashed #e2e8f0;
+            height: 0;
+            width: 100%;
+        }
+
+        .total-display-box {
+            background: #f8fafc;
+            border: 1px solid #f1f5f9;
+            border-radius: 14px;
+            padding: 16px 20px;
+        }
+    </style>
+@endpush
     <div class="container-fluid py-5">
         <div class="d-flex justify-content-between align-items-center mb-4">
             <h2 class="fw-bold">Edit Purchase</h2>
-            <button type="submit" form="purchaseForm" class="btn btn-shopify">
-                <i class="fa-solid fa-check me-2"></i> Update Purchase
-            </button>
+            <button type="submit" form="purchaseForm" class="btn btn-shopify" style="background:#0f172a; color:#fff;">Update Purchase</button>
         </div>
 
         <form id="purchaseForm">
@@ -114,11 +310,12 @@
             
             <div class="row">
                 <div class="col-lg-8">
-                    <div class="shopify-card p-4 mb-4">
+                    <div class="shopify-card p-4 mb-4" style="background:#fff; border-radius:16px; border:1px solid #e2e8f0;">
                         <div class="mb-4">
-                            <label class="form-label fw-bold">Search Products to Add</label>
+                            <label class="form-label fw-bold">Search Products</label>
                             <div class="position-relative">
-                                <input type="text" id="productSearch" class="form-control shopify-input" placeholder="Search product by name or SKU...">
+                                <input type="text" id="productSearch" class="form-control shopify-input modern-dashboard-input"
+                                    placeholder="Search product to add more...">
                                 <div id="searchResults"></div>
                             </div>
                         </div>
@@ -135,19 +332,72 @@
                                         <th class="text-center">Action</th>
                                     </tr>
                                 </thead>
-                                <tbody></tbody>
+                                <tbody>
+                                    @php $rowIndex = 0; @endphp
+                                    @foreach($purchase->details as $item)
+                                        @php
+                                            $variantLabel = 'Standard';
+                                            if ($item->product_variant_id && $item->product && $item->product->variants) {
+                                                $variant = $item->product->variants->where('id', $item->product_variant_id)->first();
+                                                if($variant){
+                                                    $parts = [];
+                                                    if (isset($variant->color->name)) $parts[] = 'Color: ' . $variant->color->name;
+                                                    if (isset($variant->size->name)) $parts[] = 'Size: ' . $variant->size->name;
+                                                    if (count($parts) > 0) $variantLabel = implode(' | ', $parts);
+                                                }
+                                            }
+                                        @endphp
+                                        <tr>
+                                            <td>
+                                                <div>
+                                                    <strong>{{ $item->product->name ?? 'N/A' }}</strong><br>
+                                                    <small class="text-muted">SKU : {{ $item->product->sku ?? '-' }}</small>
+                                                    <input type="hidden" name="products[{{ $rowIndex }}][id]" value="{{ $item->product_id }}">
+                                                </div>
+                                            </td>
+                                            <td>
+                                                <span class="badge bg-light text-dark border px-2 py-1">{{ $variantLabel }}</span>
+                                                <input type="hidden" name="products[{{ $rowIndex }}][variant_id]" value="{{ $item->product_variant_id ?? '' }}">
+                                            </td>
+                                            <td>
+                                                <input type="number" class="form-control price" name="products[{{ $rowIndex }}][price]" value="{{ $item->buying_price }}" step="0.01">
+                                            </td>
+                                            <td>
+                                                <input type="number" class="form-control qty" name="products[{{ $rowIndex }}][qty]" value="{{ $item->quantity }}" min="1">
+                                            </td>
+                                            <td class="row-total fw-bold">
+                                                {{ number_format($item->total_price, 2, '.', '') }}
+                                            </td>
+                                            <td class="text-center">
+                                                <button type="button" class="btn btn-danger btn-sm remove">
+                                                    <i class="fa fa-trash"></i>
+                                                </button>
+                                            </td>
+                                        </tr>
+                                        @php $rowIndex++; @endphp
+                                    @endforeach
+                                </tbody>
                             </table>
                         </div>
                     </div>
                 </div>
 
                 <div class="col-lg-4">
-                    <div class="shopify-card p-4">
-                        <h5 class="fw-bold mb-3">Purchase Details</h5>
+                    <div class="premium-summary-card p-4">
+                        <div class="d-flex align-items-center gap-2 mb-4">
+                            <div class="summary-icon-box">
+                                <i class="fa fa-file-invoice text-dark fs-5"></i>
+                            </div>
+                            <div>
+                                <h5 class="fw-bold text-slate-900 mb-0" style="font-size: 1.1rem; color: #0f172a;">Purchase Details</h5>
+                                <small class="text-muted" style="font-size: 0.78rem;">Document info & total summary</small>
+                            </div>
+                        </div>
+
                         <div class="mb-3">
-                            <label class="form-label text-muted">Supplier</label>
-                            <div class="input-group">
-                                <select class="form-select shopify-input" name="supplier_id" id="supplier_id" required>
+                            <label class="form-label custom-input-label">Supplier</label>
+                            <div class="input-group gap-2">
+                                <select class="form-select modern-dashboard-input" name="supplier_id" id="supplier_id" required>
                                     <option value="">Select Supplier</option>
                                     @foreach ($suppliers as $s)
                                         <option value="{{ $s->id }}" {{ $purchase->supplier_id == $s->id ? 'selected' : '' }}>
@@ -155,24 +405,37 @@
                                         </option>
                                     @endforeach
                                 </select>
-                                <button type="button" class="btn btn-shopify" data-bs-toggle="modal" data-bs-target="#supplierModal">
+                                <button type="button" class="btn btn-modern-action" data-bs-toggle="modal" data-bs-target="#supplierModal" title="Add New Supplier">
                                     <i class="fa fa-plus"></i>
                                 </button>
                             </div>
                         </div>
                         
                         <div class="mb-3">
-                            <label class="form-label text-muted">Invoice No</label>
-                            <input type="text" name="invoice_no" value="{{ $purchase->invoice_no }}" class="form-control shopify-input" required>
+                            <label class="form-label custom-input-label">Invoice No</label>
+                            <div class="position-relative">
+                                <input type="text" name="invoice_no" value="{{ $purchase->invoice_no }}" class="form-control modern-dashboard-input fw-semibold text-dark">
+                            </div>
                         </div>
-                        <div class="mb-3">
-                            <label class="form-label text-muted">Date</label>
-                            <input type="date" name="purchase_date" value="{{ \Carbon\Carbon::parse($purchase->purchase_date)->format('Y-m-d') }}" class="form-control shopify-input" required>
+
+                        <div class="mb-4">
+                            <label class="form-label custom-input-label">Purchase Date</label>
+                            <input type="date" name="purchase_date" value="{{ $purchase->purchase_date }}" class="form-control modern-dashboard-input" required>
                         </div>
-                        <hr>
-                        <div class="d-flex justify-content-between align-items-center mt-3">
-                            <span class="fs-5 text-muted">Total</span>
-                            <h3 class="fw-bold mb-0">BDT <span id="grandTotal">{{ number_format($purchase->total_amount, 2) }}</span></h3>
+                        
+                        <div class="dashed-separator my-4"></div>
+                        
+                        <div class="total-display-box d-flex justify-content-between align-items-center">
+                            <div>
+                                <span class="text-uppercase tracking-wider text-muted d-block" style="font-size: 0.7rem; font-weight: 700; letter-spacing: 0.8px;">Total Payable</span>
+                                <span class="fw-bold" style="font-size: 0.95rem; color: #64748b;">Net Amount</span>
+                            </div>
+                            <div class="text-end">
+                                <h3 class="fw-extrabold mb-0" style="font-size: 1.75rem; color: #0f172a; letter-spacing: -0.5px;">
+                                    <span style="font-size: 1rem; font-weight: 700; color: #64748b; margin-right: 2px;">BDT</span>
+                                    <span id="grandTotal">{{ number_format($purchase->total_amount, 2, '.', '') }}</span>
+                                </h3>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -180,75 +443,21 @@
         </form>
     </div>
 
-    <!-- Supplier Modal -->
-    <div class="modal fade" id="supplierModal" tabindex="-1">
-        <div class="modal-dialog">
-            <div class="modal-content">
-                <form id="supplierForm">
-                    @csrf
-                    <div class="modal-header">
-                        <h5 class="modal-title">Add New Supplier</h5>
-                        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-                    </div>
-                    <div class="modal-body">
-                        <div class="mb-3">
-                            <label>Name</label>
-                            <input type="text" class="form-control" name="name" required>
-                        </div>
-                        <div class="mb-3">
-                            <label>Phone</label>
-                            <input type="text" class="form-control" name="phone">
-                        </div>
-                        <div class="mb-3">
-                            <label>Email</label>
-                            <input type="email" class="form-control" name="email">
-                        </div>
-                        <div class="mb-3">
-                            <label>Address</label>
-                            <textarea class="form-control" name="address" rows="3"></textarea>
-                        </div>
-                        <div class="mb-3">
-                            <label class="form-label">Status</label>
-                            <div class="form-check form-switch">
-                                <input class="form-check-input" type="checkbox" id="supplierStatus" name="status" value="1" checked>
-                                <label class="form-check-label" for="supplierStatus">Active</label>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="modal-footer">
-                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                        <button type="submit" class="btn btn-shopify">Save Supplier</button>
-                    </div>
-                </form>
-            </div>
-        </div>
-    </div>
+    @include('backend.purchase.add_supplier_modal')
+    @include('backend.purchase.multiple_product_modal')
 @endsection
 
 @push('scripts')
     <script>
         $(document).ready(function() {
-            let rowIndex = 0;
-
-            // ==========================================
-            // LOAD EXISTING PURCHASE DATA ON PAGE LOAD
-            // ==========================================
-            let existingDetails = @json($purchase->details);
+            // আগের ডাটার কাউন্ট দিয়ে rowIndex শুরু হবে, যাতে নতুন ডাটা আগেরগুলোকে রিপ্লেস না করে
+            let rowIndex = {{ $purchase->details->count() }};
             
-            if (existingDetails.length > 0) {
-                existingDetails.forEach(function(detail) {
-                    if (detail.product) {
-                        renderRow(detail.product, detail);
-                    }
-                });
-            }
+            // পেজ লোড হওয়ার সাথে সাথেই একবার টোটাল ক্যালকুলেট করে নিবে
+            calculateTotal();
 
-            // ==========================================
-            // AJAX SEARCH
-            // ==========================================
             $("#productSearch").on("keyup", function() {
                 let q = $(this).val();
-
                 if (q.length < 2) {
                     $("#searchResults").hide();
                     return;
@@ -262,17 +471,18 @@
                         let html = "";
                         if (res.length > 0) {
                             res.forEach(function(p) {
+                                let jsonStr = JSON.stringify(p).replace(/'/g, "&apos;");
+                                
                                 html += `
-                                <div class="search-item" data-product='${JSON.stringify(p).replace(/'/g, "&apos;")}'>
+                                <div class="search-item" data-product='${jsonStr}'>
                                     <div style="flex:1">
-                                        <div class="product-name-text">${p.name}</div>
-                                        <div class="product-sku-text">
-                                            SKU : ${p.sku ?? 'N/A'} | Price : ${p.purchase_price ?? 0}
+                                        <div class="product-name-text fw-bold">${p.name}</div>
+                                        <div class="product-sku-text mt-1 text-muted">
+                                            SKU : ${p.sku ?? '-'} | Type: <span class="badge bg-secondary">${p.product_type.toUpperCase()}</span>
                                         </div>
                                     </div>
-                                    <i class="fa fa-plus-circle text-success"></i>
-                                </div>
-                                `;
+                                    <i class="fa fa-arrow-circle-right text-primary fs-5"></i>
+                                </div>`;
                             });
                         } else {
                             html = `<div class="p-3 text-center text-muted">No Product Found</div>`;
@@ -283,92 +493,133 @@
             });
 
             $(document).on("click", ".search-item", function() {
-                let product = JSON.parse($(this).attr("data-product"));
-                $("#searchResults").hide();
-                $("#productSearch").val("");
-                renderRow(product, null); // Null means it's a new item, not from DB
+                let p = JSON.parse($(this).attr("data-product"));
+                
+                if (p.product_type === 'multiple' && p.variants && p.variants.length > 0) {
+                    openVariantModal(p);
+                } else {
+                    let singleItem = {
+                        id: p.id,
+                        variant_id: "",
+                        clean_name: p.name,
+                        sku: p.sku ?? '-',
+                        price: p.purchase_price || 0,
+                        variant_label: 'Standard'
+                    };
+                    addProduct(singleItem, 1);
+                    $("#searchResults").hide();
+                    $("#productSearch").val("");
+                }
             });
 
-            // ==========================================
-            // RENDER ROW FUNCTION (Handles both Existing & New)
-            // ==========================================
-            function renderRow(p, existingDetail) {
-                // If existingDetail is provided, use its values. Otherwise, use defaults.
-                let price = existingDetail ? existingDetail.buying_price : (p.purchase_price ?? 0);
-                let qty = existingDetail ? existingDetail.quantity : 1;
-                let selectedVariantId = existingDetail ? existingDetail.product_variant_id : "";
+            function openVariantModal(p) {
+                $("#variantModalLabel").html(`Select Variants for: <span class="">${p.name}</span>`);
+                let html = "";
+                
+                p.variants.forEach(function(v) {
+                    let variantNameParts = [];
+                    if (v.color && v.color.name) variantNameParts.push(`Color: ${v.color.name}`);
+                    if (v.size && v.size.name) variantNameParts.push(`Size: ${v.size.name}`);
+                    let variantLabel = variantNameParts.length > 0 ? variantNameParts.join(' | ') : 'Standard';
+                    
+                    let vData = {
+                        id: p.id,
+                        variant_id: v.id,
+                        clean_name: p.name,
+                        sku: v.sku ?? p.sku ?? '-',
+                        price: v.purchase_price || p.purchase_price || 0,
+                        variant_label: variantLabel
+                    };
+                    let jsonStr = JSON.stringify(vData).replace(/'/g, "&apos;");
 
-                let variantHtml = "";
+                    html += `
+                    <tr>
+                        <td class="fw-bold text-secondary">${variantLabel}</td>
+                        <td><small class="text-muted">${vData.sku}</small></td>
+                        <td><input type="number" class="form-control form-control-sm modal-price" value="${vData.price}" step="0.01" style="width: 100px;"></td>
+                        <td>
+                            <input type="number" class="form-control form-control-sm modal-qty fw-bold border-primary" data-variant='${jsonStr}' min="0" value="0" style="width: 90px;">
+                        </td>
+                    </tr>`;
+                });
+                
+                $("#variantModalTableBody").html(html);
+                $("#variantModal").modal("show");
+                
+                setTimeout(() => {
+                    $("#variantModalTableBody input.modal-qty:first").focus().select();
+                }, 500);
+            }
 
-                if (p.product_type === 'multiple' && p.variants && p.variants.length > 0) {
-                    variantHtml = `
-                        <select name="products[${rowIndex}][variant_id]" class="form-select form-select-sm mb-1" required>
-                            <option value="">Select Variant</option>
-                            ${p.variants.map(function(v) {
-                                let variantNameParts = [];
-                                
-                                if (v.color && v.color.name) {
-                                    variantNameParts.push(`C: ${v.color.name}`);
-                                }
-                                
-                                if (v.size) {
-                                    let sizeName = v.size.name || v.size.size || v.size_id;
-                                    variantNameParts.push(`S: ${sizeName}`);
-                                } else if (v.size_id && isNaN(v.size_id)) {
-                                    variantNameParts.push(`S: ${v.size_id}`);
-                                }
-
-                                let label = variantNameParts.length > 0 ? variantNameParts.join(' | ') : 'Standard';
-                                let isSelected = (selectedVariantId == v.id) ? 'selected' : '';
-
-                                return `<option value="${v.id}" ${isSelected}>${label} (Stock: ${v.stock})</option>`;
-                            }).join("")}
-                        </select>
-                    `;
+            $("#btnModalAddProducts").click(function() {
+                let anyAdded = false;
+                
+                $("#variantModalTableBody tr").each(function() {
+                    let qtyInput = $(this).find(".modal-qty");
+                    let qty = parseInt(qtyInput.val()) || 0;
+                    
+                    if (qty > 0) {
+                        let pData = JSON.parse(qtyInput.attr("data-variant"));
+                        let dynamicPrice = parseFloat($(this).find(".modal-price").val()) || pData.price;
+                        
+                        pData.price = dynamicPrice; 
+                        addProduct(pData, qty);
+                        anyAdded = true;
+                    }
+                });
+                
+                if (anyAdded) {
+                    $("#variantModal").modal("hide");
+                    $("#searchResults").hide();
+                    $("#productSearch").val("");
                 } else {
-                    variantHtml = `
-                        <span class="badge bg-light text-dark border px-2 py-1">Standard</span>
-                        <input type="hidden" name="products[${rowIndex}][variant_id]" value="">
-                    `;
+                    if(typeof toastr !== 'undefined') toastr.warning("Please enter quantity for at least one variant.");
                 }
+            });
 
+            $(document).on("keypress", ".modal-qty", function(e) {
+                if (e.which == 13) { 
+                    e.preventDefault();
+                    $("#btnModalAddProducts").click();
+                }
+            });
+
+            function addProduct(p, qty = 1) {
+                let total = p.price * qty;
                 let row = `
                 <tr>
                     <td>
                         <div>
-                            <strong>${p.name}</strong><br>
-                            <small class="text-muted">SKU : ${p.sku ?? '-'}</small>
+                            <strong>${p.clean_name}</strong><br>
+                            <small class="text-muted">SKU : ${p.sku}</small>
                             <input type="hidden" name="products[${rowIndex}][id]" value="${p.id}">
                         </div>
                     </td>
                     <td>
-                        ${variantHtml}
+                        <span class="badge bg-light text-dark border px-2 py-1">${p.variant_label}</span>
+                        <input type="hidden" name="products[${rowIndex}][variant_id]" value="${p.variant_id}">
                     </td>
                     <td>
-                        <input type="number" class="form-control price" name="products[${rowIndex}][price]" value="${price}" step="0.01" required>
+                        <input type="number" class="form-control price" name="products[${rowIndex}][price]" value="${p.price}" step="0.01">
                     </td>
                     <td>
-                        <input type="number" class="form-control qty" name="products[${rowIndex}][qty]" value="${qty}" min="1" required>
+                        <input type="number" class="form-control qty" name="products[${rowIndex}][qty]" value="${qty}" min="1">
                     </td>
-                    <td class="row-total">
-                        ${parseFloat(price * qty).toFixed(2)}
+                    <td class="row-total fw-bold">
+                        ${total.toFixed(2)}
                     </td>
                     <td class="text-center">
                         <button type="button" class="btn btn-danger btn-sm remove">
                             <i class="fa fa-trash"></i>
                         </button>
                     </td>
-                </tr>
-                `;
+                </tr>`;
                 
                 $("#selectedProducts tbody").append(row);
                 rowIndex++;
                 calculateTotal();
             }
 
-            // ==========================================
-            // CALCULATE TOTALS
-            // ==========================================
             $(document).on("input", ".price, .qty", function() {
                 calculateTotal();
             });
@@ -391,43 +642,32 @@
                 calculateTotal();
             });
 
-            // ==========================================
-            // FORM SUBMISSION (UPDATE)
-            // ==========================================
             $("#purchaseForm").submit(function(e) {
                 e.preventDefault();
-                
-                let btn = $(this).find('button[type="submit"]');
-                let originalText = btn.html();
-                btn.html('<i class="fa fa-spinner fa-spin"></i> Updating...').prop('disabled', true);
+                let formData = $(this).serialize();
 
                 $.ajax({
                     url: "{{ route('purchases.update', $purchase->id) }}",
-                    type: "POST", // Method Spoofing @method('PUT')
-                    data: $(this).serialize(),
+                    type: "POST", 
+                    data: formData,
                     success: function(res) {
-                        toastr.success(res.message);
-                        setTimeout(function() {
-                            window.location.href = "{{ route('purchases.index') }}";
+                        if(typeof toastr !== 'undefined') toastr.success(res.message || "Purchase updated successfully");
+                        setTimeout(function() { 
+                            window.location.href = "{{ route('purchases.index') }}"; 
                         }, 1000);
                     },
-                    error: function(xhr) {
-                        btn.html(originalText).prop('disabled', false);
-                        toastr.error("Something went wrong or required fields are missing.");
+                    error: function(xhr) { 
+                        if(typeof toastr !== 'undefined') toastr.error("Something went wrong"); 
                     }
                 });
             });
 
-            // Hide search dropdown on outside click
             $(document).click(function(e) {
-                if (!$(e.target).closest("#productSearch, #searchResults").length) {
+                if (!$(e.target).closest("#productSearch,#searchResults").length) {
                     $("#searchResults").hide();
                 }
             });
 
-            // ==========================================
-            // SUPPLIER AJAX STORE
-            // ==========================================
             $("#supplierForm").submit(function(e){
                 e.preventDefault();
                 $.ajax({
@@ -437,25 +677,28 @@
                     success: function(res){
                         if(res.success){
                             $("#supplier_id").append(
-                                `<option value="${res.supplier.id}" selected>${res.supplier.name}</option>`
+                                `<option value="${res.supplier.id}" selected>
+                                    ${res.supplier.name}
+                                </option>`
                             );
                             $("#supplierModal").modal("hide");
                             $("#supplierForm")[0].reset();
-                            toastr.success(res.message);
+                            if(typeof toastr !== 'undefined') toastr.success(res.message);
                         }
                     },
                     error: function(xhr){
                         if(xhr.status == 422){
                             let errors = xhr.responseJSON.errors;
                             $.each(errors, function(key, value){
-                                toastr.error(value[0]);
+                                if(typeof toastr !== 'undefined') toastr.error(value[0]);
                             });
                         }else{
-                            toastr.error("Something went wrong");
+                            if(typeof toastr !== 'undefined') toastr.error("Something went wrong");
                         }
                     }
                 });
             });
+    
         });
     </script>
 @endpush

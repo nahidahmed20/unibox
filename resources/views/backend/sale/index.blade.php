@@ -458,60 +458,31 @@
                 if (res.data.items && res.data.items.length > 0) {
 
                     res.data.items.forEach((item, index) => {
-
-                        html += `
-                            <div class="d-flex justify-content-between align-items-center p-3 border-bottom">
-
-                                <div>
-
-                                    <div class="fw-semibold">
-                                        ${item.product?.name ?? '-'}
-                                    </div>
-
-                                    <div class="small text-muted mt-1">
-
-                                        SKU:
-                                        ${item.product?.sku ?? '-'}
-
-                                        &nbsp;•&nbsp;
-
-                                        Size:
-                                        ${item.size?.size ?? '-'}
-
-                                        &nbsp;•&nbsp;
-
-                                        Color:
-                                        ${item.color?.name ?? '-'}
-
-                                    </div>
-
-                                </div>
-
-                                <div class="text-end">
-
-                                    <div class="fw-bold">
-
-                                        ${item.quantity}
-                                        ×
-                                        ৳${parseFloat(item.selling_price).toFixed(2)}
-
-                                    </div>
-
-                                    <small class="text-muted">
-
-                                        ৳${(
-                                            parseFloat(item.selling_price) *
-                                            parseInt(item.quantity)
-                                        ).toFixed(2)}
-
-                                    </small>
-
-                                </div>
-
-                            </div>
-                        `;
-                    });
-
+    html += `
+        <div class="d-flex justify-content-between align-items-center p-3 border-bottom">
+            <div>
+                <div class="fw-semibold">
+                    ${item.product?.name ?? '-'}
+                </div>
+                <div class="small text-muted mt-1">
+                    SKU: ${item.product?.sku ?? '-'}
+                    
+                    ${item.size || item.color ? `
+                        &nbsp;•&nbsp; Size: ${item.size?.name ?? 'N/A'} &nbsp;•&nbsp; Color: ${item.color?.name ?? 'N/A'}
+                    ` : ''}
+                </div>
+            </div>
+            <div class="text-end">
+                <div class="fw-bold">
+                    ${item.quantity} × ৳${parseFloat(item.selling_price).toFixed(2)}
+                </div>
+                <small class="text-muted">
+                    ৳${(parseFloat(item.selling_price) * parseInt(item.quantity)).toFixed(2)}
+                </small>
+            </div>
+        </div>
+    `;
+});
                 } else {
 
                     html += `
@@ -533,6 +504,7 @@
             }
         });
     });
+
 });
 </script>
 @endpush

@@ -195,7 +195,7 @@ class ProductController extends Controller implements HasMiddleware
         $sizes = $product->variants->pluck('size')->filter()->unique('id')->map(function($size) {
             return [
                 'id'   => $size->id,
-                'name' => $size->name ?? $size->size
+                'name' => $size->name,
             ];
         })->values();
 

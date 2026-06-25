@@ -62,26 +62,6 @@
         $(document).on('click', function () {
             $('.nice-select').removeClass('open');
         });
-        // AJAX search
-        // $('#searchForm').on('submit', function(e){
-        //     e.preventDefault();
-        //     let search = $('input[name="search"]').val();
-        //     let category_id = $('#category_id').val();
-        //     $.ajax({
-        //         url: "{{ route('search') }}",
-        //         type: "GET",
-        //         data: {
-        //             search: search,
-        //             category_id: category_id
-        //         },
-        //         success: function(response){
-        //             $('#searchResult').html(response);
-        //         },
-        //         error: function(error){
-        //             console.log(error);
-        //         }
-        //     });
-        // });
 
     $('input[name="search"]').on('keyup', function () {
             let search = $(this).val();

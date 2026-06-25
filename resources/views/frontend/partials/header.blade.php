@@ -248,11 +248,6 @@
         transition: all 0.3s ease;
     }
 
-    .unibox-floating-cart:hover {
-        transform: translateY(-5px);
-        box-shadow: 0 12px 25px rgba(0, 138, 122, 0.55);
-    }
-
     .unibox-floating-cart svg {
         width: 28px;
         height: 28px;
@@ -362,7 +357,7 @@
                                 <a href="javascript:void(0)" class="icon cart-toggle">
                                     <i class="fa-light fa-bag-shopping"></i>
                                 </a>
-                                <span id="cart-count" class="cart-item-count-render">
+                                <span id="cart-count" class="cart-item-count-render ">
                                     {{ $cartCount ?? 0 }} 
                                 </span>
                             </div>

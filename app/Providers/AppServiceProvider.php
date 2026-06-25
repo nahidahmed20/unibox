@@ -33,7 +33,8 @@ class AppServiceProvider extends ServiceProvider
         });
 
         View::composer('frontend.partials.header', function ($view) {
-            $view->with('cartCount', Cart::getContent()->count());
+            $cart = session('cart', []);
+            $view->with('cartCount', count($cart));
         });
         
     }

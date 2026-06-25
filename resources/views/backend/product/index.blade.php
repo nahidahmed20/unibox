@@ -189,14 +189,14 @@ $(document).ready(function () {
                     : '<span class="text-muted fst-italic">No color variants</span>';
 
                 let sizesHtml = (res.sizes && res.sizes.length)
-                    ? res.sizes.map(s => `<span class="badge bg-dark rounded-pill px-3 py-2 me-1 mb-1">${s.size}</span>`).join('')
+                    ? res.sizes.map(s => `<span class="badge bg-dark rounded-pill px-3 py-2 me-1 mb-1">${s.name}</span>`).join('')
                     : '<span class="text-muted">-</span>';
 
                 let sizeWiseStockHtml = '';
                 if (res.stocks && res.stocks.length > 0) {
                     let grouped = {};
                     res.stocks.forEach(stock => {
-                        let sizeName = stock.size?.size ?? 'Standard';
+                        let sizeName = stock.size?.name ?? 'Standard';
                         if (!grouped[sizeName]) grouped[sizeName] = [];
                         grouped[sizeName].push(stock);
                     });
@@ -206,7 +206,7 @@ $(document).ready(function () {
                         sizeWiseStockHtml += `
                             <div class="mb-4">
                                 <h6 class="fw-bold mb-3 d-flex align-items-center">
-                                    <span class="badge bg-dark rounded-pill px-3 py-2 fs-6 me-2">${size}</span>
+                                    <span class="badge bg-dark rounded-pill px-3 py-2 fs-6 me-2">Size: ${size}</span>
                                     <span class="text-muted" style="font-size:14px;">Total Qty: <strong class="text-dark">${totalQty}</strong></span>
                                 </h6>
                                 <div class="table-responsive">
@@ -342,6 +342,8 @@ $(document).ready(function () {
             }
         });
     });
+
+
 });
 </script>
 @endpush

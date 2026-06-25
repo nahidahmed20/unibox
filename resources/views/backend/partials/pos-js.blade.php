@@ -29,7 +29,9 @@
 
 
         let cart = [];
-        window.currentStocks = [];
+        // Global variable for variants
+        window.currentVariants = [];
+
         $(document).on("click", ".product-card", function () {
             let product = {
                 id: $(this).data("id"),
@@ -37,14 +39,8 @@
                 price: parseFloat($(this).data("price")),
                 type: $(this).data("type"),
                 stock: parseInt($(this).data("stock")),
-                colors: $(this).data("colors"),
-                sizes: $(this).data("sizes"),
-                stocks: $(this).data("stocks"),
-                qty: 1,
-                color_id: "",
-                color_name: "",
-                size_id: "",
-                size_name: ""
+                variants: $(this).data("variants"), // data-variants nicchhi
+                qty: 1
             };
 
             if (product.stock <= 0) {
@@ -52,18 +48,38 @@
                 return;
             }
 
-            if (product.type == "single") {
+            if (product.type === "single") {
                 addToCart(product);
                 return;
             }
 
-            if (product.colors && product.colors.length > 0) {
+            // Variants theke unique color ebong size ber korar array
+            let uniqueColors = [];
+            let uniqueSizes = [];
+            let colorIds = [];
+            let sizeIds = [];
+
+            if (product.variants && product.variants.length > 0) {
+                $.each(product.variants, function (i, v) {
+                    // Unique Color collect kora
+                    if (v.color && v.color.id && !colorIds.includes(v.color.id)) {
+                        colorIds.push(v.color.id);
+                        uniqueColors.push({ id: v.color.id, name: v.color.name });
+                    }
+                    // Unique Size collect kora (size table-er 'name' column ekhane map kora hoyeche)
+                    if (v.size && v.size.id && !sizeIds.includes(v.size.id)) {
+                        sizeIds.push(v.size.id);
+                        uniqueSizes.push({ id: v.size.id, name: v.size.name }); 
+                    }
+                });
+            }
+
+            // Dropdown-e Color add kora
+            if (uniqueColors.length > 0) {
                 $("#modal_color").parent().show();
                 let colorHtml = '<option value="">Select Color</option>';
-                $.each(product.colors, function (i, item) {
-                    let id = item.color ? item.color.id : item.id;
-                    let name = item.color ? item.color.name : item.name;
-                    colorHtml += '<option value="' + id + '">' + name + '</option>';
+                $.each(uniqueColors, function (i, c) {
+                    colorHtml += '<option value="' + c.id + '">' + c.name + '</option>';
                 });
                 $("#modal_color").html(colorHtml);
             } else {
@@ -71,11 +87,12 @@
                 $("#modal_color").val(""); 
             }
 
-            if (product.sizes && product.sizes.length > 0) {
+            // Dropdown-e Size add kora (Ekhon ar Unknown dekhabe na)
+            if (uniqueSizes.length > 0) {
                 $("#modal_size").parent().show();
                 let sizeHtml = '<option value="">Select Size</option>';
-                $.each(product.sizes, function (i, item) {
-                    sizeHtml += '<option value="' + item.id + '">' + item.size + '</option>';
+                $.each(uniqueSizes, function (i, s) {
+                    sizeHtml += '<option value="' + s.id + '">' + s.name + '</option>';
                 });
                 $("#modal_size").html(sizeHtml);
             } else {
@@ -86,14 +103,15 @@
             $("#modal_product_id").val(product.id);
             $("#modal_product_name").val(product.name);
             $("#modal_product_price").val(product.price);
-            $("#modal_product_stock").val(product.stock);
-            window.currentStocks = product.stocks;
+            
+            window.currentVariants = product.variants;
 
             $("#variantStock").html(0);
             let variantModal = new bootstrap.Modal(document.getElementById("variantModal"));
             variantModal.show();
         });
-
+        
+        // Update Variant Stock Function
         function updateVariantStock() {
             let color = $("#modal_color").val();
             let size = $("#modal_size").val();
@@ -101,15 +119,14 @@
             let isColorVisible = $("#modal_color").is(":visible");
             let isSizeVisible = $("#modal_size").is(":visible");
 
-            let stock = window.currentStocks.find(function (item) {
-                let matchColor = (!isColorVisible || color == "") ? true : (String(item.color_id) === String(color));
-                
-                let matchSize = (!isSizeVisible || size == "") ? true : (String(item.size_id) === String(size));
+            let matchedVariant = window.currentVariants.find(function (item) {
+                let matchColor = (!isColorVisible || color === "") ? true : (String(item.color_id) === String(color));
+                let matchSize = (!isSizeVisible || size === "") ? true : (String(item.size_id) === String(size));
                 
                 return matchColor && matchSize;
             });
 
-            $("#variantStock").html(stock ? stock.quantity : 0);
+            $("#variantStock").html(matchedVariant ? matchedVariant.stock : 0);
         }
 
         $(document).on("change","#modal_color,#modal_size",

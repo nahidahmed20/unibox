@@ -13,24 +13,27 @@ return new class extends Migration
     {
         Schema::create('sales', function (Blueprint $table) {
             $table->id();
-            $table->unsignedBigInteger('customer_id');
-            $table->unsignedBigInteger('branch_id');
-            $table->unsignedBigInteger('user_id');
-            $table->string('invoice_no')->unique();
-            $table->date('sale_date');
-            $table->decimal('total_amount', 10, 2)->default(0);
-            $table->decimal('discount', 10, 2)->default(0);
-            $table->decimal('tax_amount', 10, 2)->nullable()->default(0);
-            $table->decimal('shipping_cost', 10, 2)->nullable()->default(0);
-            $table->decimal('grand_total', 10, 2)->default(0);
-            $table->decimal('paid_amount', 10, 2)->default(0);
-            $table->decimal('due_amount', 10, 2)->default(0);
+            $table->unsignedBigInteger('customer_id')->nullable();
+            $table->unsignedBigInteger('branch_id')->nullable();
+            $table->unsignedBigInteger('user_id')->nullable();
+            $table->string('invoice_no')->unique()->nullable();
+            $table->date('sale_date')->nullable();
+            $table->decimal('total_amount', 15, 2)->nullable()->default(0);
+            $table->decimal('discount', 15, 2)->nullable()->default(0);
+            $table->decimal('tax_amount', 15, 2)->nullable()->default(0);
+            $table->decimal('shipping_cost', 15, 2)->nullable()->default(0);
+            $table->decimal('grand_total', 15, 2)->nullable()->default(0);
+            $table->decimal('paid_amount', 15, 2)->nullable()->default(0);
+            $table->decimal('due_amount', 15, 2)->nullable()->default(0);
             $table->string('payment_method', 50)->nullable();
             $table->integer('delivery_charge')->nullable();
-            $table->enum('payment_status', ['paid', 'partial', 'due'])->default('due');
-            $table->boolean('status')->default(1);
+
+            $table->enum('payment_status', ['paid', 'partial', 'due'])
+                ->nullable()
+                ->default('due');
+            $table->boolean('status')->nullable()->default(1);
             $table->text('note')->nullable();
-            $table->unsignedBigInteger('created_by');
+            $table->unsignedBigInteger('created_by')->nullable();
             $table->timestamps();
         });
     }

@@ -223,11 +223,20 @@
                     <tr>
                         <td>{{ $i + 1 }}</td>
                         <td>
-                            <b>{{ $item->product->name ?? '' }}</b><br>
-                            <small>
-                                {{ $item->color->name ?? 'N/A' }} |
-                                {{ $item->size->size ?? 'N/A' }}
-                            </small>
+                            <b>{{ $item->product->name ?? '' }}</b>
+                            
+                            @if($item->color_id || $item->size_id)
+                                <br>
+                                <small style="color: #6b7280;">
+                                    @if($item->color_id)
+                                        Color: {{ $item->color->name ?? '' }}
+                                    @endif
+                                    @if($item->color_id && $item->size_id) | @endif
+                                    @if($item->size_id)
+                                        Size: {{ $item->size->name ?? '' }}
+                                    @endif
+                                </small>
+                            @endif
                         </td>
                         <td>৳{{ number_format($item->selling_price, 2) }}</td>
                         <td>{{ $item->quantity }}</td>

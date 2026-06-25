@@ -13,17 +13,17 @@ return new class extends Migration
     {
         Schema::create('sale_items', function (Blueprint $table) {
             $table->id();
-            $table->unsignedInteger('sale_id');
-            $table->unsignedInteger('product_id');
-            $table->unsignedInteger('color_id')->nullable();
-            $table->unsignedInteger('size_id')->nullable();
-            $table->unsignedInteger('unit_id')->nullable();
-            $table->integer('quantity')->default(1);
-            $table->decimal('selling_price', 10, 2);
-            $table->decimal('purchase_price', 10, 2)->nullable();
-            $table->decimal('discount', 10, 2)->nullable()->default(0);
-            $table->decimal('total_price', 10, 2);
-            $table->decimal('profit', 10, 2)->nullable()->default(0);
+            $table->unsignedBigInteger('sale_id')->nullable();
+            $table->unsignedBigInteger('product_id')->nullable();
+            $table->unsignedBigInteger('color_id')->nullable();
+            $table->unsignedBigInteger('size_id')->nullable();
+            $table->unsignedBigInteger('unit_id')->nullable();
+            $table->integer('quantity')->nullable()->default(1);
+            $table->decimal('selling_price', 15, 2)->nullable();
+            $table->decimal('purchase_price', 15, 2)->nullable();
+            $table->decimal('discount', 15, 2)->nullable()->default(0);
+            $table->decimal('total_price', 15, 2)->nullable();
+            $table->decimal('profit', 15, 2)->nullable()->default(0);
             $table->timestamps();
         });
     }

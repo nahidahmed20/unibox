@@ -7,11 +7,12 @@ use App\Models\Category;
 use App\Models\Location;
 use App\Models\Order;
 use App\Models\Product;
+use App\Models\ProductVariant;
 use App\Models\Shipping;
+use Darryldecode\Cart\Facades\CartFacade as Cart;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
-use Darryldecode\Cart\Facades\CartFacade as Cart;
 
 class CartController extends Controller
 {
@@ -82,22 +83,65 @@ class CartController extends Controller
             ]);
         }
 
-        $cartKey = $productId.'_'.($colorId ?? 0).'_'.($sizeId ?? 0);
+        $cartKey = $productId . '_' . ($colorId ?? 0) . '_' . ($sizeId ?? 0);
         $existingQty = $cart[$cartKey]['quantity'] ?? 0;
+        $requestedTotalQty = $existingQty + $qty;
+
+        $price = $product->selling_price;
+        $colorName = null;
+        $sizeName = null;
+
+        if ($product->product_type === 'multiple') {
+            
+            $variantQuery = ProductVariant::where('product_id', $productId);
+            if ($colorId) $variantQuery->where('color_id', $colorId);
+            if ($sizeId) $variantQuery->where('size_id', $sizeId);
+            
+            $variant = $variantQuery->with(['color', 'size'])->first();
+
+            if (!$variant) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Please select the required Size and Color.'
+                ]);
+            }
+
+            if ($requestedTotalQty > $variant->stock) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Not enough stock available for this variation!'
+                ]);
+            }
+
+            $price = $variant->selling_price > 0 ? $variant->selling_price : $product->selling_price;
+            
+            $colorName = $variant->color ? $variant->color->name : null;
+            $sizeName  = $variant->size ? $variant->size->name : null;
+
+        } 
+        else {
+            if ($requestedTotalQty > $product->stock) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Not enough stock available!'
+                ]);
+            }
+        }
 
         $cart[$cartKey] = [
             'product_id' => $productId,
             'name'       => $product->name,
             'image'      => $product->image,
-            'price'      => $product->selling_price,
-            'quantity'   => $existingQty + $qty,
+            'price'      => $price, 
+            'quantity'   => $requestedTotalQty,
             'color_id'   => $colorId,
             'size_id'    => $sizeId,
-            'color' => $colorId? optional($product->colors()->where('color_id', $colorId)->first())->color?->name: null,
-            'size'       => $sizeId ? optional($product->sizes()->find($sizeId))->size : null,
+            'color'      => $colorName,
+            'size'       => $sizeName,
         ];
 
         session(['cart' => $cart]);
+        session()->save();
         $cartCount = count($cart);
         $subtotal = collect($cart)->sum(function ($item) {
             return $item['price'] * $item['quantity'];
@@ -107,24 +151,23 @@ class CartController extends Controller
         $shippingRow = Shipping::where('zone', $zone)->first();
         $shipping = $shippingRow ? $shippingRow->shipping_cost : 0;
         session()->put('shipping_cost', $shipping);
-        $total = $subtotal + $shipping;
         
+        $total = $subtotal + $shipping;
 
         $html = view('frontend.cart.partials.header-cart', [
             'cart'       => $cart,
             'shipping'   => $shipping,
-            'cart_count' => $cartCount,
+            'cart_count' => count(session('cart')),
         ])->render();
 
         return response()->json([
             'success'    => true,
             'message'    => 'Product added to cart!',
-            'cart_count' => $cartCount,
+            'cart_count' => count(session('cart')),
             'shipping'   => $shipping,
             'subtotal'   => $subtotal,
             'cart_total' => $total,
             'html'       => $html,
-            
         ]);
     }
 
@@ -138,29 +181,44 @@ class CartController extends Controller
     {
         $cart = session()->get('cart', []);
         foreach ($request->quantities as $id => $qty) {
-            if (!isset($cart[$id])) {
-                continue;
+            if (!isset($cart[$id])) continue;
+
+            $item = $cart[$id];
+            $productId = $item['product_id'];
+            $colorId   = $item['color_id'] ?? null;
+            $sizeId    = $item['size_id'] ?? null;
+
+            $product = Product::find($productId);
+            
+            // স্টক চেক করার নতুন লজিক
+            if ($product->product_type === 'multiple') {
+                $variant = ProductVariant::where('product_id', $productId)
+                    ->when($colorId, fn($q) => $q->where('color_id', $colorId))
+                    ->when($sizeId, fn($q) => $q->where('size_id', $sizeId))
+                    ->first();
+                    
+                $availableStock = $variant ? $variant->stock : 0; // quantity এর বদলে stock
+            } else {
+                $availableStock = $product->stock;
             }
-            $productId = $cart[$id]['product_id'];
-            $product = Product::with('stocks')->find($productId);
-            $availableStock = $product->stocks->sum('quantity');
+
             if ((int)$qty > $availableStock) {
                 return response()->json([
                     'status' => 'error',
-                    'message' => 'চাহিদাকৃত পরিমাণ স্টকে নেই'
+                    'message' => 'চাহিদাকৃত পরিমাণ স্টকে নেই (' . $availableStock . ' টি উপলব্ধ)'
                 ], 422);
             }
+            
             $cart[$id]['quantity'] = (int)$qty;
         }
+        
         session()->put('cart', $cart);
-        $html = view('frontend.cart.partials.header-cart', [
-            'cart' => session('cart')
-        ])->render();
+        session()->save(); // সেশন পারসিস্টেন্সি নিশ্চিত করা
 
-        $table = view('frontend.cart.partials.cart-table', [
-            'cart' => $cart
-        ])->render();
-
+        // বাকি অংশ আগের মতোই...
+        $html = view('frontend.cart.partials.header-cart', ['cart' => $cart])->render();
+        $table = view('frontend.cart.partials.cart-table', ['cart' => $cart])->render();
+        
         $total = collect($cart)->sum(fn($item) => $item['price'] * $item['quantity']);
         $shipping = session('shipping_cost', 60);
 
@@ -179,13 +237,11 @@ class CartController extends Controller
     {
         $cart = session()->get('cart', []);
 
+        $cart = session()->get('cart', []);
         if (isset($cart[$id])) {
             unset($cart[$id]);
-            if (count($cart) > 0) {
-                session()->put('cart', $cart);
-            } else {
-                session()->forget('cart');
-            }
+            session()->put('cart', $cart);
+            session()->save(); 
         }
 
         $html = view('frontend.cart.partials.header-cart', [
@@ -242,20 +298,17 @@ class CartController extends Controller
     public function orderStore(Request $request)
     {
         $request->validate([
-            'name'            => 'required|string|max:255',
-            'phone'           => 'required|string|max:50',
-            'address'         => 'required|string|max:500',
-            'city'            => 'required|string|max:255',
-            'province'        => 'required|string|max:255',
-            'country'         => 'required|string|max:100',
-            'payment_method'  => 'required|in:cod,online',
-            'subtotal'        => 'required|numeric',
-            'shipping'        => 'required|numeric',
-            'total'           => 'required|numeric',
+            'name'           => 'required|string|max:255',
+            'phone'          => 'required|string|max:50',
+            'address'        => 'required|string|max:500',
+            'city'           => 'required|string|max:255',
+            'payment_method' => 'required|in:cod,online',
+            'subtotal'       => 'required|numeric',
+            'shipping'       => 'required|numeric',
+            'total'          => 'required|numeric',
         ]);
 
         $cart = session('cart', []);
-
         if (empty($cart)) {
             return redirect()->back()->with('error', 'আপনার কার্ট খালি আছে।');
         }
@@ -264,16 +317,16 @@ class CartController extends Controller
 
         try {
             $order = Order::create([
-                'order_number' => 'ORD-' . str_pad(mt_rand(1, 999999), 6, '0', STR_PAD_LEFT),
+                'order_number'   => 'ORD-' . strtoupper(Str::random(8)),
                 'full_name'      => $request->name,
                 'company_name'   => $request->company_name ?? null,
                 'email'          => $request->email ?? null,
                 'phone'          => $request->phone,
                 'address'        => $request->address,
                 'city'           => $request->city,
-                'province'       => $request->province,
+                'province'       => $request->province ?? 'N/A',
                 'postcode'       => $request->postcode ?? null,
-                'country'        => $request->country,
+                'country'        => $request->country ?? 'Bangladesh',
                 'payment_method' => $request->payment_method,
                 'payment_status' => $request->payment_method === 'cod' ? 'pending' : 'unpaid',
                 'subtotal'       => $request->subtotal,
@@ -284,33 +337,51 @@ class CartController extends Controller
             ]);
 
             foreach ($cart as $item) {
+                $productId = $item['product_id'];
+                $colorId   = $item['color_id'] ?? null;
+                $sizeId    = $item['size_id'] ?? null;
+                $qty       = (int)$item['quantity'];
+
                 $order->items()->create([
-                    'product_id'   => $item['id'] ?? null,
+                    'product_id'   => $productId,
                     'product_name' => $item['name'],
+                    'color_id'     => $colorId,
+                    'size_id'      => $sizeId,
                     'price'        => $item['price'],
-                    'quantity'     => $item['quantity'],
-                    'total'        => $item['price'] * $item['quantity'],
+                    'quantity'     => $qty,
+                    'total'        => $item['price'] * $qty,
                 ]);
+
+                $product = Product::find($productId);
+                
+                if ($product) {
+                    $product->decrement('stock', $qty);
+
+                    if ($product->product_type === 'multiple') {
+                        ProductVariant::where('product_id', $productId)
+                            ->when($colorId, fn($q) => $q->where('color_id', $colorId))
+                            ->when($sizeId, fn($q) => $q->where('size_id', $sizeId))
+                            ->decrement('stock', $qty);
+                    }
+                }
             }
 
             DB::commit();
 
-            session()->forget('cart');
-            session()->forget('shipping');
+            session()->forget(['cart', 'shipping_cost']);
 
             return redirect()
                 ->route('order.success', $order->order_number)
-                ->with('success', 'আপনার অর্ডার সফলভাবে সম্পন্ন হয়েছে।');
+                ->with('success', 'আপনার অর্ডার সফলভাবে সম্পন্ন হয়েছে।');
 
         } catch (\Exception $e) {
             DB::rollBack();
-
+            \Log::error('Order Store Error: ' . $e->getMessage());
+            
             return redirect()
                 ->back()
                 ->with('error', 'অর্ডার ব্যর্থ হয়েছে, আবার চেষ্টা করুন।');
         }
     }
-
-    
 
 }

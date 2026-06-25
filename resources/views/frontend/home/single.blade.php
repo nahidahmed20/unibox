@@ -3,7 +3,6 @@
 
 @section('content')
 @push('css')
-
 <style>
     .product-slider-wrap {
         display: flex;
@@ -93,11 +92,11 @@
     .product-gallary .swiper-nav-next { right: 15px; }
     .product-gallary .swiper-nav-prev { left: 15px; }
 
-    /* --- FIXED: Size Selector Modern & Responsive Design --- */
+    /* Size Selector Modern & Responsive Design */
     .size-item {
-        min-width: 55px; /* ফিক্সড উইডথ বাদ দিয়ে মিন-উইডথ করা হলো */
+        min-width: 55px;
         height: 44px;
-        padding: 0 15px; /* দুইপাশে পর্যাপ্ত স্পেস দেওয়া হলো যাতে বড় টেক্সট ধরে */
+        padding: 0 15px;
         display: inline-flex;
         flex-direction: column;
         align-items: center;
@@ -108,7 +107,7 @@
         font-weight: 600;
         font-size: 14px;
         transition: all 0.3s;
-        white-space: nowrap; /* লেখা যেন ভেঙে নিচে না যায় */
+        white-space: nowrap;
         position: relative;
     }
 
@@ -128,13 +127,13 @@
         color: #a0aec0;
         background: #f7fafc;
         cursor: not-allowed;
-        padding-bottom: 10px; /* 'Out' লেখার জন্য নিচে জায়গা খালি করা হলো */
+        padding-bottom: 10px;
     }
 
     .size-item.disabled::after {
         content: 'Out';
         font-size: 9px;
-        color: #ef4444; /* স্টক আউটের জন্য লাল কালার দেওয়া হলো */
+        color: #ef4444;
         font-weight: 700;
         position: absolute;
         bottom: 2px;
@@ -178,6 +177,44 @@
 
     .stock-out-overlay.show { display: block; }
 
+    /* Layout Content */
+    .desc-wrap {
+        display: flex;
+        gap: 30px;
+    }
+
+    .left-content {
+        flex: 1;
+        min-width: 0; 
+    }
+
+    .right-content {
+        width: 350px;
+        flex-shrink: 0;
+    }
+
+    .right-content img {
+        width: 100%;
+        height: auto;
+        border-radius: 8px;
+        object-fit: cover;
+    }
+
+    .left-content * {
+        max-width: 100% !important; 
+        box-sizing: border-box !important;
+        word-wrap: break-word !important;
+        word-break: break-word !important;
+    }
+
+    .left-content table {
+        width: 100% !important;
+        display: block !important;
+        overflow-x: auto !important;
+        -webkit-overflow-scrolling: touch;
+        border-collapse: collapse;
+    }
+
     /* Responsive Design */
     @media (max-width: 767px) {
         .product-slider-wrap { flex-direction: column; gap: 15px; }
@@ -191,62 +228,20 @@
             width: 100% !important;
             display: block;
         }
-    }
-
         .desc-wrap {
-            display: flex;
-            gap: 30px;
+            flex-direction: column-reverse; 
+            gap: 20px;
         }
-
-        .left-content {
-            flex: 1;
-            min-width: 0; 
-        }
-
         .right-content {
-            width: 350px;
-            flex-shrink: 0;
+            width: 100% !important; 
         }
-
-        .right-content img {
-            width: 100%;
-            height: auto;
-            border-radius: 8px;
-            object-fit: cover;
-        }
-
-        .left-content * {
-            max-width: 100% !important; 
-            box-sizing: border-box !important;
-            word-wrap: break-word !important;
-            word-break: break-word !important;
-        }
-
-        .left-content table {
-            width: 100% !important;
-            display: block !important;
-            overflow-x: auto !important;
-            -webkit-overflow-scrolling: touch;
-            border-collapse: collapse;
-        }
-
-
-        @media (max-width: 767px) {
-
-            .desc-wrap {
-                flex-direction: column-reverse; 
-                gap: 20px;
-            }
-
-            .right-content {
-                width: 100% !important; 
-            }
-        }
+    }
 </style>
-
 @endpush
+
 @php
-    $totalStock = $product->stocks->sum('quantity');
+    // মেইন প্রোডাক্টের স্টক ব্যবহার করা হয়েছে
+    $totalStock = $product->stock;
 @endphp
 
 <section class="shop-section single pt-100 pb-100">
@@ -313,14 +308,16 @@
                                 <div class="d-flex gap-2 mt-2 flex-wrap">
                                     @foreach($product->sizes as $size)
                                         @php
-                                            $stock = $product->stocks->where('size_id', $size->id)->sum('quantity');
+                                            $targetSizeId = $size->size_id ?? $size->id;
+                                            $stock = $product->variants->where('size_id', $targetSizeId)->sum('stock');
+                                            $sizeName = $size->size->name ?? $size->name ?? 'N/A';
                                         @endphp
                                         <span
                                             class="size-item {{ $stock <= 0 ? 'disabled' : '' }}"
-                                            data-size-id="{{ $size->id }}"
-                                            data-size="{{ $size->size }}"
+                                            data-size-id="{{ $targetSizeId }}"
+                                            data-size="{{ $sizeName }}"
                                             data-stock="{{ $stock }}">
-                                            {{ $size->size }}
+                                            {{ $sizeName }}
                                         </span>
                                     @endforeach
                                 </div>
@@ -329,14 +326,14 @@
                             <input type="hidden" id="selectedSizeId">
                             <input type="hidden" id="selectedSize">
 
-                            @if($product->colors->count())
+                            @if($product->product_type !== 'single' && $product->colors->count())
                             <div class="product-color mt-4">
                                 <strong>Color: <span id="selectedColorName" class="text-muted fw-normal ms-1"></span></strong>
                                 <div class="d-flex gap-2 mt-2 flex-wrap">
                                     @foreach($product->colors as $color)
                                         @php
                                             $targetColorId = $color->color_id; 
-                                            $colorStock = $product->stocks->where('color_id', $targetColorId)->sum('quantity');
+                                            $colorStock = $product->variants->where('color_id', $targetColorId)->sum('stock');
                                             $colorImages = $color->images ?? collect();
                                         @endphp
                                         <span
@@ -364,9 +361,9 @@
                                     class="rr-primary-btn cart-btn"
                                     id="addToCartBtn"
                                     data-id="{{ $product->id }}"
-                                    data-total-stock="{{ $totalStock ?? $product->stocks->sum('quantity') }}"
+                                    data-total-stock="{{ $totalStock }}"
                                 >
-                                    {{ ($product->stocks->sum('quantity') <= 0 && $product->product_type === 'single') ? 'Stock Out' : 'Add To Cart' }}
+                                    {{ $totalStock <= 0 ? 'Stock Out' : 'Add To Cart' }}
                                 </button>
                             </div>
                         </div>
@@ -416,7 +413,7 @@
                     <tbody>
                         @foreach($product->sizes as $size)
                         <tr>
-                            <td>{{ $size->size }}</td>
+                            <td>{{ $size->size->name ?? $size->name ?? 'N/A' }}</td>
                             <td>{{ $size->bust ?? 'N/A' }}</td>
                             <td>{{ $size->waist ?? 'N/A' }}</td>
                             <td>{{ $size->hip ?? 'N/A' }}</td>
@@ -526,6 +523,7 @@
     </div>
 </section>
 @endsection
+
 @push('javascript')
     <script>
         $(document).ready(function () {
@@ -533,9 +531,9 @@
         const productType = "{{ $product->product_type }}";
         const hasSizeData  = {{ $product->sizes->count() > 0 ? 'true' : 'false' }};
         const hasColorData = {{ $product->colors->count() > 0 ? 'true' : 'false' }};
-        const totalStock   = {{ $product->stocks->sum('quantity') }};
+        const totalStock   = {{ $product->stock }};
 
-        const hasSize  = hasSizeData && productType !== 'single' && "{{ optional($product->sizes->first())->size }}" !== "";
+        const hasSize  = hasSizeData && productType !== 'single';
         const hasColor = hasColorData && productType !== 'single';
 
         const defaultImages = @json(
@@ -641,8 +639,8 @@
                         $('#cart-section').html(res.html);
                     }
                     if (res.cart_count !== undefined) {
-                        $('.cart-item-count-render').not('.cart-badge').text(res.cart_count + ' items');
-                        $('.cart-badge').text(res.cart_count);
+                        $('.cart-item-count-render').text(res.cart_count);
+                        $('#cart-count').text(res.cart_count); 
                     }
 
                     if (res.cart_total) {
@@ -713,4 +711,3 @@
         });
     </script>
 @endpush
-

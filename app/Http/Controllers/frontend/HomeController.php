@@ -75,8 +75,8 @@ class HomeController extends Controller
                 ->leftJoin(
                     DB::raw("
                         (
-                            SELECT product_id, SUM(quantity) as total_quantity
-                            FROM product_stocks
+                            SELECT product_id, SUM(stock) as total_quantity
+                            FROM product_variants 
                             GROUP BY product_id
                         ) as stocks
                     "),
@@ -87,7 +87,7 @@ class HomeController extends Controller
                 ->select(
                     'products.*',
                     'brands.name as brand_name',
-                    DB::raw('IFNULL(stocks.total_quantity, 0) as total_quantity')
+                    DB::raw('IFNULL(stocks.total_quantity, products.stock) as total_quantity') 
                 )
                 ->where('products.status', 1)
                 ->orderBy('products.id', 'desc')
@@ -111,32 +111,30 @@ class HomeController extends Controller
         $product = Product::with([
             'images',
             'category',
-            'sizes',
             'colors.color',
             'colors.images',
-            'stocks'
+            'variants.size', 
+            'variants.color' 
         ])->findOrFail($id);
 
-        // Size Wise Stock
-        $sizes = $product->sizes->map(function ($size) use ($product) {
-
-            $stock = $product->stocks
+        $uniqueSizes = $product->variants->pluck('size')->filter()->unique('id');
+        
+        $sizes = $uniqueSizes->map(function ($size) use ($product) {
+            $stock = $product->variants
                 ->where('size_id', $size->id)
-                ->sum('quantity');
+                ->sum('stock'); 
 
             return [
                 'id'    => $size->id,
-                'size'  => $size->size,
+                'name'  => $size->name ?? 'N/A', 
                 'stock' => $stock,
             ];
-        });
+        })->values(); 
 
-        // Color Wise Stock
         $colors = $product->colors->map(function ($color) use ($product) {
-
-            $stock = $product->stocks
+            $stock = $product->variants
                 ->where('color_id', $color->color_id)
-                ->sum('quantity');
+                ->sum('stock'); 
 
             return [
                 'id'     => $color->color_id,
@@ -147,18 +145,20 @@ class HomeController extends Controller
             ];
         });
 
-        // Stock Combination
-        $stocks = $product->stocks->map(function ($stock) {
-
+        $variants = $product->variants->map(function ($variant) {
             return [
-                'size_id'  => $stock->size_id,
-                'color_id' => $stock->color_id,
-                'quantity' => $stock->quantity,
+                'size_id'       => $variant->size_id,
+                'color_id'      => $variant->color_id,
+                'stock'         => $variant->stock, 
+                'selling_price' => $variant->selling_price, 
             ];
         });
 
-        return response()->json([
+        $totalStock = $product->product_type === 'multiple' 
+                        ? $product->variants->sum('stock') 
+                        : $product->stock;
 
+        return response()->json([
             'product' => [
                 'id'          => $product->id,
                 'name'        => $product->name,
@@ -171,38 +171,34 @@ class HomeController extends Controller
 
             'sizes'       => $sizes,
             'colors'      => $colors,
-            'stocks'      => $stocks,
-
-            'has_sizes'   => $product->sizes->count() > 0,
-            'has_colors'  => $product->colors->count() > 0,
-
-            'total_stock' => $product->stocks->sum('quantity')
+            'variants'    => $variants, 
+            'has_sizes'   => $sizes->count() > 0,
+            'has_colors'  => $colors->count() > 0,
+            'total_stock' => $totalStock
         ]);
     }
 
     public function categoryProducts(Request $request, $slug)
     {
-        $category = Category::with('subcategories')
-            ->where('slug', $slug)
-            ->where('status', 1)
-            ->first();
-
+        $category = Category::where('slug', $slug)->where('status', 1)->first();
         $isSubcategory = false;
 
         if (!$category) {
-            $category = Subcategory::where('slug', $slug)
-                ->firstOrFail(); 
-                
+            $category = Subcategory::where('slug', $slug)->firstOrFail();
             $isSubcategory = true;
         }
 
-        $query = Product::with(['category', 'brand', 'sizes'])->where('status', 1);
+        $query = Product::with(['category', 'brand'])
+            ->where('status', 1);
 
         if (!$isSubcategory) {
-            $categoryIds = $category->subcategories->pluck('id')->push($category->id)->toArray();
-            $query->whereIn('category_id', $categoryIds);
+            $subIds = Subcategory::where('category_id', $category->id)->pluck('id')->toArray();
+            $query->where(function($q) use ($category, $subIds) {
+                $q->where('category_id', $category->id)
+                ->orWhereIn('subcategory_id', $subIds);
+            });
         } else {
-            $query->where('subcategory_id', $category->id); 
+            $query->where('subcategory_id', $category->id);
         }
 
         if ($request->filled('categories')) {
@@ -214,58 +210,28 @@ class HomeController extends Controller
         }
 
         if ($request->filled('size')) {
-            $query->whereHas('sizes', function ($q) use ($request) {
-                $q->whereIn('sizes.id', $request->size);
+            $query->whereHas('variants', function ($q) use ($request) {
+                $q->whereIn('size_id', $request->size);
             });
         }
 
-        if ($request->filled('min_price')) {
-            $query->where('selling_price', '>=', $request->min_price);
-        }
-
-        if ($request->filled('max_price')) {
-            $query->where('selling_price', '<=', $request->max_price);
-        }
+        if ($request->filled('min_price')) $query->where('selling_price', '>=', $request->min_price);
+        if ($request->filled('max_price')) $query->where('selling_price', '<=', $request->max_price);
 
         switch ($request->sort) {
-            case 'price_low':
-                $query->orderBy('selling_price', 'asc');
-                break;
-            case 'price_high':
-                $query->orderBy('selling_price', 'desc');
-                break;
-            case 'latest':
-                $query->latest();
-                break;
-            default:
-                $query->latest();
-                break;
+            case 'price_low':  $query->orderBy('selling_price', 'asc'); break;
+            case 'price_high': $query->orderBy('selling_price', 'desc'); break;
+            default:           $query->latest(); break;
         }
 
         $products = $query->paginate(12)->appends($request->all());
 
-        $categories = Category::where('status', 1)
-            ->with(['subcategories' => function ($q) {
-                $q->withCount(['products' => function ($q) {
-                    $q->where('status', 1);
-                }]);
-            }])
-            ->withCount(['products' => function ($q) {
-                $q->where('status', 1);
-            }])
-            ->get();
+        $categories = Category::where('status', 1)->withCount(['products' => fn($q) => $q->where('status', 1)])->get();
+        $brands = Brand::withCount(['products' => fn($q) => $q->where('status', 1)])->get();
+        
+        $sizes = Size::all(); 
 
-        $brands = Brand::withCount(['products' => function ($q) {
-                $q->where('status', 1);
-            }])
-            ->get();
-
-        $sizes = Size::withCount(['purchaseDetails' => function ($q) {
-                $q->where('quantity', '>', 0);
-            }])
-            ->get();
-
-        $filterUrl = route('category.show', $category->slug);
+        $filterUrl = route('category.show', $slug);
 
         if ($request->ajax()) {
             return response()->json([
@@ -274,29 +240,31 @@ class HomeController extends Controller
         }
 
         return view('frontend.home.category-products', compact(
-            'category',
-            'products',
-            'categories',
-            'brands',
-            'sizes',
-            'filterUrl'
+            'category', 'products', 'categories', 'brands', 'sizes', 'filterUrl'
         ));
     }
 
+
     public function productShow($slug)
     {
-        $product = Product::where('slug', $slug)->where('status', 1)->with([
-            'images',
-            'category',
-            'sizes',
-            'colors.color',
-            'colors.images',
-            'stocks'
-        ])
-        ->firstOrFail();
+        $product = Product::where('slug', $slug)
+            ->where('status', 1)
+            ->with([
+                'images',
+                'category',
+                'brand',         
+                'colors.color',
+                'colors.images',
+                'variants.size', 
+                'variants.color' 
+            ])
+            ->firstOrFail();
 
+        $uniqueSizes = $product->variants->pluck('size')->filter()->unique('id');
+
+        $product->setRelation('sizes', $uniqueSizes);
+// dd($product);
         return view('frontend.home.single', compact('product'));
-
     }
 
     public function search(Request $request)

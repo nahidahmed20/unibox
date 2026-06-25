@@ -77,11 +77,21 @@ class PurchaseController extends Controller implements HasMiddleware
 
         $products = Product::query()
             ->select(['id', 'name', 'sku', 'purchase_price', 'product_type'])
+            ->where('status', 1)
             ->where(function ($q) use ($query) {
                 $q->where('name', 'like', "%{$query}%")
-                  ->orWhere('sku', 'like', "%{$query}%");
+                ->orWhere('sku', 'like', "%{$query}%")
+                
+                ->orWhereHas('variants', function($vQ) use ($query) {
+                    $vQ->where('sku', 'like', "%{$query}%")
+                        ->orWhereHas('color', function($cQ) use ($query) {
+                            $cQ->where('name', 'like', "%{$query}%");
+                        })
+                        ->orWhereHas('size', function($sQ) use ($query) {
+                            $sQ->where('name', 'like', "%{$query}%");
+                        });
+                });
             })
-            ->where('status', 1)
             ->with(['variants.color', 'variants.size']) 
             ->limit(10)
             ->get();
@@ -150,7 +160,8 @@ class PurchaseController extends Controller implements HasMiddleware
         $purchase = Purchase::with([
             'supplier',
             'details.product',
-            'details.variant'
+            'details.variant.size',  
+            'details.variant.color'  
         ])->findOrFail($id);
 
         return response()->json([
@@ -175,14 +186,14 @@ class PurchaseController extends Controller implements HasMiddleware
     public function update(Request $request, $id)
     {
         $request->validate([
-            'supplier_id' => 'required|exists:suppliers,id',
-            'invoice_no'  => 'required|unique:purchases,invoice_no,' . $id,
-            'purchase_date'=> 'required|date',
-            'products'    => 'required|array|min:1',
-            'products.*.id'=> 'required|exists:products,id',
-            'products.*.variant_id'=> 'nullable',
-            'products.*.qty' => 'required|numeric|min:1',
-            'products.*.price'=> 'required|numeric|min:0',
+            'supplier_id'           => 'required|exists:suppliers,id',
+            'invoice_no'            => 'required|unique:purchases,invoice_no,' . $id,
+            'purchase_date'         => 'required|date',
+            'products'              => 'required|array|min:1',
+            'products.*.id'         => 'required|exists:products,id',
+            'products.*.variant_id' => 'nullable|exists:product_variants,id',
+            'products.*.qty'        => 'required|numeric|min:1',
+            'products.*.price'      => 'required|numeric|min:0',
         ]);
 
         DB::beginTransaction();
@@ -190,12 +201,14 @@ class PurchaseController extends Controller implements HasMiddleware
         try {
             $purchase = Purchase::with('details')->findOrFail($id);
 
-            // 1. REVERT OLD STOCK
+            if ($purchase->is_sale == 1) {
+                return response()->json(['status' => 'error', 'message' => 'Purchase has been sold, cannot update!'], 400);
+            }
+
             foreach ($purchase->details as $old) {
                 $this->adjustStock($old->product_id, $old->product_variant_id, $old->quantity, 'subtract');
             }
 
-            // 2. UPDATE MAIN PURCHASE
             $totalAmount = collect($request->products)->sum(fn($item) => $item['qty'] * $item['price']);
             $purchase->update([
                 'supplier_id'   => $request->supplier_id,
@@ -204,13 +217,14 @@ class PurchaseController extends Controller implements HasMiddleware
                 'total_amount'  => $totalAmount,
             ]);
 
-            // 3. DELETE OLD DETAILS
             $purchase->details()->delete();
 
-            // 4. INSERT NEW & UPDATE NEW STOCK
+            $variantIds = collect($request->products)->pluck('variant_id')->filter()->unique()->toArray();
+            $variants = ProductVariant::whereIn('id', $variantIds)->get()->keyBy('id');
+
             foreach ($request->products as $item) {
                 $variantId = $item['variant_id'] ?? null;
-                $variant = $variantId ? ProductVariant::find($variantId) : null;
+                $variant = $variantId ? $variants->get($variantId) : null;
 
                 PurchaseDetail::create([
                     'purchase_id'        => $purchase->id,
@@ -247,13 +261,19 @@ class PurchaseController extends Controller implements HasMiddleware
             $productIds = [];
             foreach ($purchase->details as $detail) {
                 $productIds[] = $detail->product_id;
-                // Subtract stock
                 $this->adjustStock($detail->product_id, $detail->product_variant_id, $detail->quantity, 'subtract');
             }
 
             $purchase->details()->delete();
-            Product::whereIn('id', array_unique($productIds))->update(['is_purchased' => 0]);
             $purchase->delete();
+
+            $uniqueProductIds = array_unique($productIds);
+            foreach ($uniqueProductIds as $productId) {
+                $hasOtherPurchases = PurchaseDetail::where('product_id', $productId)->exists();
+                if (!$hasOtherPurchases) {
+                    Product::where('id', $productId)->update(['is_purchased' => 0]);
+                }
+            }
 
             DB::commit();
             return response()->json(['status' => 'success', 'message' => 'Purchase deleted successfully & stock adjusted!']);
@@ -263,9 +283,6 @@ class PurchaseController extends Controller implements HasMiddleware
         }
     }
 
-    // ==========================================
-    // REUSABLE STOCK ADJUSTMENT HELPER
-    // ==========================================
     private function adjustStock($productId, $variantId, $qty, $action = 'add')
     {
         $product = Product::find($productId);

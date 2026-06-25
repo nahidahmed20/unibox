@@ -11,6 +11,7 @@ use App\Models\Product;
 use App\Models\ProductColor;
 use App\Models\ProductSize;
 use App\Models\ProductStock;
+use App\Models\ProductVariant;
 use App\Models\PurchaseDetail;
 use App\Models\Sale;
 use App\Models\SaleItem;
@@ -97,38 +98,23 @@ class SaleController extends Controller implements HasMiddleware
     }
 
 
-    /**
-     * Show the form for creating a new resource.
-     */
     public function create()
     {
-        $customers = Customer::where('status',1)->with('user')->get();
+        $customers = Customer::where('status', 1)->get();
+        $categories = Category::where('status', 1)->get();
 
         $products = Product::with([
             'category',
-            'images',
-            'sizes',
-            'colors.color',
-            'colors.images',
-            'stocks'
+            'variants.color', // Variant-er color load hobe
+            'variants.size',  // Variant-er size load hobe
+            'colors.color'
         ])
-            ->where('status', 1)
-            ->get();
+        ->where('status', 1)
+        ->get();
 
-        $categories = Category::where('status', 1)->get();
-
-        return view(
-            'backend.sale.create',
-            compact(
-                'customers',
-                'products',
-                'categories'
-            )
-        );
+        return view('backend.sale.create', compact('customers', 'products', 'categories'));
     }
-    /**
-     * Store a newly created resource in storage.
-     */
+    
     public function store(Request $request)
     {
         $request->validate([
@@ -144,35 +130,11 @@ class SaleController extends Controller implements HasMiddleware
         try {
             $sale = DB::transaction(function () use ($request) {
                 
-                /* ---------------- Invoice No ---------------- */
                 $latestSale = Sale::latest()->first();
                 $invoice_no = $latestSale 
                     ? 'INV' . str_pad($latestSale->id + 1, 4, '0', STR_PAD_LEFT) 
                     : 'INV000001';
 
-                /* ---------------- Stock Validation ---------------- */
-                foreach ($request->product_id as $index => $pid) {
-                    $colorId = !empty($request->color_id[$index]) ? $request->color_id[$index] : null;
-                    $sizeId  = !empty($request->size_id[$index]) ? $request->size_id[$index] : null;
-                    $qty     = $request->quantity[$index];
-
-                    $stock = ProductStock::query()
-                        ->where('product_id', $pid)
-                        ->where(function($q) use ($colorId) {
-                            $colorId ? $q->where('color_id', $colorId) : $q->whereNull('color_id');
-                        })
-                        ->where(function($q) use ($sizeId) {
-                            $sizeId ? $q->where('size_id', $sizeId) : $q->whereNull('size_id');
-                        })
-                        ->first();
-
-                    if (!$stock || $stock->quantity < $qty) {
-                        $productName = Product::find($pid)?->name ?? 'Unknown';
-                        throw new \Exception("Insufficient stock for {$productName}");
-                    }
-                }
-
-                /* ---------------- Calculation ---------------- */
                 $totalAmount = array_sum($request->total_price);
                 $discount = $request->discount ?? 0;
                 $discountAmount = $request->discount_type === 'percent' 
@@ -183,17 +145,17 @@ class SaleController extends Controller implements HasMiddleware
                     'inside'  => 60,
                     'outside' => 120,
                     'free'    => 0,
+                    default   => 0,
                 };
 
                 $grandTotal = ($totalAmount - $discountAmount) + $deliveryCharge;
                 $paidAmount = $request->paid_amount ?? 0;
-                $dueAmount  = $grandTotal - $paidAmount;
+                $dueAmount  = max(0, $grandTotal - $paidAmount);
 
-                /* ---------------- Sale Create ---------------- */
                 $sale = Sale::create([
                     'invoice_no'      => $invoice_no,
                     'customer_id'     => $request->customer_id,
-                    'user_id'         => $request->user_id,
+                    'user_id'         => $request->user_id ?? Auth::id(),
                     'branch_id'       => $request->branch_id,
                     'sale_date'       => $request->sale_date,
                     'total_amount'    => $totalAmount,
@@ -208,27 +170,39 @@ class SaleController extends Controller implements HasMiddleware
                     'status'          => 1,
                 ]);
 
-                /* ---------------- Stock Check & Sale Items ---------------- */
                 foreach ($request->product_id as $index => $pid) {
                     $colorId = !empty($request->color_id[$index]) ? $request->color_id[$index] : null;
                     $sizeId  = !empty($request->size_id[$index]) ? $request->size_id[$index] : null;
                     $qty     = $request->quantity[$index];
                     $price   = $request->selling_price[$index];
 
-                    $stock = ProductStock::query()
-                        ->where('product_id', $pid)
-                        ->where(function($q) use ($colorId) {
-                            $colorId ? $q->where('color_id', $colorId) : $q->whereNull('color_id');
-                        })
-                        ->where(function($q) use ($sizeId) {
-                            $sizeId ? $q->where('size_id', $sizeId) : $q->whereNull('size_id');
-                        })
-                        ->first();
+                    $mainProduct = Product::find($pid);
 
-                    if (!$stock || $stock->quantity < $qty) {
-                        throw new \Exception("Insufficient stock for Product ID: {$pid}");
+                    if (!$mainProduct) {
+                        throw new \Exception("Product ID: {$pid} not found.");
                     }
 
+                    if ($mainProduct->product_type === 'multiple') {
+                        $variant = ProductVariant::query() 
+                            ->where('product_id', $pid)
+                            ->when($colorId, fn($q) => $q->where('color_id', $colorId))
+                            ->when($sizeId, fn($q) => $q->where('size_id', $sizeId))
+                            ->first();
+
+                        if (!$variant || $variant->stock < $qty) {
+                            throw new \Exception("Insufficient variant stock for: {$mainProduct->name}");
+                        }
+                        $variant->decrement('stock', $qty);
+                    } 
+                    else {
+                        if ($mainProduct->stock < $qty) {
+                            throw new \Exception("Insufficient stock for: {$mainProduct->name}");
+                        }
+                    }
+
+                    $mainProduct->decrement('stock', $qty);
+
+                    // ৪. Sale Item Create
                     SaleItem::create([
                         'sale_id'       => $sale->id,
                         'product_id'    => $pid,
@@ -238,9 +212,8 @@ class SaleController extends Controller implements HasMiddleware
                         'selling_price' => $price,
                         'total_price'   => $qty * $price,
                     ]);
-
-                    $stock->decrement('quantity', $qty);
                 }
+
                 /* ---------------- Payment ---------------- */
                 if ($paidAmount > 0) {
                     Payment::create([
@@ -266,7 +239,7 @@ class SaleController extends Controller implements HasMiddleware
             return response()->json([
                 'success' => false,
                 'message' => $e->getMessage(),
-            ], 400);
+            ], 422);
         }
     }
 
@@ -295,6 +268,7 @@ class SaleController extends Controller implements HasMiddleware
             'data' => $sale
         ]);
     }
+
 
     /**
      * Show the form for editing the specified resource.

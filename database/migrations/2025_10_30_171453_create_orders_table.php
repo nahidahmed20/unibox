@@ -26,14 +26,14 @@ return new class extends Migration
             $table->string('country')->nullable();
             $table->string('payment_method')->nullable();
             $table->string('payment_status')->nullable();
-            $table->decimal('subtotal', 10, 2)->nullable();
-            $table->decimal('shipping', 10, 2)->nullable();
-            $table->decimal('total', 10, 2)->nullable();
+            $table->decimal('subtotal', 15, 2)->nullable();
+            $table->decimal('shipping', 15, 2)->nullable();
+            $table->decimal('total', 15, 2)->nullable();
             $table->text('order_note')->nullable();
             $table->string('status')->nullable();
             $table->unsignedBigInteger('courier_id')->nullable()->comment('Linked with couriers table');
             $table->string('tracking_number')->nullable()->comment('Courier Tracking/Consignment ID');
-            $table->decimal('return_charge', 10, 2)->default(0)->comment('Penalty amount if returned');
+            $table->decimal('return_charge', 15, 2)->default(0)->comment('Penalty amount if returned');
             $table->timestamps();
         });
 

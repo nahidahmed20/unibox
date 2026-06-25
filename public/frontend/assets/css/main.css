@@ -5967,12 +5967,12 @@ START: Blog CSS
   cursor: pointer;
 }
 
-.product-top-content .project-filter li:not(:last-of-type) {
+/* .product-top-content .project-filter li:not(:last-of-type) {
   margin-right: 15px;
-}
+} */
 
 .product-top-content .project-filter li.active {
-  color: var(--rr-color-theme-green);
+  color: #ffffff;
 }
 
 .product-item-wrap {
@@ -6047,7 +6047,7 @@ START: Blog CSS
   position: relative;
 }
 
-.product-item .product-thumb {
+/* .product-item .product-thumb {
   max-width: 120px;
   height: 120px;
   margin: 0 auto;
@@ -6063,7 +6063,7 @@ START: Blog CSS
   -o-transition: all 0.3s ease-in-out;
   transition: all 0.3s ease-in-out;
   object-fit: contain;
-}
+} */
 
 .product-item .product-list {
   background-color: var(--rr-color-grey-1);

@@ -1,903 +1,7 @@
 @extends('frontend.layouts.app')
 @section('title', 'Home')
 @section('content')
-    @push('css')
-        <style>
-            .carousel-item {
-                height: 400px;
-            }
-
-            .category-img {
-                width: 100%;
-                height: 190px;
-                display: flex;
-                align-items: center;
-                justify-content: center;
-                overflow: hidden;
-            }
-
-            .category-img img {
-                width: 100%;
-                height: 100%;
-                object-fit: cover;
-                border-radius: 8px;
-            }
-
-            .hero-list-wrap {
-                max-height: 400px;
-                overflow-y: auto;
-                overflow-x: hidden;
-            }
-
-            .hero-list-wrap::-webkit-scrollbar {
-                width: 6px;
-            }
-
-            .hero-list-wrap::-webkit-scrollbar-thumb {
-                background: #ccc;
-                border-radius: 10px;
-            }
-
-            @media (max-width: 767px) {
-                .carousel-item {
-                    height: 140px;
-                }
-            }
-
-
-            .modal-product-image {
-                max-height: 350px;
-                object-fit: contain;
-            }
-        </style>
-        <style>
-            .size-box,
-            .color-box-modal {
-                width: 45px;
-                height: 40px;
-                display: flex;
-                align-items: center;
-                justify-content: center;
-                border: 1px solid #008a7a;
-                border-radius: 4px;
-                cursor: pointer;
-                font-size: 14px;
-                position: relative;
-            }
-
-            .size-box.active {
-                background: #008a7a;
-                color: #fff;
-                border-color: #008a7a;
-            }
-
-            .color-box-modal {
-                width: 30px;
-                height: 30px;
-                display: inline-block;
-                border-radius: 50%;
-                border: 2px solid #ddd;
-                cursor: pointer;
-                position: relative;
-                transition: transform 0.2s;
-            }
-
-            .color-box-modal.active {
-                border: 3px solid #000;
-            }
-
-            .qty-modern {
-                display: flex;
-                align-items: center;
-                width: fit-content;
-                border: 1px solid #ddd;
-                border-radius: 50px;
-                overflow: hidden;
-            }
-
-            .qty-modern input {
-                width: 60px;
-                text-align: center;
-                border: none;
-                font-weight: 600;
-            }
-
-            .qty-btn {
-                width: 45px;
-                height: 45px;
-                border: none;
-                background: #f5f5f5;
-                font-size: 20px;
-                font-weight: bold;
-            }
-
-            .qty-btn:hover {
-                background: #ff6600;
-                color: #fff;
-            }
-
-            .size-box.disabled {
-                opacity: .5;
-                cursor: not-allowed;
-                pointer-events: none;
-            }
-
-            .color-box-modal.stock-out {
-                opacity: .4;
-                cursor: not-allowed;
-                position: relative;
-            }
-
-            .color-box-modal.stock-out::after {
-                /* content:'✕'; */
-                position: absolute;
-                inset: 0;
-                display: flex;
-                align-items: center;
-                justify-content: center;
-                color: #fff;
-                font-weight: bold;
-            }
-
-
-
-
-            .product-btn {
-                display: flex;
-                align-items: center;
-                gap: 20px;
-                width: 100%;
-            }
-
-            /* Quantity Box */
-            .qty-modern {
-                display: flex;
-                align-items: center;
-                justify-content: center;
-                width: 130px;
-                height: 52px;
-                background: #008a7a;
-                /* screenshot color */
-                border-radius: 0;
-                overflow: hidden;
-            }
-
-            .qty-btn {
-                width: 40px;
-                height: 52px;
-                border: none;
-                background: transparent;
-                color: #fff;
-                font-size: 22px;
-                font-weight: 600;
-                cursor: pointer;
-            }
-
-            .qty-modern input {
-                width: 50px;
-                border: none;
-                background: transparent;
-                text-align: center;
-                color: #fff;
-                font-size: 18px;
-                font-weight: 600;
-            }
-
-            .qty-modern input:focus {
-                outline: none;
-            }
-
-            /* Cart Button */
-            .cart-btn {
-                flex: 1;
-                height: 52px;
-                border: 2px solid #222;
-                border-radius: 50px;
-                background: #fff;
-                color: #222;
-                font-weight: 600;
-                font-size: 16px;
-                transition: .3s;
-                display: flex;
-                justify-content: center;
-                /* horizontal */
-                align-items: center;
-            }
-
-            .cart-btn:hover {
-                background: #141414;
-                color: #fff;
-            }
-
-            /* Responsive */
-            @media (max-width:576px) {
-
-                .product-btn {
-                    gap: 12px;
-                }
-
-                .qty-modern {
-                    width: 100px;
-                    height: 48px;
-                }
-
-                .qty-btn {
-                    width: 30px;
-                    height: 48px;
-                    font-size: 18px;
-                }
-
-                .qty-modern input {
-                    width: 40px;
-                    font-size: 16px;
-                }
-
-                .cart-btn {
-                    height: 48px;
-                    font-size: 15px;
-                }
-            }
-
-            /* About Section Styles */
-            .about-image-wrapper {
-                position: relative;
-                border-radius: 20px;
-                overflow: hidden;
-                box-shadow: 0 15px 40px rgba(0, 0, 0, 0.08); 
-            }
-
-            .about-main-img {
-                width: 100%;
-                border-radius: 20px;
-                transition: transform 0.5s ease;
-            }
-
-            .about-image-wrapper:hover .about-main-img {
-                transform: scale(1.03);
-            }
-
-            .about-subtitle {
-                color: var(--rr-color-theme-primary);
-                font-weight: 700;
-                text-transform: uppercase;
-                letter-spacing: 1.5px;
-                display: block;
-                margin-bottom: 12px;
-                font-size: 14px;
-            }
-
-            .about-title {
-                font-size: 42px;
-                font-weight: 800;
-                color: var(--rr-color-heading);
-                line-height: 1.3;
-            }
-
-            .about-description {
-                color: var(--rr-color-text-body);
-                font-size: 16px;
-                line-height: 1.8;
-            }
-
-            .modern-btn-primary {
-                background: var(--rr-color-theme-primary);
-                color: #ffffff;
-                padding: 14px 35px;
-                border-radius: 8px;
-                font-weight: 600;
-                font-size: 16px;
-                transition: all 0.3s ease;
-                display: inline-flex;
-                align-items: center;
-                text-decoration: none;
-                border: none;
-            }
-
-            .modern-btn-primary:hover {
-                background: var(--rr-color-heading, #222); 
-                color: #ffffff;
-                transform: translateY(-3px);
-                box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
-            }
-
-            .experience-badge {
-                background: #fdfdfd;
-                padding: 12px 24px;
-                border-radius: 12px;
-                border: 1px solid rgba(0,0,0,0.05);
-                box-shadow: 0 4px 15px rgba(0,0,0,0.02);
-            }
-
-            @media (max-width: 991px) {
-                .about-title {
-                    font-size: 32px;
-                }
-                .experience-badge {
-                    padding: 10px 15px;
-                }
-            }
-
-
-            .counter-section {
-                background: linear-gradient(135deg, #fcfcfc 0%, #f0f3f5 100%);
-                position: relative;
-                z-index: 1;
-            }
-
-            .modern-counter-card {
-                background: #ffffff;
-                padding: 45px 25px;
-                border-radius: 20px;
-                box-shadow: 0 10px 30px rgba(0, 0, 0, 0.03);
-                border: 1px solid rgba(255, 255, 255, 0.6);
-                transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275); 
-                position: relative;
-                overflow: hidden;
-                z-index: 1;
-            }
-
-            .modern-counter-card:hover {
-                /* transform: translateY(-12px); */
-                box-shadow: 0 20px 40px rgba(0, 0, 0, 0.08);
-                border-color: rgba(var(--rr-color-theme-primary-rgb, 103, 176, 46), 0.2);
-            }
-
-            .counter-icon-wrap {
-                width: 85px;
-                height: 85px;
-                margin: 0 auto 25px auto;
-                background: rgba(var(--rr-color-theme-primary-rgb, 103, 176, 46), 0.08);
-                color: var(--rr-color-theme-primary, #67b02e);
-                font-size: 38px;
-                border-radius: 50%;
-                display: flex;
-                align-items: center;
-                justify-content: center;
-                transition: all 0.4s ease;
-                position: relative;
-            }
-
-            .counter-icon-wrap::after {
-                content: '';
-                position: absolute;
-                top: -5px;
-                left: -5px;
-                right: -5px;
-                bottom: -5px;
-                border: 1px dashed rgba(var(--rr-color-theme-primary-rgb, 103, 176, 46), 0.3);
-                border-radius: 50%;
-                transition: all 0.4s ease;
-            }
-
-            .modern-counter-card:hover .counter-icon-wrap {
-                background: var(--rr-color-theme-primary, #67b02e);
-                color: #ffffff;
-                transform: scale(1.1) rotate(5deg);
-                box-shadow: 0 10px 25px rgba(var(--rr-color-theme-primary-rgb, 103, 176, 46), 0.4);
-            }
-
-            .modern-counter-card:hover .counter-icon-wrap::after {
-                border-color: var(--rr-color-theme-primary, #67b02e);
-                transform: scale(1.1);
-                opacity: 0; 
-            }
-
-            .counter-number {
-                font-size: 48px;
-                font-weight: 800;
-                color: var(--rr-color-heading, #111);
-                margin-bottom: 8px;
-                display: flex;
-                justify-content: center;
-                align-items: baseline; 
-                line-height: 1;
-            }
-
-            .counter-suffix {
-                font-size: 26px;
-                font-weight: 700;
-                color: var(--rr-color-theme-primary, #67b02e);
-                margin-left: 4px;
-            }
-
-            .counter-title {
-                font-size: 16px;
-                color: var(--rr-color-text-body, #666);
-                font-weight: 600;
-                margin-bottom: 0;
-                text-transform: uppercase;
-                letter-spacing: 1.5px;
-            }
-
-            @media (max-width: 767px) {
-                .modern-counter-card {
-                    padding: 30px 15px;
-                    border-radius: 16px;
-                }
-                .counter-icon-wrap {
-                    width: 65px;
-                    height: 65px;
-                    font-size: 28px;
-                    margin-bottom: 15px;
-                }
-                .counter-number {
-                    font-size: 36px;
-                }
-                .counter-suffix {
-                    font-size: 20px;
-                }
-                .counter-title {
-                    font-size: 14px;
-                    letter-spacing: 1px;
-                }
-                .bestseller-product.pt-60 {
-                    padding-top: 20px !important; 
-                }
-                .pb-100 {
-                    padding-bottom: 40px;
-                }
-                .pt-60 {
-                    padding-top: 30px;
-                }
-                .pb-60 {
-                    padding-bottom: 40px;
-                }
-                .section-heading {
-                    margin-bottom: 20px;
-                }
-                .service-section pb-60{
-                    padding-bottom: 20px;
-                }
-                section.our-process-section.py-5 {
-                    padding-top: 0px !important;
-                    padding-bottom: 30px !important;
-                }
-                .pb-80 {
-                    padding-bottom: 10px;
-                }
-            }
-
-            .process-timeline {
-                display: flex;
-                justify-content: space-between;
-                position: relative;
-                text-align: center;
-                padding-top: 10px;
-            }
-
-            .process-timeline::before {
-                content: '';
-                position: absolute;
-                top: 45px; 
-                left: 8%;
-                right: 8%;
-                height: 3px;
-                background-color: #008a7a; 
-                z-index: 0;
-            }
-
-            /* Individual Step */
-            .process-step {
-                flex: 1;
-                position: relative;
-                z-index: 1;
-                padding: 0 15px;
-            }
-
-            /* The Icon Circle */
-            .process-icon {
-                width: 75px;
-                height: 75px;
-                background-color: #008a7a;
-                color: #ffffff;
-                font-size: 28px;
-                border-radius: 50%;
-                display: inline-flex;
-                align-items: center;
-                justify-content: center;
-                margin-bottom: 20px;
-                border: 6px solid #ffffff;
-                box-shadow: 0 0 0 2px rgba(0, 138, 122, 0.25);
-                transition: transform 0.3s ease;
-            }
-
-            .process-icon:hover {
-                transform: scale(1.05);
-                box-shadow: 0 0 0 4px rgba(0, 138, 122, 0.35);
-            }
-
-            /* Text Styles */
-            .step-title {
-                font-size: 16px;
-                font-weight: 700;
-                color: #111;
-                margin-bottom: 10px;
-            }
-
-            .step-desc {
-                font-size: 14px;
-                color: #777;
-                line-height: 1.5;
-            }
-
-            @media (max-width: 991px) {
-                .process-timeline {
-                    flex-direction: column;
-                    text-align: left;
-                    padding-left: 20px;
-                }
-                
-                .process-timeline::before {
-                    top: 0;
-                    bottom: 0;
-                    left: 37px; 
-                    right: auto;
-                    width: 3px;
-                    height: 100%;
-                }
-                
-                .process-step {
-                    display: flex;
-                    align-items: flex-start;
-                    margin-bottom: 30px;
-                    padding: 0;
-                }
-                
-                .process-icon {
-                    margin-bottom: 0;
-                    margin-right: 20px;
-                    flex-shrink: 0;
-                }
-                
-                .step-title {
-                    margin-top: 10px;
-                }
-            }
-            .carousel-item {
-                height: 400px;
-            }
-
-            .category-img {
-                width: 100%;
-                height: 190px;
-                display: flex;
-                align-items: center;
-                justify-content: center;
-                overflow: hidden;
-            }
-
-            .category-img img {
-                width: 100%;
-                height: 100%;
-                object-fit: cover;
-                border-radius: 8px;
-            }
-
-            .hero-list-wrap {
-                max-height: 400px;
-                overflow-y: auto;
-                overflow-x: hidden;
-                background: #ffffff;
-                border: 1px solid #eee;
-                border-radius: 8px;
-            }
-
-            .hero-list-wrap::-webkit-scrollbar {
-                width: 6px;
-            }
-
-            .hero-list-wrap::-webkit-scrollbar-thumb {
-                background: #008a7a;
-                border-radius: 10px;
-            }
-
-            @media (max-width: 767px) {
-                .carousel-item {
-                    height: 140px;
-                }
-            }
-
-            /* --- Sidebar Category Click-to-Open Styles --- */
-            .hero-list {
-                list-style: none;
-                padding: 0;
-                margin: 0;
-            }
-
-            .hero-list > li {
-                border-bottom: 1px solid #f0f0f0;
-            }
-
-            .hero-list > li:last-child {
-                border-bottom: none;
-            }
-
-            /* Category Item Wrapper */
-            .category-item-wrap {
-                display: flex;
-                justify-content: space-between;
-                align-items: center;
-                transition: background 0.3s;
-            }
-
-            .category-item-wrap:hover {
-                background-color: #fcfcfc;
-            }
-
-            /* Main Link */
-            .category-link {
-                flex-grow: 1;
-                padding: 12px 15px;
-                color: #333;
-                text-decoration: none;
-                font-weight: 600;
-                font-size: 15px;
-                display: flex;
-                align-items: center;
-                gap: 10px;
-            }
-
-            .category-link i {
-                color: #008a7a;
-                font-size: 14px;
-            }
-            
-            .category-link:hover {
-                color: #008a7a;
-            }
-
-            /* Toggle Button (Arrow) */
-            .cat-toggle-btn {
-                background: transparent;
-                border: none;
-                padding: 12px 15px;
-                color: #777;
-                display: flex;
-                align-items: center;
-                gap: 8px;
-                cursor: pointer;
-                transition: color 0.3s;
-            }
-
-            .cat-toggle-btn:hover {
-                color: #008a7a;
-            }
-
-            /* Arrow Animation on Click */
-            .arrow-icon {
-                transition: transform 0.35s ease;
-                font-size: 12px;
-            }
-
-            .cat-toggle-btn[aria-expanded="true"] .arrow-icon {
-                transform: rotate(180deg);
-                color: #008a7a;
-            }
-
-            /* Subcategory List */
-            .sub-category-list {
-                list-style: none;
-                padding: 5px 15px 15px 35px;
-                margin: 0;
-                background: #fdfdfd;
-            }
-
-            .sub-category-list li {
-                margin-bottom: 5px;
-            }
-
-            .sub-category-list li:last-child {
-                margin-bottom: 0;
-            }
-
-            .sub-category-list a {
-                display: flex;
-                justify-content: space-between;
-                align-items: center;
-                padding: 8px 12px;
-                color: #555;
-                text-decoration: none;
-                font-size: 14px;
-                border-radius: 5px;
-                transition: all 0.3s ease;
-                border: 1px solid transparent;
-            }
-
-            .sub-category-list a:hover {
-                color: #008a7a;
-                background: #ffffff;
-                border-color: rgba(0, 138, 122, 0.2);
-                box-shadow: 0 2px 5px rgba(0,0,0,0.02);
-            }
-            
-
-
-
-
-
-            .carousel-item {
-                height: 400px;
-            }
-
-            .category-img {
-                width: 100%;
-                height: 190px;
-                display: flex;
-                align-items: center;
-                justify-content: center;
-                overflow: hidden;
-            }
-
-            .category-img img {
-                width: 100%;
-                height: 100%;
-                object-fit: cover;
-                border-radius: 8px;
-            }
-
-            .hero-list-wrap {
-                max-height: 400px;
-                overflow-y: auto;
-                overflow-x: hidden;
-                background: #ffffff;
-                border: 1px solid #eee;
-                border-radius: 8px;
-            }
-
-            .hero-list-wrap::-webkit-scrollbar {
-                width: 6px;
-            }
-
-            .hero-list-wrap::-webkit-scrollbar-thumb {
-                background: #008a7a;
-                border-radius: 10px;
-            }
-
-            @media (max-width: 767px) {
-                .carousel-item {
-                    height: 140px;
-                }
-            }
-
-            .modal-product-image {
-                max-height: 350px;
-                object-fit: contain;
-            }
-
-            /* --- Sidebar Category Click Styles --- */
-            .hero-list {
-                list-style: none;
-                padding: 0;
-                margin: 0;
-            }
-
-            .hero-list > li {
-                position: relative;
-                border-bottom: 1px solid #f0f0f0;
-                display: block !important;
-            }
-
-            .hero-list > li:last-child {
-                border-bottom: none;
-            }
-
-            /* Item Wrap */
-            .category-item-wrap {
-                transition: background-color 0.3s ease;
-            }
-
-            .category-item-wrap:hover {
-                background-color: #fcfcfc;
-            }
-
-            /* Main Category Link/Toggle */
-            .category-link {
-                display: flex;
-                justify-content: space-between;
-                align-items: center;
-                width: 100%;
-                padding: 12px 15px;
-                color: #333;
-                text-decoration: none;
-                font-weight: 600;
-                font-size: 15px;
-                transition: all 0.3s ease;
-                cursor: pointer;
-            }
-
-            .category-link .cat-name {
-                display: flex;
-                align-items: center;
-                gap: 10px;
-            }
-
-            .category-link i {
-                color: #008a7a;
-                font-size: 14px;
-            }
-
-            .category-link:hover {
-                color: #008a7a;
-            }
-
-            /* Toggle Action (Count and Icon) */
-            .toggle-indicator {
-                display: flex;
-                align-items: center;
-                gap: 8px;
-                color: #333;
-            }
-
-            .category-link:hover .toggle-indicator {
-                color: #008a7a;
-            }
-
-            .arrow-icon {
-                font-size: 12px;
-                transition: transform 0.3s ease;
-            }
-
-            /* Rotate arrow when open */
-            .category-link[aria-expanded="true"] .arrow-icon {
-                transform: rotate(180deg);
-                color: #008a7a;
-            }
-
-            /* Subcategory List */
-            .sub-category-list {
-                list-style: none;
-                padding: 5px 15px 15px 35px; /* Indented padding */
-                margin: 0;
-                background: #fcfcfc;
-            }
-
-            .sub-category-list li {
-                display: block !important;
-                margin-bottom: 5px;
-            }
-
-            .sub-category-list li:last-child {
-                margin-bottom: 0;
-            }
-
-            .sub-category-list a {
-                display: flex;
-                justify-content: space-between;
-                align-items: center;
-                padding: 8px 12px;
-                color: #555;
-                text-decoration: none;
-                font-size: 14px;
-                border-radius: 5px;
-                transition: all 0.3s ease;
-                background: #ffffff;
-                border: 1px solid #eee;
-            }
-
-            .sub-category-list a .sub-cat-name {
-                display: flex;
-                align-items: center;
-                gap: 8px;
-            }
-
-            .sub-category-list a i {
-                font-size: 10px;
-                color: #999;
-                transition: transform 0.3s ease;
-            }
-
-            .sub-category-list a:hover {
-                color: #008a7a;
-                border-color: rgba(0, 138, 122, 0.3);
-                box-shadow: 0 2px 5px rgba(0,0,0,0.02);
-            }
-
-            .sub-category-list a:hover i {
-                color: #008a7a;
-                transform: translateX(3px); /* Small slide effect on hover */
-            }
-        </style>
-    @endpush
+    @include('frontend.home.home-css')
    <section class="hero-section-2 pt-60">
         <div class="container">
             <div class="row gy-lg-0 gy-4 justify-content-center">
@@ -1060,7 +164,15 @@
                                 </h3>
 
                                 <h4 class="quantity">
-                                    Stock: {{ $product->total_quantity ?? '' }}
+                                    @if($product->total_quantity > 0)
+                                        <span style="color:#16a34a">
+                                            In Stock ({{ $product->total_quantity }})
+                                        </span>
+                                    @else
+                                        <span style="color:#dc2626">
+                                            Out of Stock
+                                        </span>
+                                    @endif
                                 </h4>
 
                                 <span class="price">
@@ -1136,7 +248,15 @@
                                 </h3>
 
                                 <h4 class="quantity">
-                                     Stock: {{ $product->total_quantity ?? '' }}
+                                    @if($product->total_quantity > 0)
+                                        <span style="color:#16a34a">
+                                            In Stock ({{ $product->total_quantity }})
+                                        </span>
+                                    @else
+                                        <span style="color:#dc2626">
+                                            Out of Stock
+                                        </span>
+                                    @endif
                                 </h4>
 
                                 <span class="price">
@@ -1731,75 +851,85 @@
         });
         
         $(document).ready(function () {
+
             var $grid = $('.filter-items').isotope({
                 itemSelector: '.single-item',
                 layoutMode: 'fitRows'
             });
+
             var isMobile = $(window).width() <= 767;
 
-                var initialItems = isMobile ? 6 : 12;
-                var loadItems = isMobile ? 2 : 6;
+            // Initial load
+            var initialItems = isMobile ? 10 : 15;
 
-                var totalProducts = $('.product-box').length;
+            // Load more count
+            var loadItems = isMobile ? 4 : 5;
 
-                $('.product-box').hide();
-                $('.product-box').slice(0, initialItems).show();
+            var totalProducts = $('.product-box').length;
 
-                $grid.isotope('layout');
+            $('.product-box').hide();
+            $('.product-box').slice(0, initialItems).show();
 
-                // Show More button control
-                if (totalProducts > initialItems) {
-                    $('#loadMoreWrapper').show();
-                } else {
-                    $('#loadMoreWrapper').hide();
-                }
+            $grid.isotope('layout');
+
+            if (totalProducts > initialItems) {
+                $('#loadMoreWrapper').show();
+            } else {
+                $('#loadMoreWrapper').hide();
+            }
+
             $('#loadMore').click(function (e) {
                 e.preventDefault();
-                $('.product-box:hidden').slice(0, loadItems).show();
+
+                $('.product-box:hidden')
+                    .slice(0, loadItems)
+                    .fadeIn();
+
                 $grid.isotope('layout');
-                if ($('.product-box:hidden').length == 0) {
+
+                if ($('.product-box:hidden').length === 0) {
                     $('#loadMoreWrapper').fadeOut();
                 }
             });
 
             $('.project-filter li').on('click', function () {
+
                 $('.project-filter li').removeClass('active');
                 $(this).addClass('active');
+
                 var filterValue = $(this).attr('data-filter');
+
                 $grid.isotope({
                     filter: filterValue
                 });
+
             });
+
         });
-    
     </script>
     
     <script>
         $(document).ready(function() {
-
             let modalSizesCount = 0;
             let modalColorsCount = 0;
             let modalTotalStock = 0;
             let productStocks = [];
+            let basePrice = 0; 
 
             // Open Product Modal
             $(document).on('click', '.openCartModal', function() {
-
                 let id = $(this).data('id');
                 let name = $(this).data('name');
-                let price = $(this).data('price');
+                basePrice = $(this).data('price'); 
                 let image = $(this).data('image');
 
                 // Reset Modal
                 $('#modalProductName').text(name);
-                $('#modalProductPrice').text(price);
+                $('#modalProductPrice').text(basePrice);
                 $('#modalProductImage').attr('src', image);
-
                 $('#modalQty').val(1);
-
                 $('#modalSizeWrap').html('');
                 $('#modalColorWrap').html('');
-
                 $('#sizeSection').hide();
                 $('#colorSection').hide();
 
@@ -1814,24 +944,23 @@
                     beforeSend: function() {
                         $('.openCartModal').prop('disabled', true);
                     },
-
                     success: function(res) {
                         modalSizesCount = $('#modalSizeWrap .size-box:not(.disabled)').length;
-                        modalColorsCount = $('#modalColorWrap .color-box-modal:not(.stock-out)')
-                            .length;
+                        modalColorsCount = $('#modalColorWrap .color-box-modal:not(.stock-out)').length;
                         modalTotalStock = res.total_stock || 0;
-                        productStocks = res.stocks || [];
+                        productStocks = res.variants || res.stocks || []; 
 
                         if (res.sizes && res.sizes.length > 0) {
                             let sizeHtml = '';
                             res.sizes.forEach(size => {
                                 let stock = size.stock ?? 0;
-                                if (size.size && size.size.trim() !== '') {
+                                let sizeName = size.name || size.size || 'N/A'; 
+                                if (sizeName.trim() !== '') {
                                     sizeHtml += `
                                         <div class="size-box ${stock <= 0 ? 'disabled' : ''}"
                                             data-id="${size.id}"
                                             data-stock="${stock}">
-                                            ${size.size}
+                                            ${sizeName}
                                         </div>
                                     `;
                                 }
@@ -1841,6 +970,7 @@
                                 $('#sizeSection').show();
                             }
                         }
+                        
                         if (res.colors && res.colors.length > 0) {
                             let colorHtml = '';
                             res.colors.forEach(color => {
@@ -1858,26 +988,16 @@
                                 $('#colorSection').show();
                             }
                         }
+
                         if (modalTotalStock <= 0) {
-                            $('#finalAddToCart')
-                                .prop('disabled', true)
-                                .html('Stock Out');
-                        } else {
-                            $('#finalAddToCart')
-                                .prop('disabled', false)
-                                .html('Add To Cart');
+                            $('#finalAddToCart').prop('disabled', true).html('Stock Out');
                         }
-                        const modal = new bootstrap.Modal(
-                            document.getElementById('cartModal')
-                        );
+
+                        const modal = new bootstrap.Modal(document.getElementById('cartModal'));
                         modal.show();
                     },
                     error: function() {
-                        Swal.fire({
-                            icon: 'error',
-                            title: 'Error',
-                            text: 'Failed to load product data.'
-                        });
+                        Swal.fire({ icon: 'error', title: 'Error', text: 'Failed to load product data.' });
                     },
                     complete: function() {
                         $('.openCartModal').prop('disabled', false);
@@ -1885,118 +1005,83 @@
                 });
             });
 
+            function updateModalPriceAndStock() {
+                let sizeId = $('#cartModal .size-box.active').data('id') || null;
+                let colorId = $('#cartModal .color-box-modal.active').data('id') || null;
+
+                if (sizeId || colorId) {
+                    let variant = productStocks.find(v => 
+                        (v.size_id == sizeId || (!sizeId)) && 
+                        (v.color_id == colorId || (!colorId))
+                    );
+
+                    if (variant) {
+                        if (variant.stock <= 0) {
+                            $('#finalAddToCart').prop('disabled', true).html('Stock Out');
+                        } else {
+                            $('#finalAddToCart').prop('disabled', false).html('Add To Cart');
+                        }
+
+                        if (variant.selling_price && variant.selling_price > 0) {
+                            $('#modalProductPrice').text(parseFloat(variant.selling_price).toFixed(2));
+                        } else {
+                            $('#modalProductPrice').text(parseFloat(basePrice).toFixed(2));
+                        }
+                        return variant.stock;
+                    }
+                }
+                
+                $('#modalProductPrice').text(parseFloat(basePrice).toFixed(2));
+                return modalTotalStock;
+            }
+
             $(document).on('click', '#cartModal .size-box:not(.disabled)', function() {
                 $('#cartModal .size-box').removeClass('active');
                 $(this).addClass('active');
-                console.log('Available Stock:', getAvailableStock());
+                updateModalPriceAndStock();
             });
 
             $(document).on('click', '#cartModal .color-box-modal:not(.stock-out)', function() {
                 $('#cartModal .color-box-modal').removeClass('active');
                 $(this).addClass('active');
-                console.log('Available Stock:', getAvailableStock());
+                updateModalPriceAndStock();
             });
-
-            $('#qtyPlus').on('click', function() {
-                let qty = parseInt($('#modalQty').val()) || 1;
-                $('#modalQty').val(qty + 1);
-            });
-
-            $('#qtyMinus').on('click', function() {
-                let qty = parseInt($('#modalQty').val()) || 1;
-                if (qty > 1) {
-                    $('#modalQty').val(qty - 1);
-                }
-            });
-
-            function getAvailableStock() {
-                let sizeId = $('#cartModal .size-box.active').data('id') || null;
-                let colorId = $('#cartModal .color-box-modal.active').data('id') || null;
-                if (sizeId && colorId) {
-                    let row = productStocks.find(stock =>
-                        parseInt(stock.size_id) === parseInt(sizeId) &&
-                        parseInt(stock.color_id) === parseInt(colorId)
-                    );
-                    return row ? parseInt(row.quantity) : 0;
-                }
-
-                if (sizeId && !colorId) {
-                    let stock = 0;
-                    productStocks.forEach(item => {
-                        if (parseInt(item.size_id) === parseInt(sizeId)) {
-                            stock += parseInt(item.quantity);
-                        }
-                    });
-                    return stock;
-                }
-                if (!sizeId && colorId) {
-                    let stock = 0;
-                    productStocks.forEach(item => {
-                        if (parseInt(item.color_id) === parseInt(colorId)) {
-                            stock += parseInt(item.quantity);
-                        }
-                    });
-                    return stock;
-                }
-                return modalTotalStock;
-            }
 
             function validateModalStock() {
-                if (modalTotalStock <= 0) {
-                    Swal.fire({
-                        icon: 'error',
-                        title: 'স্টক শেষ',
-                        text: 'এই পণ্যটি বর্তমানে স্টকে নেই।'
-                    });
-                    return false;
-                }
                 let hasSelectableSizes = $('#modalSizeWrap .size-box:not(.disabled)').length > 0;
-                if (hasSelectableSizes &&
-                    $('#cartModal .size-box.active').length === 0
-                ) {
-                    Swal.fire({
-                        icon: 'warning',
-                        title: 'Select Size',
-                        text: 'Please select a size'
-                    });
+                if (hasSelectableSizes && $('#cartModal .size-box.active').length === 0) {
+                    Swal.fire({ icon: 'warning', title: 'Select Size', text: 'Please select a size' });
                     return false;
                 }
+
                 let hasSelectableColors = $('#modalColorWrap .color-box-modal:not(.stock-out)').length > 0;
-                if (
-                    hasSelectableColors &&
-                    $('#cartModal .color-box-modal.active').length === 0
-                ) {
-                    Swal.fire({
-                        icon: 'warning',
-                        title: 'Select Color',
-                        text: 'Please select a color'
-                    });
+                if (hasSelectableColors && $('#cartModal .color-box-modal.active').length === 0) {
+                    Swal.fire({ icon: 'warning', title: 'Select Color', text: 'Please select a color' });
                     return false;
                 }
 
                 let qty = parseInt($('#modalQty').val()) || 1;
-                let stock = getAvailableStock();
+                let stock = updateModalPriceAndStock(); 
+                
                 if (qty > stock) {
-                    Swal.fire({
-                        icon: 'error',
-                        title: 'স্টক সীমা অতিক্রম করেছে',
-                        text: 'আপনার চাহিদাকৃত পরিমাণ স্টকে নেই'
-                    });
+                    Swal.fire({ icon: 'error', title: 'স্টক সীমা অতিক্রম করেছে', text: 'আপনার চাহিদাকৃত পরিমাণ স্টকে নেই' });
                     return false;
                 }
                 return true;
             }
+
             $('#finalAddToCart').on('click', function() {
                 let btn = $(this);
                 if (btn.prop('disabled')) return;
                 if (!validateModalStock()) return;
+
                 let product_id = btn.data('id');
-                let size_id =
-                    $('#cartModal .size-box.active').data('id') || null;
-                let color_id =
-                    $('#cartModal .color-box-modal.active').data('id') || null;
+                let size_id = $('#cartModal .size-box.active').data('id') || null;
+                let color_id = $('#cartModal .color-box-modal.active').data('id') || null;
                 let qty = parseInt($('#modalQty').val()) || 1;
+
                 btn.prop('disabled', true).html('Adding...');
+
                 $.ajax({
                     url: '/cart/add',
                     type: 'POST',
@@ -2007,54 +1092,34 @@
                         size_id: size_id,
                         color_id: color_id
                     },
-
                     success: function(res) {
                         if (res.success) {
-                            if (res.html) {
-                                $('#cart-section').html(res.html);
-                            }
+                            if (res.html) $('#cart-section').html(res.html);
+                            
+                            // UI Count Update
                             if (res.cart_count !== undefined) {
-                                $('.cart-item-count-render').not('.cart-badge').text(res.cart_count );
+                                $('.cart-item-count-render').not('.cart-badge').text(res.cart_count);
                                 $('.cart-badge').text(res.cart_count);
+                                $('#cart-count').text(res.cart_count); // Floating cart update
                             }
-                            if (res.cart_total) {
-                                $('.total-value').text('৳' + res.cart_total);
-                            }
-                            if (res.shipping) {
-                                $('.shipping-value').text('৳' + res.shipping);
-                            }
+
+                            if (res.cart_total) $('.total-value').text('৳' + parseFloat(res.cart_total).toFixed(2));
+                            if (res.shipping) $('.shipping-value').text('৳' + res.shipping);
+
                             $('#cart-overlay, #cart-drawer').addClass('active');
                             bootstrap.Modal.getInstance(document.getElementById('cartModal')).hide();
-                            Swal.fire({
-                                icon: 'success',
-                                title: 'Added To Cart',
-                                timer: 1200,
-                                showConfirmButton: false
-                            });
+                            
+                            Swal.fire({ icon: 'success', title: 'Added To Cart', timer: 1200, showConfirmButton: false });
                         }
                     },
-                    
                     error: function(xhr) {
-                        Swal.fire({
-                            icon: 'error',
-                            title: 'Error',
-                            text: xhr.responseJSON?.message || 'Something went wrong'
-                        });
+                        Swal.fire({ icon: 'error', title: 'Error', text: xhr.responseJSON?.message || 'Something went wrong' });
                     },
                     complete: function() {
-
-                        btn.prop('disabled', false)
-                            .html('Add To Cart');
+                        btn.prop('disabled', false).html('Add To Cart');
                     }
                 });
             });
-
         });
-
-        $(document).ajaxComplete(function() {
-            let updatedCount = $('#cart-count').text(); 
-            
-            $('.cart-item-count-render').text(updatedCount);
-        })
     </script>
 @endpush
