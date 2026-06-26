@@ -669,7 +669,7 @@
                 size_id: $('#selectedSizeId').val() || null,
                 color_id: $('#selectedColorId').val() || null,
             }, function (res) {
-                if (res.success) window.location.href = "{{ url('/cart/checkout') }}";
+                if (res.success) window.location.href = "{{ url('/cart') }}";
             });
         });
 

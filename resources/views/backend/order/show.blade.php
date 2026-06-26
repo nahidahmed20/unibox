@@ -1,6 +1,5 @@
 <div class="container-fluid">
     <div class="invoice-card">
-        <!-- Header -->
         <div class="invoice-header">
             <div class="header-left">
                 <h4>Sales Detail</h4>
@@ -15,19 +14,15 @@
                 </a>
             </div>
         </div>
-        <!-- Body -->
         <div class="invoice-body">
-            <!-- Top Info -->
             <div class="info-wrapper">
-                <!-- Customer -->
                 <div class="info-box">
                     <h5 class="info-title">Customer Info</h5>
                     <h3>{{ $order->full_name }}</h3>
                     <p>Address: {{ $order->address }}</p>
-                    <p>Email: {{ $order->email }}</p>
+                    <p>Email: {{ $order->email ?? 'N/A' }}</p>
                     <p>Phone: {{ $order->phone }}</p>
                 </div>
-                <!-- Company -->
                 <div class="info-box">
                     <h5 class="info-title">Company Info</h5>
                     <h3>Unibox</h3>
@@ -35,7 +30,6 @@
                     <p>unibox4u@gmail.com</p>
                     <p>+8801627188836</p>
                 </div>
-                <!-- Invoice -->
                 <div class="info-box">
                     <h5 class="info-title">Invoice Info</h5>
                     <table class="invoice-table">
@@ -56,80 +50,100 @@
                         <tr>
                             <td>Status:</td>
                             <td>
-                                @if ($order->status == 'pending')
-                                    <span class="status pending">
-                                        Pending
-                                    </span>
-                                @elseif($order->status == 'processing')
-                                    <span class="status processing">
-                                        Processing
-                                    </span>
-                                @else
-                                    <span class="status completed">
-                                        {{ ucfirst($order->status) }}
-                                    </span>
-                                @endif
+                                @php
+                                    $statusClass = match(strtolower($order->status)) {
+                                        'pending' => 'pending',
+                                        'accepted' => 'processing',
+                                        'on-the-way' => 'processing',
+                                        'completed' => 'completed',
+                                        'return' => 'return',
+                                        'cancelled' => 'cancelled',
+                                        default => 'pending',
+                                    };
+                                @endphp
+                                <span class="status {{ $statusClass }}">
+                                    {{ ucfirst(str_replace('-', ' ', $order->status)) }}
+                                </span>
                             </td>
                         </tr>
                         <tr>
                             <td>Payment:</td>
                             <td>
-                                @if ($order->payment_status == 'paid')
-                                    <span class="status paid">
-                                        Paid
-                                    </span>
+                                @if (strtolower($order->payment_status) == 'paid')
+                                    <span class="status paid">Paid</span>
+                                @elseif (strtolower($order->payment_status) == 'due')
+                                    <span class="status unpaid">Due</span>
                                 @else
-                                    <span class="status unpaid">
-                                        Unpaid
-                                    </span>
+                                    <span class="status pending">{{ ucfirst($order->payment_status ?? 'Unpaid') }}</span>
                                 @endif
                             </td>
                         </tr>
                     </table>
                 </div>
             </div>
-            <!-- Order Summary -->
-            <div class="summary-area">
-                <h4 class="summary-title">
+            
+            <!-- ================= NEW ORDER SUMMARY ================= -->
+            <div class="summary-area mt-4">
+                <h4 class="summary-title mb-3">
                     Order Summary
                 </h4>
-                <div class="table-wrapper">
-                    <table class="product-table">
+                <div class="modern-table-wrapper">
+                    <table class="modern-product-table">
                         <thead>
                             <tr>
-                                <th style="width:40%">Product</th>
-                                <th>Color</th>
-                                <th>Size</th>
-                                <th>Qty</th>
-                                <th>Price</th>
-                                <th>Total</th>
+                                <th style="width:45%">Product Details</th>
+                                <th class="text-center">Variation</th>
+                                <th class="text-center">Unit Price</th>
+                                <th class="text-center">Qty</th>
+                                <th class="text-right">Total Price</th>
                             </tr>
                         </thead>
                         <tbody>
                             @foreach ($order->items as $item)
                                 <tr>
                                     <td>
-                                        <div class="product-info">
-                                            <div class="product-image">
+                                        <div class="modern-product-info">
+                                            <div class="modern-product-image">
                                                 <img src="{{ asset($item->product->image ?? 'default.png') }}" alt="">
                                             </div>
-                                            <div class="product-details">
-                                                <h6>{{ $item->product_name }}</h6>
+                                            <div class="modern-product-details">
+                                                <h6>{{ $item->product_name ?? ($item->product->name ?? 'Unknown Product') }}</h6>
                                             </div>
                                         </div>
                                     </td>
-                                    <td>{{ $item->color }}</td>
-                                    <td>{{ $item->size }}</td>
-                                    <td class="currency">{{ $item->quantity }}</td>
-                                    <td class="currency">৳{{ number_format($item->price, 2) }}</td>
-                                    <td class="currency">৳{{ number_format($item->total, 2) }}</td>
+                                    
+                                    <td class="text-center">
+                                        @if(!empty($item->color->name) || !empty($item->size->name))
+                                            <div class="variation-badges">
+                                                @if(!empty($item->color->name))
+                                                    <span class="var-badge"><strong class="text-muted fw-normal">Color:</strong> {{ $item->color->name }}</span>
+                                                @endif
+                                                @if(!empty($item->size->name))
+                                                    <span class="var-badge"><strong class="text-muted fw-normal">Size:</strong> {{ $item->size->name }}</span>
+                                                @endif
+                                            </div>
+                                        @else
+                                            <span class="text-muted">-</span>
+                                        @endif
+                                    </td>
+                                    
+                                    <td class="text-center fw-medium text-dark currency">৳{{ number_format($item->price, 2) }}</td>
+                                    
+                                    <td class="text-center">
+                                        <span class="qty-badge">{{ $item->quantity }}</span>
+                                    </td>
+                                    
+                                    <td class="text-right fw-bold text-primary currency" style="font-size: 16px;">
+                                        ৳{{ number_format($item->total, 2) }}
+                                    </td>
                                 </tr>
                             @endforeach
                         </tbody>
                     </table>
                 </div>
             </div>
-            <!-- Total -->
+            <!-- ================= END ORDER SUMMARY ================= -->
+
             <div class="total-section">
                 <div class="total-box">
                     <table>
@@ -145,22 +159,33 @@
                                 ৳{{ number_format($order->shipping, 2) }}
                             </td>
                         </tr>
+                        @if($order->return_charge > 0)
+                        <tr>
+                            <td>Return Charge</td>
+                            <td class="currency text-danger">
+                                -৳{{ number_format($order->return_charge, 2) }}
+                            </td>
+                        </tr>
+                        @endif
                         <tr class="grand-total">
                             <td>Grand Total</td>
                             <td class="currency">
-                                ৳{{ number_format($order->total, 2) }}
+                                @php
+                                    $finalTotal = $order->total - ($order->return_charge ?? 0);
+                                @endphp
+                                ৳{{ number_format($finalTotal, 2) }}
                             </td>
                         </tr>
                         <tr>
                             <td>Paid</td>
                             <td class="currency">
-                                {{ $order->payment_status == 'paid' ? '৳' . number_format($order->total, 2) : '৳0.00' }}
+                                {{ strtolower($order->payment_status) == 'paid' ? '৳' . number_format($finalTotal, 2) : '৳0.00' }}
                             </td>
                         </tr>
                         <tr>
                             <td>Due</td>
                             <td class="text-danger currency">
-                                {{ $order->payment_status == 'paid' ? '৳0.00' : '৳' . number_format($order->total, 2) }}
+                                {{ strtolower($order->payment_status) == 'paid' ? '৳0.00' : '৳' . number_format($finalTotal, 2) }}
                             </td>
                         </tr>
                     </table>
@@ -169,18 +194,23 @@
         </div>
     </div>
 </div>
+
 <style>
-    .currency{
-        font-size:18px;
-        font-weight:600;
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+
+    .currency {
+        font-size: 18px;
+        font-weight: 600;
         font-family: "Noto Sans Bengali", sans-serif;
     }
+
     .invoice-card {
         background: #fff;
         border: 1px solid #e9ecef;
         border-radius: 8px;
         overflow: hidden;
         box-shadow: 0 2px 10px rgba(0, 0, 0, .04);
+        font-family: 'Inter', sans-serif;
     }
 
     .invoice-header {
@@ -217,10 +247,7 @@
         text-decoration: none;
     }
 
-    .print-btn:hover {
-        background: #f5f5f5;
-        color: #111;
-    }
+    .print-btn:hover { background: #f5f5f5; color: #111; }
 
     .back-btn {
         padding: 11px 18px;
@@ -232,15 +259,9 @@
         font-weight: 500;
     }
 
-    .back-btn:hover {
-        background: #1a3b5d;
-        color: #fff;
-    }
+    .back-btn:hover { background: #1a3b5d; color: #fff; }
 
-    .invoice-body {
-        padding: 30px;
-        background: #fafafa;
-    }
+    .invoice-body { padding: 30px; background: #fafafa; }
 
     .info-wrapper {
         display: grid;
@@ -251,52 +272,16 @@
         margin-bottom: 30px;
     }
 
-    .info-title {
-        font-size: 18px;
-        font-weight: 600;
-        color: #16324f;
-        margin-bottom: 18px;
-    }
+    .info-title { font-size: 18px; font-weight: 600; color: #16324f; margin-bottom: 18px; }
 
-    .info-box{
-        display: flex;
-        flex-direction: column;
-        align-items: flex-start;
-    }
+    .info-box { display: flex; flex-direction: column; align-items: flex-start; }
+    .info-box h3 { margin: 0 0 12px; font-size: 20px; font-weight: 600; }
+    .info-box p { margin: 0; width: 100%; color: #666; font-size: 15px; line-height: 24px; }
 
-    .info-box h3{
-        margin: 0 0 12px;
-        font-size: 20px;
-        font-weight: 600;
-    }
-
-    .info-box p{
-        margin: 0 0 0px;
-        display: block;
-        width: 100%;
-        color: #666;
-        font-size: 15px;
-        line-height: 24px;
-    }
-
-    .invoice-table {
-        width: 100%;
-        border-collapse: collapse;
-    }
-
-    .invoice-table td {
-        padding: 4px 0;
-        font-size: 15px;
-    }
-
-    .invoice-table td:first-child {
-        width: 110px;
-        color: #666;
-    }
-
-    .invoice-table td:last-child {
-        font-weight: 500;
-    }
+    .invoice-table { width: 100%; border-collapse: collapse; }
+    .invoice-table td { padding: 4px 0; font-size: 15px; }
+    .invoice-table td:first-child { width: 110px; color: #666; }
+    .invoice-table td:last-child { font-weight: 500; }
 
     .status {
         padding: 5px 12px;
@@ -304,170 +289,114 @@
         font-size: 12px;
         font-weight: 600;
         color: #fff;
+        display: inline-block;
     }
 
-    .pending {
-        background: #ffc107;
-    }
+    .pending { background: #ffc107; color: #000; }
+    .processing { background: #0dcaf0; color: #000; }
+    .completed { background: #198754; }
+    .return { background: #6c757d; }
+    .cancelled { background: #dc3545; }
+    .paid { background: #198754; }
+    .unpaid { background: #dc3545; }
 
-    .processing {
-        background: #0dcaf0;
-    }
+    .summary-title { font-size: 22px; margin-bottom: 18px; color: #16324f; font-weight: 600; }
 
-    .completed {
-        background: #198754;
-    }
+    /* ================= NEW SUMMARY CSS ================= */
+    .mt-4 { margin-top: 1.5rem !important; }
+    .mb-3 { margin-bottom: 1rem !important; }
+    .text-center { text-align: center; }
+    .text-right { text-align: right; }
+    .text-primary { color: #3b82f6 !important; }
+    .text-muted { color: #6b7280 !important; }
+    .text-dark { color: #111827 !important; }
+    .fw-medium { font-weight: 500; }
+    .fw-bold { font-weight: 700; }
+    .fw-normal { font-weight: 400; }
 
-    .paid {
-        background: #198754;
-    }
-
-    .unpaid {
-        background: #dc3545;
-    }
-
-    .summary-title {
-        font-size: 22px;
-        margin-bottom: 18px;
-        color: #16324f;
-        font-weight: 600;
-    }
-
-    .table-wrapper {
+    .modern-table-wrapper {
         background: #fff;
-        border: 1px solid #ececec;
+        border: 1px solid #e1e3e5;
+        border-radius: 8px;
+        overflow-x: auto;
     }
 
-    .product-table {
-        width: 100%;
-        border-collapse: collapse;
-    }
+    .modern-product-table { width: 100%; border-collapse: collapse; }
 
-    .product-table thead {
-        background: #eceff3;
-    }
-
-    .product-table thead th {
-        padding: 16px 18px;
-        font-size: 15px;
+    .modern-product-table thead { background: #f8fafc; border-bottom: 1px solid #e1e3e5; }
+    .modern-product-table th {
+        padding: 14px 20px;
+        font-size: 13px;
         font-weight: 600;
-        color: #444;
-        text-align: left;
+        color: #64748b;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
         border: none;
     }
 
-    .product-table tbody td {
-        padding: 18px;
-        border-top: 1px solid #ececec;
-        vertical-align: middle;
-        color: #555;
-        font-size: 15px;
-    }
+    .modern-product-table tbody tr { border-bottom: 1px solid #f1f5f9; transition: background 0.2s; }
+    .modern-product-table tbody tr:hover { background: #fcfcfd; }
+    .modern-product-table tbody tr:last-child { border-bottom: none; }
 
-    .product-table tbody tr:hover {
-        background: #fafafa;
-    }
+    .modern-product-table td { padding: 16px 20px; vertical-align: middle; color: #334155; font-size: 15px; }
 
-    .product-info {
-        display: flex;
-        align-items: center;
-        gap: 12px;
+    .modern-product-info { display: flex; align-items: center; gap: 15px; }
+    
+    .modern-product-image {
+        width: 55px; height: 55px;
+        border-radius: 8px;
+        border: 1px solid #e2e8f0;
+        padding: 3px;
+        background: #fff;
+        flex-shrink: 0;
+        display: flex; align-items: center; justify-content: center;
     }
+    .modern-product-image img { width: 100%; height: 100%; object-fit: contain; border-radius: 5px; }
 
-    .product-image {
-        width: 45px;
-        height: 45px;
+    .modern-product-details h6 { margin: 0; font-size: 15px; font-weight: 600; color: #0f172a; line-height: 1.4; }
+
+    .variation-badges { display: flex; flex-direction: column; gap: 6px; align-items: center; }
+    .var-badge {
+        background: #f1f5f9;
+        border: 1px solid #e2e8f0;
+        padding: 4px 10px;
         border-radius: 6px;
-        overflow: hidden;
-        border: 1px solid #ececec;
-        background: #fff;
-    }
-
-    .product-image img {
-        width: 100%;
-        height: 100%;
-        object-fit: cover;
-    }
-
-    .product-details h6 {
-        margin: 0;
-        font-size: 15px;
-        font-weight: 600;
-        color: #222;
-    }
-
-    .total-section {
-        display: flex;
-        justify-content: flex-end;
-        margin-top: 30px;
-    }
-
-    .total-box {
-        width: 360px;
-        background: #fff;
-        border: 1px solid #ececec;
-    }
-
-    .total-box table {
-        width: 100%;
-        border-collapse: collapse;
-    }
-
-    .total-box td {
-        padding: 14px 18px;
-        border: 1px solid #ececec;
-        font-size: 15px;
-    }
-
-    .total-box td:last-child {
-        text-align: right;
+        font-size: 12px;
         font-weight: 500;
+        color: #334155;
+        display: inline-block;
     }
 
-    .grand-total td {
-        font-size: 18px;
+    .qty-badge {
+        background: #e2e8f0;
+        color: #0f172a;
         font-weight: 700;
-        color: #198754;
+        padding: 4px 12px;
+        border-radius: 20px;
+        font-size: 13px;
     }
 
-    .text-danger {
-        color: #dc3545 !important;
-    }
+    .total-section { display: flex; justify-content: flex-end; margin-top: 30px; }
 
-    .text-warning {
-        color: #f59e0b !important;
-    }
+    .total-box { width: 360px; background: #fff; border: 1px solid #ececec; border-radius: 8px; overflow: hidden; }
+    .total-box table { width: 100%; border-collapse: collapse; }
+    .total-box td { padding: 14px 18px; border-bottom: 1px solid #ececec; font-size: 15px; }
+    .total-box tr:last-child td { border-bottom: none; }
+    .total-box td:last-child { text-align: right; font-weight: 500; }
+
+    .grand-total td { font-size: 18px; font-weight: 700; color: #198754; background: #f8fafc; }
+    .text-danger { color: #dc3545 !important; }
+    .text-warning { color: #f59e0b !important; }
 
     @media(max-width:991px) {
-
-        .info-wrapper {
-            grid-template-columns: 1fr;
-        }
-
-        .total-section {
-            justify-content: stretch;
-        }
-
-        .total-box {
-            width: 100%;
-        }
-
-        .invoice-header {
-            flex-direction: column;
-            gap: 15px;
-        }
-
+        .info-wrapper { grid-template-columns: 1fr; }
+        .total-section { justify-content: stretch; }
+        .total-box { width: 100%; }
+        .invoice-header { flex-direction: column; gap: 15px; }
     }
 
     @media(max-width:768px) {
-
-        .invoice-body {
-            padding: 15px;
-        }
-
-        .product-table {
-            min-width: 700px;
-        }
-
+        .invoice-body { padding: 15px; }
+        .modern-product-table { min-width: 650px; }
     }
 </style>

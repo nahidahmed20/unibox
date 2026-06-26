@@ -4,145 +4,230 @@
 @section('content')
 @push('css')
 <style>
-    .form-title-two {
-        color: #000000;
-        font-size: 18px;
+
+    .checkout-section {
+        background-color: #f4f7fb;
+        padding: 60px 0 100px 0;
+        font-family: 'Poppins', sans-serif;
+    }
+
+    /* Card Containers */
+    .checkout-card {
+        background: #ffffff;
+        padding: 40px;
+        border-radius: 20px;
+        box-shadow: 0 15px 35px rgba(0, 0, 0, 0.04);
+        margin-bottom: 30px;
+    }
+
+    .form-header {
+        font-size: 22px;
+        font-weight: 600;
+        color: #1a1a1a;
+        margin-bottom: 30px;
+        padding-bottom: 15px;
+        border-bottom: 1px solid #e5e7eb;
+    }
+
+    .form-label {
+        font-size: 14px;
         font-weight: 500;
-        margin-bottom: 10px;
+        color: #4b5563;
+        margin-bottom: 8px;
+        display: block;
     }
 
-    .form-control-two {
+    /* Modern Inputs */
+    .modern-input {
         width: 100%;
-        padding: 12px 16px;
-        border: 1px solid #ddd;
-        border-radius: 4px;
-        font-size: 16px;
+        background: #f9fafb;
+        border: 1.5px solid #e5e7eb;
+        border-radius: 12px;
+        padding: 14px 18px;
+        font-size: 15px;
+        color: #1f2937;
+        transition: all 0.3s ease;
         outline: none;
-        transition: 0.3s;
+    }
+    .modern-input:focus {
+        border-color: #008a7a;
+        background: #ffffff;
+        box-shadow: 0 0 0 4px rgba(0, 138, 122, 0.1);
+    }
+    .modern-input::placeholder {
+        color: #9ca3af;
     }
 
-    .form-control-two:focus {
-        border: 1px solid #000;
-        box-shadow: 0 0 0 3px rgba(0,0,0,0.1);
+    /* Address Type Radio Buttons */
+    .address-type-box {
+        display: flex;
+        gap: 15px;
+        margin-bottom: 20px;
     }
-    /* =========================================
-       Premium Select2 Custom Design 
-    ========================================= */
-    
-    /* Main Input Box */
+    .address-type-box .radio-card {
+        flex: 1;
+        position: relative;
+    }
+    .address-type-box input[type="radio"] {
+        display: none;
+    }
+    .address-type-box label {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        width: 100%;
+        padding: 12px;
+        border: 1.5px solid #e5e7eb;
+        border-radius: 12px;
+        font-weight: 500;
+        color: #6b7280;
+        cursor: pointer;
+        transition: all 0.3s ease;
+    }
+    .address-type-box input[type="radio"]:checked + label {
+        border-color: #008a7a;
+        background: rgba(0, 138, 122, 0.05);
+        color: #008a7a;
+    }
+
+    /* Premium Select2 Custom Design */
     .select2-container--default .select2-selection--single {
-        height: 48px !important;
-        border: 1px solid #ddd !important;
-        border-radius: 4px !important;
+        height: 52px !important;
+        background: #f9fafb !important;
+        border: 1.5px solid #e5e7eb !important;
+        border-radius: 12px !important;
         display: flex;
         align-items: center;
         padding: 0 15px;
-        font-size: 16px;
-        background-color: #fff;
+        font-size: 15px;
         transition: all 0.3s ease;
     }
-
-    /* Focus & Open State (Same as form-control-two) */
     .select2-container--default .select2-selection--single:focus,
     .select2-container--default.select2-container--open .select2-selection--single {
-        border-color: #000 !important;
-        box-shadow: 0 0 0 3px rgba(0,0,0,0.08) !important;
+        border-color: #008a7a !important;
+        background: #ffffff !important;
+        box-shadow: 0 0 0 4px rgba(0, 138, 122, 0.1) !important;
         outline: none;
     }
-
-    /* Selected Text Alignment */
     .select2-container--default .select2-selection--single .select2-selection__rendered {
-        line-height: 48px !important;
-        color: #000 !important;
+        color: #1f2937 !important;
         padding-left: 0 !important;
     }
-
-    /* Customizing the Arrow Icon */
     .select2-container--default .select2-selection--single .select2-selection__arrow {
-        height: 48px !important;
+        height: 52px !important;
         right: 15px !important;
     }
-    .select2-container--default .select2-selection--single .select2-selection__arrow b {
-        border-color: #888 transparent transparent transparent !important;
-        border-width: 6px 5px 0 5px !important;
-        transition: transform 0.3s ease;
-    }
-    
-    /* Arrow points up when dropdown is open */
-    .select2-container--default.select2-container--open .select2-selection--single .select2-selection__arrow b {
-        border-color: transparent transparent #888 transparent !important;
-        border-width: 0 5px 6px 5px !important;
-    }
-
-    /* Dropdown Panel */
-    .select2-container--default .select2-dropdown {
-        border: 1px solid #eee !important;
-        border-radius: 8px !important;
+    .select2-dropdown {
+        border: 1px solid #e5e7eb !important;
+        border-radius: 12px !important;
         box-shadow: 0 10px 25px rgba(0,0,0,0.1) !important;
-        overflow: hidden;
-        margin-top: 5px;
-        z-index: 9999;
+    }
+    .select2-search__field {
+        border: 1.5px solid #e5e7eb !important;
+        border-radius: 8px !important;
+    }
+    .select2-results__option--highlighted[aria-selected] {
+        background-color: #008a7a !important;
     }
 
-    /* Search Input inside Dropdown */
-    .select2-container--default .select2-search--dropdown .select2-search__field {
-        border: 1px solid #ddd !important;
-        border-radius: 4px !important;
-        padding: 10px 12px !important;
-        font-size: 15px;
-        outline: none !important;
-        transition: border-color 0.3s;
+    /* Order Summary Box */
+    .order-summary-wrapper {
+        background: #f9fafb;
+        border-radius: 16px;
+        padding: 25px;
+        border: 1px solid #e5e7eb;
     }
-    .select2-container--default .select2-search--dropdown .select2-search__field:focus {
-        border-color: #000 !important;
-    }
-
-    /* Options List Item */
-    .select2-results__option {
-        padding: 10px 15px !important;
-        font-size: 15px;
-        transition: all 0.2s ease;
-        border-bottom: 1px solid #fcfcfc;
-        color: #444;
-    }
-
-    /* Hovered Option (Soft Background) */
-    .select2-container--default .select2-results__option--highlighted[aria-selected] {
-        background-color: #f8f9fa !important;
-        color: #000 !important;
-        font-weight: 500;
-        padding-left: 20px !important; /* Smooth text shift on hover */
-    }
-
-    /* Selected Option (Dark Background) */
-    .select2-container--default .select2-results__option[aria-selected=true] {
-        background-color: #000 !important;
-        color: #fff !important;
-        font-weight: bold;
-    }
-    .place-order-header{
+    .order-item {
         display: flex;
         justify-content: space-between;
-        font-weight:bold;
-        margin-bottom: 20px;
-        padding-bottom: 20px;
-        border-bottom: 1px solid var(--rr-color-border-1);
-        grid-gap: 20px;
-    }
-    /* Custom style for radio buttons */
-    .address-type-box {
-        display: flex;
-        gap: 20px;
+        align-items: center;
+        padding-bottom: 15px;
         margin-bottom: 15px;
+        border-bottom: 1px dashed #d1d5db;
     }
-    .address-type-box .form-check-label {
+    .order-item:last-child {
+        border-bottom: none;
+        margin-bottom: 0;
+        padding-bottom: 0;
+    }
+    .order-item .order-left {
+        display: flex;
+        gap: 15px;
+        align-items: center;
+    }
+    .order-img {
+        width: 65px;
+        height: 65px;
+        border-radius: 10px;
+        overflow: hidden;
+        border: 1px solid #e5e7eb;
+    }
+    .order-img img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+    }
+    .order-right .title {
+        font-size: 15px;
+        font-weight: 600;
+        color: #1f2937;
+        margin: 0 0 5px 0;
+    }
+    .order-right small {
+        color: #6b7280;
+        font-size: 13px;
+    }
+    .order-price {
+        font-weight: 600;
+        color: #111827;
+    }
+    .totals-row {
+        display: flex;
+        justify-content: space-between;
+        padding: 12px 0;
+        font-size: 15px;
+        color: #4b5563;
+    }
+    .totals-row.grand-total {
+        font-size: 18px;
+        font-weight: 700;
+        color: #008a7a;
+        border-top: 1px solid #e5e7eb;
+        margin-top: 10px;
+        padding-top: 15px;
+    }
+
+    /* Payment Method & Button */
+    .payment-option-wrap {
+        margin-top: 25px;
+        background: #fff;
+        padding: 15px;
+        border-radius: 12px;
+        border: 1.5px solid #008a7a;
+    }
+    .payment-option-wrap label {
+        font-weight: 600;
+        color: #1f2937;
+        margin-left: 8px;
+    }
+    .order-btn {
+        background: linear-gradient(135deg, #008a7a 0%, #006b5e 100%);
+        color: white;
+        width: 100%;
+        padding: 16px;
+        border: none;
+        border-radius: 12px;
         font-size: 16px;
+        font-weight: 600;
+        letter-spacing: 0.5px;
         cursor: pointer;
-        user-select: none;
+        transition: all 0.3s ease;
+        box-shadow: 0 4px 15px rgba(0, 138, 122, 0.2);
+        margin-top: 20px;
     }
-    .address-type-box .form-check-input:checked {
-        background-color: #000;
-        border-color: #000;
+    .order-btn:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 6px 20px rgba(0, 138, 122, 0.3);
     }
 </style>
 @endpush
@@ -155,197 +240,159 @@
     $total = $subtotal + $shippingCost;
 @endphp
 
-<section class="checkout-section pt-50 pb-100">
+<section class="checkout-section">
     <div class="container">
-        <div class="row">
-
-            {{-- LEFT SIDE - BILLING FORM --}}
-            <div class="col-lg-6 col-md-12">
-                <div class="checkout-left">
-                    <h3 class="form-header">Billing Details</h3>
-                    <form method="POST" action="{{ route('checkout.otp.send') }}">
-                        @csrf
-                        <div class="checkout-form-wrap">
-                            
+        <form method="POST" action="{{ route('checkout.placeOrder') }}">
+            @csrf
+            <div class="row">
+                
+                {{-- LEFT SIDE - BILLING FORM --}}
+                <div class="col-lg-7 col-md-12">
+                    <div class="checkout-card">
+                        <h3 class="form-header"><i class="fas fa-map-marker-alt" style="color:#008a7a;"></i> Billing Details</h3>
+                        
+                        <div class="row">
                             {{-- NAME --}}
-                            <div class="form-group">
-                                <div class="col-md-12">
-                                    <div class="form-item name">
-                                        <h4 class="form-title-two">Full Name*</h4>
-                                        {{-- ?-> operator used for guest safety --}}
-                                        <input type="text" name="name" 
-                                            value="{{ old('name', auth('customer')->user()?->name ?? '') }}" 
-                                            class="form-control-two" placeholder="Enter Your Full Name">
-                                        @error('name')
-                                            <span class="text-danger">{{ $message }}</span>
-                                        @enderror
-                                    </div>
-                                </div>
+                            <div class="col-md-12 mb-4">
+                                <label class="form-label">Full Name *</label>
+                                <input type="text" name="name" 
+                                    value="{{ old('name', auth('customer')->user()?->name ?? '') }}" 
+                                    class="modern-input" placeholder="Enter Your Full Name">
+                                @error('name') <span class="text-danger mt-1 d-block" style="font-size: 13px;">{{ $message }}</span> @enderror
                             </div>
 
-                            {{-- ADDRESS TYPE (HOME/OFFICE) --}}
-                            <div class="form-group row mt-3">
-                                <div class="col-md-12">
-                                    <h4 class="form-title-two">Address Type*</h4>
-                                    <div class="address-type-box">
-                                        <div class="form-check">
-                                            <input class="form-check-input address-type-radio" type="radio" name="address_type" id="home_address" value="home" checked>
-                                            <label class="form-check-label" for="home_address">Home Address</label>
-                                        </div>
-                                        <div class="form-check">
-                                            <input class="form-check-input address-type-radio" type="radio" name="address_type" id="office_address" value="office">
-                                            <label class="form-check-label" for="office_address">Office Address</label>
-                                        </div>
+                            {{-- ADDRESS TYPE --}}
+                            <div class="col-md-12 mb-2">
+                                <label class="form-label">Address Type *</label>
+                                <div class="address-type-box">
+                                    <div class="radio-card">
+                                        <input class="address-type-radio" type="radio" name="address_type" id="home_address" value="home" checked>
+                                        <label for="home_address"><i class="fas fa-home mr-2"></i> Home</label>
+                                    </div>
+                                    <div class="radio-card">
+                                        <input class="address-type-radio" type="radio" name="address_type" id="office_address" value="office">
+                                        <label for="office_address"><i class="fas fa-building mr-2"></i> Office</label>
                                     </div>
                                 </div>
                             </div>
 
                             {{-- ADDRESS --}}
-                            <div class="form-group row">
-                                <div class="col-md-12">
-                                    <div class="form-item">
-                                        <input type="text" id="address" name="address" 
-                                            value="{{ old('address', auth('customer')->user()?->address ?? '') }}" 
-                                            class="form-control-two street-control" placeholder="Enter Your Home Address">
-                                        @error('address')
-                                            <span class="text-danger">{{ $message }}</span>
-                                        @enderror
-                                    </div>
-                                </div>
+                            <div class="col-md-12 mb-4">
+                                <label class="form-label">Street Address *</label>
+                                <input type="text" id="address" name="address" 
+                                    value="{{ old('address', auth('customer')->user()?->address ?? '') }}" 
+                                    class="modern-input" placeholder="Enter Your Home Address">
+                                @error('address') <span class="text-danger mt-1 d-block" style="font-size: 13px;">{{ $message }}</span> @enderror
                             </div>
 
-                            <div class="form-group row">
-                                <div class="col-md-4 mb-4">
-                                    <div class="form-item">
-                                        <h4 class="form-title-two">Division</h4>
-                                        <select name="division_id" id="division" class="form-control-two country">
-                                            <option value="">Select Division</option>
-                                            @foreach($divisions as $division)
-                                                <option value="{{ $division->id }}"
-                                                    {{ auth('customer')->user()?->division_id == $division->id ? 'selected' : '' }}>
-                                                    {{ $division->name }}
-                                                </option>
-                                            @endforeach
-                                        </select>
-                                    </div>
-                                </div>
-
-                                <div class="col-md-4 mb-4">
-                                    <div class="form-item">
-                                        <h4 class="form-title-two">District</h4>
-                                        <select name="district_id" id="district" class="form-control-two">
-                                            <option value="">Select District</option>
-                                        </select>
-                                    </div>
-                                </div>
-
-                                <div class="col-md-4">
-                                    <div class="form-item">
-                                        <h4 class="form-title-two">Upazila</h4>
-                                        <select name="upazila_id" id="upazila" class="form-control-two">
-                                            <option value="">Select Upazila</option>
-                                        </select>
-                                    </div>
-                                </div>
+                            {{-- LOCATION DROPDOWNS --}}
+                            <div class="col-md-4 mb-4">
+                                <label class="form-label">Division *</label>
+                                <select name="division_id" id="division" class="modern-input select2-location">
+                                    <option value="">Select Division</option>
+                                    @foreach($divisions as $division)
+                                        <option value="{{ $division->id }}" {{ auth('customer')->user()?->division_id == $division->id ? 'selected' : '' }}>
+                                            {{ $division->name }}
+                                        </option>
+                                    @endforeach
+                                </select>
                             </div>
 
-                            <div class="form-group row">
-                                <div class="col-md-12">
-                                    <div class="form-item">
-                                        <h4 class="form-title-two">Phone*</h4>
-                                        <input type="text" id="phone" name="phone" 
-                                            value="{{ old('phone', auth('customer')->user()?->phone ?? '') }}" 
-                                            class="form-control-two" placeholder="Enter Your Phone Number">
-                                        @error('phone')
-                                            <span class="text-danger">{{ $message }}</span>
-                                        @enderror
-                                    </div>
-                                </div>
+                            <div class="col-md-4 mb-4">
+                                <label class="form-label">District *</label>
+                                <select name="district_id" id="district" class="modern-input select2-location">
+                                    <option value="">Select District</option>
+                                </select>
                             </div>
 
-                            <div class="form-group row">
-                                <div class="col-md-12">
-                                    <div class="form-item">
-                                        <h4 class="form-title-two">Order Notes</h4>
-                                        <textarea id="message" name="message" cols="30" rows="5" class="form-control-two address" placeholder="Enter Your Order Notes">{{ old('message') }}</textarea>
-                                        @error('message')
-                                            <span class="text-danger">{{ $message }}</span>
-                                        @enderror
-                                    </div>
-                                </div>
+                            <div class="col-md-4 mb-4">
+                                <label class="form-label">Upazila *</label>
+                                <select name="upazila_id" id="upazila" class="modern-input select2-location">
+                                    <option value="">Select Upazila</option>
+                                </select>
                             </div>
-                        </div>
-                </div>
-            </div>
 
-            {{-- RIGHT SIDE - ORDER SUMMARY --}}
-            <div class="col-lg-6 col-md-12">
-                <div class="checkout-right">
-                    <h3 class="form-header">Your Order</h3>
-                    <div class="order-box">
-                        <div class="place-order-header">
-                            <span>Product</span>
-                            <span>Price</span>
-                        </div>
-
-                        @forelse($cart as $item)
-                            <div class="order-item">
-                                <div class="order-left">
-                                    <div class="order-img">
-                                        <img src="{{ asset($item['image']) }}" width="60" >
-                                    </div>
-                                </div>
-                                <div class="order-right">
-                                    <div class="content">
-                                        <h4 class="title">{{ $item['name'] }}</h4>
-                                        <small>Qty: {{ $item['quantity'] }}</small>
-                                        @if(!empty($item['size']))
-                                            <br> <small>Size: {{ $item['size'] }}</small>
-                                        @endif
-                                        @if(!empty($item['color_id']))
-                                            <br> <small>Color: {{ $item['color'] }}</small>
-                                        @endif
-                                    </div>
-                                    <span class="price">
-                                        ৳{{ number_format($item['price'] * $item['quantity'], 2) }}
-                                    </span>
-                                </div>
+                            {{-- PHONE --}}
+                            <div class="col-md-12 mb-4">
+                                <label class="form-label">Phone Number *</label>
+                                <input type="text" id="phone" name="phone" 
+                                    value="{{ old('phone', auth('customer')->user()?->phone ?? '') }}" 
+                                    class="modern-input" placeholder="Enter Your Phone Number">
+                                @error('phone') <span class="text-danger mt-1 d-block" style="font-size: 13px;">{{ $message }}</span> @enderror
                             </div>
-                        @empty
-                            <p>Your cart is empty</p>
-                        @endforelse
-                        
-                        <div class="order-item item-1">
-                            <span>Subtotal</span>
-                            <span>৳{{ number_format($subtotal, 2) }}</span>
-                        </div>
-                        <div class="order-item item-1">
-                            <span>Shipping</span>
-                            <span>৳{{ number_format($shippingCost, 2) }}</span>
-                        </div>
-                        <div class="order-item item-1">
-                            <strong>Total</strong>
-                            <strong>৳{{ number_format($total, 2) }}</strong>
+
+                            {{-- ORDER NOTES --}}
+                            <div class="col-md-12 mb-3">
+                                <label class="form-label">Order Notes (Optional)</label>
+                                <textarea id="message" name="message" rows="3" class="modern-input" placeholder="Notes about your order, e.g. special notes for delivery.">{{ old('message') }}</textarea>
+                                @error('message') <span class="text-danger mt-1 d-block" style="font-size: 13px;">{{ $message }}</span> @enderror
+                            </div>
                         </div>
                     </div>
+                </div>
 
-                    <div class="payment-option-wrap mt-3">
-                        <div class="shipping-option">
-                            <input type="radio" name="payment_method" value="cod" checked>
-                            <label>Cash On Delivery</label>
+                {{-- RIGHT SIDE - ORDER SUMMARY --}}
+                <div class="col-lg-5 col-md-12">
+                    <div class="checkout-card">
+                        <h3 class="form-header"><i class="fas fa-shopping-bag" style="color:#008a7a;"></i> Order Summary</h3>
+                        
+                        <div class="order-summary-wrapper">
+                            @forelse($cart as $item)
+                                <div class="order-item">
+                                    <div class="order-left">
+                                        <div class="order-img">
+                                            <img src="{{ asset($item['image']) }}" alt="{{ $item['name'] }}">
+                                        </div>
+                                        <div class="order-right">
+                                            <h4 class="title">{{ Str::limit($item['name'], 25) }}</h4>
+                                            <small>Qty: {{ $item['quantity'] }} 
+                                                @if(!empty($item['size'])) | Size: {{ $item['size'] }} @endif
+                                                @if(!empty($item['color_id'])) | Color: {{ $item['color'] }} @endif
+                                            </small>
+                                        </div>
+                                    </div>
+                                    <span class="order-price">৳{{ number_format($item['price'] * $item['quantity'], 2) }}</span>
+                                </div>
+                            @empty
+                                <div class="text-center py-4">
+                                    <p class="text-muted mb-0">Your cart is empty</p>
+                                </div>
+                            @endforelse
                         </div>
-                        <p class="desc">
-                            * We will process your order once we receive the confirmation.
-                        </p>
-                        <button type="submit" class="rr-primary-btn order-btn">
-                             Order
+
+                        <div class="mt-4 px-2">
+                            <div class="totals-row">
+                                <span>Subtotal</span>
+                                <span style="font-weight: 600; color: #111;">৳{{ number_format($subtotal, 2) }}</span>
+                            </div>
+                            <div class="totals-row">
+                                <span>Shipping Cost</span>
+                                <span style="font-weight: 600; color: #111;">৳{{ number_format($shippingCost, 2) }}</span>
+                            </div>
+                            <div class="totals-row grand-total">
+                                <span>Total Amount</span>
+                                <span>৳{{ number_format($total, 2) }}</span>
+                            </div>
+                        </div>
+
+                        <div class="payment-option-wrap">
+                            <div style="display: flex; align-items: center;">
+                                <input type="radio" name="payment_method" value="cod" id="cod" checked style="width: 18px; height: 18px; accent-color: #008a7a;">
+                                <label for="cod" style="margin-bottom: 0;">Cash On Delivery (COD)</label>
+                            </div>
+                            <p class="text-muted mt-2 mb-0" style="font-size: 13px;">
+                                <i class="fas fa-info-circle"></i> Pay with cash upon delivery.
+                            </p>
+                        </div>
+
+                        <button type="submit" class="order-btn">
+                            Place Order <i class="fas fa-arrow-right ml-2"></i>
                         </button>
                     </div>
                 </div>
-            </div>
-            </form>
 
-        </div>
+            </div>
+        </form>
     </div>
 </section>
 
@@ -359,14 +406,12 @@
             // ADDRESS TYPE TOGGLE LOGIC
             // =========================
             let isCustomer = {{ auth('customer')->check() ? 'true' : 'false' }};
-            // ডাটাবেস থেকে ইউজার এর এড্রেসগুলো ভেরিয়েবলে নিয়ে আসা হলো (যদি লগইন করা থাকে)
             let savedHome = "{!! addslashes(auth('customer')->user()?->address ?? '') !!}";
             let savedOffice = "{!! addslashes(auth('customer')->user()?->office_address ?? '') !!}";
 
             $('.address-type-radio').on('change', function() {
                 let type = $(this).val();
 
-                // যদি ইউজার লগইন করা থাকে, তবে তার সেভ করা এড্রেস বসিয়ে দেবে
                 if(isCustomer) {
                     if(type === 'home') {
                         $('#address').val(savedHome);
@@ -375,7 +420,6 @@
                     }
                 }
                 
-                // প্লেসহোল্ডার চেঞ্জ হবে
                 if(type === 'home') {
                     $('#address').attr('placeholder', 'Enter Your Home Address');
                 } else {
@@ -387,7 +431,7 @@
             // =========================
             // LOCATION SELECT LOGIC
             // =========================
-            $('#division, #district, #upazila').select2({
+            $('.select2-location').select2({
                 width: '100%'
             });
 

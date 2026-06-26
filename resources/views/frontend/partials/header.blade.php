@@ -179,7 +179,7 @@
         border-left: 1px solid #eee;
     }
 
-    /* যখন কার্ট ওপেন হবে */
+    
     #cart-drawer.is-open {
         -webkit-transform: translateX(0);
         -ms-transform: translateX(0);

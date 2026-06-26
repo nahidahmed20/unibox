@@ -47,7 +47,7 @@ class CartController extends Controller
         );
     }
 
-    public function checkout()
+    public function cart()
     {
         $cart = session('cart', []);
 
@@ -59,7 +59,7 @@ class CartController extends Controller
         $shipping = $shippingRow ? $shippingRow->shipping_cost : 0;
         $grandTotal = $subtotal + $shipping;
 
-        return view('frontend.checkout.checkout', compact(
+        return view('frontend.checkout.cart', compact(
             'cart',
             'subtotal',
             'shipping',
@@ -190,7 +190,6 @@ class CartController extends Controller
 
             $product = Product::find($productId);
             
-            // স্টক চেক করার নতুন লজিক
             if ($product->product_type === 'multiple') {
                 $variant = ProductVariant::where('product_id', $productId)
                     ->when($colorId, fn($q) => $q->where('color_id', $colorId))
@@ -213,9 +212,8 @@ class CartController extends Controller
         }
         
         session()->put('cart', $cart);
-        session()->save(); // সেশন পারসিস্টেন্সি নিশ্চিত করা
+        session()->save();
 
-        // বাকি অংশ আগের মতোই...
         $html = view('frontend.cart.partials.header-cart', ['cart' => $cart])->render();
         $table = view('frontend.cart.partials.cart-table', ['cart' => $cart])->render();
         
@@ -297,6 +295,7 @@ class CartController extends Controller
 
     public function orderStore(Request $request)
     {
+        
         $request->validate([
             'name'           => 'required|string|max:255',
             'phone'          => 'required|string|max:50',

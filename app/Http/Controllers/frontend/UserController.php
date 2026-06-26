@@ -19,6 +19,8 @@ class UserController extends Controller
         if (Auth::check() && Auth::user()->type !== 'customer') {
             return redirect('/')->with('error', 'Please logout from your administrative account first.');
         }
+        
+        session(['redirect_after_login' => route('cart.checkout')]);
 
         return view('frontend.user.login');
     }
@@ -50,7 +52,7 @@ class UserController extends Controller
         // TODO: SMS or Email Gateway integration
         \Log::info("OTP for {$login} is: {$otp}");
 
-        return back()->with('success', 'OTP sent successfully!');
+        return back();
     }
 
     public function verifyOtp(Request $request)
@@ -77,7 +79,7 @@ class UserController extends Controller
             $user = User::create([
                 'name'     => 'New Customer',
                 $field     => $login,
-                'password' => Hash::make(\Illuminate\Support\Str::random(12)),
+                'password' => Hash::make(Str::random(12)),
                 'type'     => 'customer',
                 'status'   => 1,
             ]);
@@ -87,11 +89,23 @@ class UserController extends Controller
             }
         }
 
-        Auth::guard('customer')->login($user, true);
-        session()->forget(['otp_login', 'otp_code', 'otp_field', 'otp_expires_at']);
+        // $message = "Your Unibox OTP is: $otp";
+        // $sms = sendSms($phone, $message); 
 
-        $redirect = session()->pull('redirect_after_login', route('customer.dashboard'));
-        return redirect($redirect)->with('success', 'Successfully logged in!');
+        // Auth::guard('customer')->login($user, true);
+        // session()->forget(['otp_login', 'otp_code', 'otp_field', 'otp_expires_at']);
+
+        // $redirect = session()->pull('redirect_after_login', route('cart.checkout'));
+        
+        // return redirect($redirect);
+
+        Auth::guard('customer')->login($user, true);
+
+        $redirect = session()->pull('redirect_after_login', route('customer.dashboard')); 
+        
+        session()->forget(['otp_login', 'otp_code', 'otp_field', 'otp_expires_at']);
+        
+        return redirect($redirect);
     }
 
     public function cancelOtp()

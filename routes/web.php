@@ -80,24 +80,22 @@ Route::get('/product/modal-data/{id}', [FrontendHomeController::class, 'modalDat
 Route::get('/service/{slug}', [FrontendHomeController::class, 'serviceDetails'])->name('service.details');
 
 
-Route::get('/place-order', [FontOrderController::class, 'placeOrder'])->name('place.order');
+Route::get('/checkout', [FontOrderController::class, 'cartCheckout'])->name('cart.checkout');
+
 Route::get('/get-districts/{division_id}', [FontOrderController::class, 'getDistricts']);
 Route::get('/get-upazilas/{district_id}', [FontOrderController::class, 'getUpazilas']);
-Route::post('/checkout/otp-send', [FontOrderController::class, 'sendOtp'])->name('checkout.otp.send');
-Route::get('/checkout/otp-verify', [FontOrderController::class, 'otpForm'])->name('checkout.otp.form');
-Route::post('/checkout/resend-otp', [FontOrderController::class, 'resendOtp'])->name('checkout.otp.resend');
-Route::post('/checkout/otp-verify', [FontOrderController::class, 'verifyOtp'])->name('checkout.otp.verify');
+Route::post('/checkout/place-order', [FontOrderController::class, 'placeOrder'])->name('checkout.placeOrder');
 Route::get('/order-success/{order_number}', [FontOrderController::class, 'orderSuccess'])->name('order.success');
 
 Route::get('/get-districts', [CartController::class, 'getDistricts'])->name('get.districts');
 Route::get('/get-upazilas', [CartController::class, 'getUpazilas'])->name('get.upazilas');
 
 Route::prefix('/cart')->group(function(){
+    Route::get('/', [CartController::class, 'cart'])->name('checkout');
     Route::get('/index', [CartController::class, 'index'])->name('cart.index');
     Route::post('/add', [CartController::class, 'cartAdd'])->name('cart.add');
     Route::get('/remove/{id}', [CartController::class, 'remove'])->name('cart.remove');
     Route::post('/content', [CartController::class, 'cartContent'])->name('cart.content');
-    Route::get('/checkout', [CartController::class, 'checkout'])->name('checkout');
     Route::post('/update', [CartController::class, 'cartUpdate'])->name('cart.update');
     Route::post('/update-shipping-zone', [CartController::class, 'updateShippingZone'])->name('cart.update-shipping-zone');
     Route::post('/order/store', [CartController::class, 'orderStore'])->name('checkout.place-order');

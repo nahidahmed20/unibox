@@ -7,7 +7,9 @@ use App\Models\Color;
 use App\Models\Location;
 use App\Models\Order;
 use App\Models\OrderItem;
+use App\Models\Product;
 use App\Models\ProductStock;
+use App\Models\ProductVariant;
 use App\Models\Size;
 use App\Models\User;
 use Illuminate\Http\Request;
@@ -19,7 +21,7 @@ use Illuminate\Support\Str;
 
 class FontOrderController extends Controller
 {
-    public function placeOrder()
+    public function cartCheckout()
     {
         $cart = session('cart', []);
         
@@ -57,111 +59,27 @@ class FontOrderController extends Controller
         return response()->json($upazilas);
     }
 
-    public function sendOtp(Request $request)
-    {
-        $validated = $request->validate([
-            'name'           => 'nullable|string|max:100',
-            'address'        => 'required|string|max:255',
-            'division_id'    => 'nullable',
-            'district_id'    => 'nullable',
-            'upazila_id'     => 'nullable',
-            'phone'          => 'required|regex:/^(01)[0-9]{9}$/',
-            'payment_method' => 'required|in:cod,bank',
-            'message'        => 'nullable|string|max:1000',
-        ]);
-
-        $phone = $validated['phone'];
-
-        $returnedOrdersCount = Order::where('phone', $phone)
-                                    ->where('status', 'return')
-                                    ->count();
-
-        if ($returnedOrdersCount >= 3) {
-            return back()->with('error', 'আপনার মোবাইল নাম্বারটি আমাদের সিস্টেমে ব্লক করা হয়েছে। দয়া করে সাপোর্ট টিমের সাথে যোগাযোগ করুন।');
-        }
-
-        // $otp = rand(100000, 999999);
-        $otp = '123456';
-        
-        session([
-            'checkout_data' => $validated,
-            'checkout_otp' => $otp,
-            'checkout_otp_expire' => now()->addMinutes(2),
-        ]);
-
-        $message = "Your Unibox OTP is: $otp";
-        $sms = sendSms($phone, $message); // আপনার SMS ফাংশন
-
-        // if (!$sms['success']) {
-        //     return back()->with('error', 'SMS sending failed');
-        // }
-
-        return redirect()->route('checkout.otp.form')->with('success', 'OTP sent successfully');
-    }
-
-    public function otpForm()
-    {
-        if (!session()->has('checkout_data')) {
-            return redirect()->route('place.order');
-        }
-        return view('frontend.checkout.otp');
-    }
-
-    public function resendOtp()
-    {
-        if (!session()->has('checkout_data')) {
-            return response()->json([
-                'status' => false,
-                'message' => 'Checkout session expired.'
-            ]);
-        }
-        
-        // $otp = rand(100000, 999999);
-        $otp = '123456';
-        $expireTime = now()->addMinutes(2);
-        
-        session([
-            'checkout_otp' => $otp,
-            'checkout_otp_expire' => $expireTime,
-        ]);
-        
-        $phone = session('checkout_data.phone');
-        $message = "Your Unibox OTP is: $otp";
-        sendSms($phone, $message);
-        
-        return response()->json([
-            'status'      => true,
-            'message'     => 'New OTP sent successfully.',
-            'expire_time' => $expireTime->timestamp * 1000
-        ]);
-    }
-
-    public function verifyOtp(Request $request)
+    public function placeOrder(Request $request)
     {
         $request->validate([
-            'otp' => 'required|digits:6',
+            'name'           => 'required|string|max:255',
+            'phone'          => 'required|string|max:20',
+            'address'        => 'required|string',
+            'payment_method' => 'required|string',
         ]);
-
-        if (!session()->has('checkout_data')) {
-            return redirect()->route('cart.index')->with('error', 'Session expired');
-        }
-
-        if ($request->otp != session('checkout_otp')) {
-            return back()->withErrors([
-                'otp' => 'Invalid OTP',
-            ]);
-        }
-
-        $data = session('checkout_data');
-        
-        $user = User::where('phone', $data['phone'])->first();
-        $userId = $user ? $user->id : null; 
 
         $cart = session('cart', []);
         $shipping = session('shipping_cost', 0);
         
         if (count($cart) == 0) {
-            return redirect()->route('cart.index')->with('error', 'Cart is empty');
+            return redirect()->route('checkout')->with('error', 'Cart is empty');
+        }
+
+        $userId = auth('customer')->id() ?? auth()->id();
+
+        if (!$userId) {
+            $user = User::where('phone', $request->phone)->first();
+            $userId = $user ? $user->id : null; 
         }
 
         $subtotal = collect($cart)->sum(function ($item) {
@@ -175,60 +93,63 @@ class FontOrderController extends Controller
         try {
             $order = Order::create([
                 'order_number'   => 'ORD-' . rand(10000, 99999),
-                'user_id'        => $userId, // Dynamic ID or Null
-                'full_name'      => $data['name'],
-                'phone'          => $data['phone'],
-                'address'        => $data['address'],
-                'city'           => $data['district_id'] ?? null,
-                'province'       => $data['division_id'] ?? null,
+                'user_id'        => $userId, 
+                'full_name'      => $request->name,
+                'phone'          => $request->phone,
+                'address'        => $request->address,
+                'city'           => $request->district_id ?? null,
+                'province'       => $request->division_id ?? null,
                 'country'        => 'Bangladesh',
-                'payment_method' => $data['payment_method'],
-                'payment_status' => $data['payment_method'] == 'cod' ? 'unpaid' : 'pending',
+                'payment_method' => $request->payment_method,
+                'payment_status' => $request->payment_method == 'cod' ? 'unpaid' : 'pending',
                 'subtotal'       => $subtotal,
                 'shipping'       => $shipping,
                 'total'          => $total,
                 'type'           => 'customer',
-                'order_note'     => $data['message'] ?? null,
+                'order_note'     => $request->message ?? null,
                 'status'         => 'pending',
             ]);
 
             foreach ($cart as $item) {
+                $colorId = $item['color_id'] ?? null;
+                if (!$colorId && !empty($item['color'])) {
+                    $colorId = Color::where('name', $item['color'])->value('id');
+                }
+
+                $sizeId = $item['size_id'] ?? null;
+                if (!$sizeId && !empty($item['size'])) {
+                    $sizeId = Size::where('name', $item['size'])->value('id'); 
+                }
+
                 OrderItem::create([
                     'order_id'     => $order->id,
                     'product_id'   => $item['product_id'] ?? null,
                     'product_name' => $item['name'],
                     'color'        => $item['color'] ?? null,
-                    'size'         => $item['size'] ?? null,
+                    'color_id'     => $colorId, 
+                    'size_id'      => $sizeId,  
                     'price'        => $item['price'],
                     'quantity'     => $item['quantity'],
                     'total'        => $item['price'] * $item['quantity'],
                 ]);
 
-                $color = Color::where('name', $item['color'] ?? '')->first();
-                $colorId = $color ? $color->id : null;
+                $mainProduct = Product::find($item['product_id']);
+                
+                if ($mainProduct) {
+                    $mainProduct->decrement('stock', $item['quantity']);
 
-                $size = Size::where('name', $item['size'] ?? '')->first();
-                $sizeId = $size ? $size->id : null;
-
-                $productStock = ProductStock::where('product_id', $item['product_id'])
-                    ->when($colorId, function ($query) use ($colorId) {
-                        return $query->where('color_id', $colorId);
-                    })
-                    ->when($sizeId, function ($query) use ($sizeId) {
-                        return $query->where('size_id', $sizeId);
-                    })
-                    ->first();
-
-                if ($productStock) {
-                    $productStock->decrement('quantity', $item['quantity']);
+                    if ($mainProduct->product_type === 'multiple') {
+                        ProductVariant::where('product_id', $item['product_id'])
+                            ->when($colorId, fn($q) => $q->where('color_id', $colorId))
+                            ->when($sizeId, fn($q) => $q->where('size_id', $sizeId))
+                            ->decrement('stock', $item['quantity']);
+                    }
                 }
             }
 
             DB::commit();
             
             session()->forget([
-                'checkout_data',
-                'checkout_otp',
                 'cart',
                 'shipping_cost',
             ]);
@@ -243,7 +164,10 @@ class FontOrderController extends Controller
 
     public function orderSuccess($order_number)
     {
-        $order = Order::with('items')->where('order_number', $order_number)->firstOrFail();
+        $order = Order::with(['items.product', 'items.color', 'items.size'])
+                      ->where('order_number', $order_number)
+                      ->firstOrFail();
+                      
         return view('frontend.checkout.success', compact('order'));
     }
 

@@ -297,24 +297,21 @@ class SaleController extends Controller implements HasMiddleware
         ]);
 
         try {
-
             DB::transaction(function () use ($request, $id) {
-
                 $sale = Sale::with('items')->findOrFail($id);
 
                 /* ---------------- RESTORE OLD STOCK ---------------- */
                 foreach ($sale->items as $item) {
-                    $stock = ProductStock::where('product_id', $item->product_id)
-                        ->where(function ($q) use ($item) {
-                            $item->color_id ? $q->where('color_id', $item->color_id) : $q->whereNull('color_id');
-                        })
-                        ->where(function ($q) use ($item) {
-                            $item->size_id ? $q->where('size_id', $item->size_id) : $q->whereNull('size_id');
-                        })
-                        ->first();
+                    $mainProduct = Product::find($item->product_id);
+                    if ($mainProduct) {
+                        $mainProduct->increment('stock', $item->quantity);
 
-                    if ($stock) {
-                        $stock->increment('quantity', $item->quantity);
+                        if ($mainProduct->product_type === 'multiple') {
+                            ProductVariant::where('product_id', $item->product_id)
+                                ->when($item->color_id, fn($q) => $q->where('color_id', $item->color_id))
+                                ->when($item->size_id, fn($q) => $q->where('size_id', $item->size_id))
+                                ->increment('stock', $item->quantity);
+                        }
                     }
                 }
 
@@ -323,34 +320,36 @@ class SaleController extends Controller implements HasMiddleware
 
                 $totalAmount = 0;
 
+                /* ---------------- ADD NEW ITEMS & DEDUCT STOCK ---------------- */
                 foreach ($request->product_id as $index => $pid) {
-
                     $colorId = $request->color_id[$index] ?? null;
                     $sizeId  = $request->size_id[$index] ?? null;
                     $qty     = $request->quantity[$index];
                     $price   = $request->selling_price[$index];
 
-                    
-                    $stock = ProductStock::where('product_id', $pid)
-                        ->where(function ($q) use ($colorId) {
-                            if ($colorId) {
-                                $q->where('color_id', $colorId);
-                            } else {
-                                $q->whereNull('color_id');
-                            }
-                        })
-                        ->where(function ($q) use ($sizeId) {
-                            if ($sizeId) {
-                                $q->where('size_id', $sizeId);
-                            } else {
-                                $q->whereNull('size_id');
-                            }
-                        })
-                        ->first();
-                    if (!$stock || $stock->quantity < $qty) {
-                        $productName = Product::find($pid)?->name ?? 'Unknown';
-                        throw new \Exception("Insufficient stock for {$productName}");
+                    $mainProduct = Product::find($pid);
+
+                    if (!$mainProduct) {
+                        throw new \Exception("Product ID: {$pid} not found.");
                     }
+
+                    if ($mainProduct->product_type === 'multiple') {
+                        $variant = ProductVariant::where('product_id', $pid)
+                            ->when($colorId, fn($q) => $q->where('color_id', $colorId))
+                            ->when($sizeId, fn($q) => $q->where('size_id', $sizeId))
+                            ->first();
+
+                        if (!$variant || $variant->stock < $qty) {
+                            throw new \Exception("Insufficient variant stock for {$mainProduct->name}");
+                        }
+                        $variant->decrement('stock', $qty);
+                    } else {
+                        if ($mainProduct->stock < $qty) {
+                            throw new \Exception("Insufficient stock for {$mainProduct->name}");
+                        }
+                    }
+
+                    $mainProduct->decrement('stock', $qty);
                     
                     $totalAmount += $qty * $price;
 
@@ -363,13 +362,10 @@ class SaleController extends Controller implements HasMiddleware
                         'selling_price' => $price,
                         'total_price'   => $qty * $price,
                     ]);
-
-                    $stock->decrement('quantity', $qty);
                 }
 
                 /* ---------------- CALCULATION ---------------- */
                 $discount = $request->discount ?? 0;
-
                 $discountAmount = $request->discount_type === 'percent'
                     ? ($totalAmount * $discount / 100)
                     : $discount;
@@ -382,7 +378,7 @@ class SaleController extends Controller implements HasMiddleware
 
                 $grandTotal = ($totalAmount - $discountAmount) + $deliveryCharge;
                 $paidAmount = $request->paid_amount ?? 0;
-                $dueAmount  = $grandTotal - $paidAmount;
+                $dueAmount  = max(0, $grandTotal - $paidAmount);
 
                 /* ---------------- UPDATE SALE ---------------- */
                 $sale->update([
@@ -417,20 +413,27 @@ class SaleController extends Controller implements HasMiddleware
     {
         try {
             DB::transaction(function () use ($id) {
-
                 $sale = Sale::with('items', 'payment')->findOrFail($id);
+                
                 foreach ($sale->items as $item) {
-                    ProductStock::where('product_id', $item->product_id)
-                        ->when($item->color_id, fn($q) => $q->where('color_id', $item->color_id))
-                        ->when($item->size_id, fn($q) => $q->where('size_id', $item->size_id))
-                        ->increment('quantity', $item->quantity);
+                    $mainProduct = Product::find($item->product_id);
+                    
+                    if ($mainProduct) {
+                        $mainProduct->increment('stock', $item->quantity);
+
+                        if ($mainProduct->product_type === 'multiple') {
+                            ProductVariant::where('product_id', $item->product_id)
+                                ->when($item->color_id, fn($q) => $q->where('color_id', $item->color_id))
+                                ->when($item->size_id, fn($q) => $q->where('size_id', $item->size_id))
+                                ->increment('stock', $item->quantity);
+                        }
+                    }
+
                     $detailsQuery = PurchaseDetail::where('product_id', $item->product_id);
                     if ($item->color_id) $detailsQuery->where('color_id', $item->color_id);
                     if ($item->size_id)  $detailsQuery->where('size_id', $item->size_id);
-
                     $detailsQuery->update(['is_sale' => 0]);
                 }
-
 
                 $sale->items()->delete();
 
@@ -456,126 +459,116 @@ class SaleController extends Controller implements HasMiddleware
     public function getProductDetails(Request $request)
     {
         $productId = $request->product_id;
+        $product = Product::with(['variants.color', 'variants.size'])->find($productId);
 
-        $product = Product::with(['colors.color', 'sizes'])
-            ->find($productId);
+        if (!$product) {
+            return response()->json(['colors' => [], 'sizes' => [], 'product_type' => 'single', 'stock' => 0]);
+        }
 
-        $colors = $product->colors->map(function ($item) {
-            return [
-                'id' => $item->color->id,
-                'name' => $item->color->name,
-            ];
-        });
+        $colors = [];
+        $sizes = [];
 
-        $sizes = $product->sizes->map(function ($item) {
-            return [
-                'id' => $item->id,
-                'size' => $item->size,
-            ];
-        });
+        if ($product->product_type === 'multiple') {
+            $colors = $product->variants->map(function ($variant) {
+                return $variant->color ? ['id' => $variant->color->id, 'name' => $variant->color->name] : null;
+            })->filter()->unique('id')->values();
+
+            $sizes = $product->variants->map(function ($variant) {
+                return $variant->size ? ['id' => $variant->size->id, 'size' => $variant->size->size ?? $variant->size->name] : null;
+            })->filter()->unique('id')->values();
+        }
 
         return response()->json([
-            'colors' => $colors,
-            'sizes' => $sizes,
+            'colors'       => $colors,
+            'sizes'        => $sizes,
+            'product_type' => $product->product_type,
+            'stock'        => $product->stock 
         ]);
     }
 
     public function orderSales(Request $request)
     {
         if ($request->ajax()) {
-            $data = Order::where('order_status', 'completed')
-                ->latest();
-
+            $data = Order::where('status', 'completed')->latest();
 
             return DataTables::of($data)
                 ->addIndexColumn()
-
                 ->addColumn('invoice_no', fn($row) => $row->order_number)
-
-                ->addColumn('customer_name', fn($row) => $row->customer_name)
-
+                ->addColumn('customer_name', fn($row) => $row->full_name ?? $row->customer_name)
                 ->addColumn(
                     'order_date',
-                    fn($row) =>
-                    $row->created_at->format('d M, Y')
+                    fn($row) => $row->created_at->format('d M, Y')
                 )
-
                 ->addColumn(
                     'total_amount',
-                    fn($row) =>
-                    number_format($row->total, 2) . ' ৳'
+                    fn($row) => number_format($row->total, 2) . ' ৳'
                 )
-
                 ->addColumn('payment_status', function ($row) {
-                    $class = match ($row->payment_status) {
+                    $class = match (strtolower($row->payment_status)) {
                         'paid' => 'success',
-                        'due' => 'danger',
+                        'due', 'pending' => 'warning',
                         default => 'secondary',
                     };
                     return '<span class="badge bg-' . $class . '">' . ucfirst($row->payment_status) . '</span>';
                 })
-
                 ->addColumn('status', function ($row) {
-                    $statusColors = [
-                        'pending'     => 'btn-warning',
-                        'accepted'    => 'btn-info',
-                        'on-the-way'  => 'btn-primary',
-                        'return'      => 'btn-secondary',
-                        'completed'   => 'btn-success',
-                        'cancelled'   => 'btn-danger',
+                    $colors = [
+                        'pending'    => '#f59e0b',
+                        'accepted'   => '#3b82f6',
+                        'on-the-way' => '#6366f1',
+                        'return'     => '#6b7280',
+                        'completed'  => '#10b981',
+                        'cancelled'  => '#ef4444',
                     ];
 
-                    $statusText = $row->order_status ?? 'pending';
-                    $btnClass = $statusColors[$statusText] ?? 'btn-secondary';
-                    $disabled = in_array($statusText, ['completed', 'cancelled']) ? 'disabled' : '';
+                    $status = $row->status ?? 'pending';
+                    $color = $colors[$status] ?? '#10b981'; // completed color default here
+                    $disabled = in_array($status, ['completed', 'cancelled']) ? 'disabled' : '';
 
                     return '
-                        <div class="text-center">
-                            <button class="btn btn-sm ' . $btnClass . ' btn-status"
-                                data-id="' . $row->id . '" ' . $disabled . '>
-                                ' . ucfirst(str_replace('-', ' ', $statusText)) . '
-                            </button>
-                        </div>
+                        <button class="btn-order-status btn-status-change"
+                            data-id="'.$row->id.'" '.$disabled.'
+                            style="
+                                background: '.$color.'15;
+                                color: '.$color.';
+                                border: 1px solid '.$color.';
+                                padding: 4px 10px;
+                                border-radius: 6px;
+                                font-size: 12px;
+                                font-weight: 500;
+                            ">
+                            '.ucfirst(str_replace('-', ' ', $status)).'
+                        </button>
                     ';
                 })
                 ->addColumn('action', function ($row) {
-
-                    $viewBtn = '<button class="btn btn-sm btn-primary btn-show" data-id="' . $row->id . '" title="View">
-                                    <i class="fas fa-eye"></i>
+                    $showBtn = '<button class="btn btn-icon btn-soft-info btn-show" data-id="'.$row->id.'" title="View Order">
+                                    <i class="fa-regular fa-eye"></i>
                                 </button>';
 
-                    $editBtn = '<a href="' . route('orders.edit', $row->id) . '" class="btn btn-sm btn-warning" title="Edit Invoice">
-                                    <i class="fas fa-edit"></i>
+                    $editBtn = '<a href="'.route('orders.edit', $row->id).'" class="btn btn-icon btn-soft-primary" title="Edit Order">
+                                    <i class="fa-regular fa-pen-to-square"></i>
                                 </a>';
 
-                    $invoiceBtn = '<a href="' . route('orders.invoice', $row->id) . '" target="_blank" class="btn btn-sm btn-secondary" title="Invoice">
-                                    <i class="fas fa-file-invoice"></i>
-                                </a>';
+                    $invoiceBtn = '<a href="'.route('orders.invoice', $row->id).'" target="_blank" class="btn btn-icon btn-soft-success" title="Invoice">
+                                        <i class="fa-regular fa-file-lines"></i>
+                                    </a>';
 
                     $disabled = in_array($row->status, ['completed', 'cancelled']) ? 'disabled' : '';
 
-                    $deleteBtn = '
-                        <button type="button"
-                            class="btn btn-sm btn-danger btn-delete"
-                            data-id="' . $row->id . '"
-                            ' . $disabled . '
-                            title="Delete">
-                            <i class="fas fa-trash"></i>
-                        </button>';
-
-                    return '
-                        <div class="text-center" >
-                            <div class="btn-group btn-group-sm" role="group">
-                                ' . $viewBtn . $editBtn . $invoiceBtn . $deleteBtn . '
-                            </div>
-                        </div>
-
-                        <form id="delete-form-' . $row->id . '" action="' . route('orders.destroy', $row->id) . '" method="POST" style="display:none">
-                            ' . csrf_field() . method_field('DELETE') . '
+                    $deleteForm = '
+                        <form class="delete-form d-inline" action="'.route('orders.destroy', $row->id).'" method="POST">
+                            '.csrf_field().method_field('DELETE').'
+                            <button type="button" class="btn btn-icon btn-soft-danger btn-delete" title="Delete Order" '.$disabled.'>
+                                <i class="fa-regular fa-trash-can"></i>
+                            </button>
                         </form>
                     ';
-                })
 
+                    return '<div class="d-flex align-items-center justify-content-center gap-2">
+                                '.$showBtn.' '.$editBtn.' '.$invoiceBtn.' '.$deleteForm.'
+                            </div>';
+                })
                 ->rawColumns(['payment_status', 'status', 'action'])
                 ->make(true);
         }
@@ -595,7 +588,7 @@ class SaleController extends Controller implements HasMiddleware
                 ->addColumn('total_amount', fn ($row) => number_format($row->total, 2) . ' ৳')
                 ->addColumn('return_charge', fn ($row) => number_format($row->return_charge ?? 0, 2) . ' ৳')
                 ->addColumn('payment_status', function ($row) {
-                    $class = match ($row->payment_status) {
+                    $class = match (strtolower($row->payment_status)) {
                         'paid' => 'success',
                         'due', 'pending' => 'warning',
                         default => 'secondary',
@@ -632,24 +625,20 @@ class SaleController extends Controller implements HasMiddleware
                     ';
                 })
                 ->addColumn('action', function ($row) {
-                    $showBtn = '<button class="btn btn-icon btn-soft-info btn-show"
-                                    data-id="'.$row->id.'" title="View Order">
+                    $showBtn = '<button class="btn btn-icon btn-soft-info btn-show" data-id="'.$row->id.'" title="View Order">
                                     <i class="fa-regular fa-eye"></i>
                                 </button>';
 
-                    $editBtn = '<a href="'.route('orders.edit', $row->id).'"
-                                    class="btn btn-icon btn-soft-primary" title="Edit Order">
+                    $editBtn = '<a href="'.route('orders.edit', $row->id).'" class="btn btn-icon btn-soft-primary" title="Edit Order">
                                     <i class="fa-regular fa-pen-to-square"></i>
                                 </a>';
 
-                    $invoiceBtn = '<a href="'.route('orders.invoice', $row->id).'"
-                                        target="_blank" class="btn btn-icon btn-soft-success" title="Invoice">
+                    $invoiceBtn = '<a href="'.route('orders.invoice', $row->id).'" target="_blank" class="btn btn-icon btn-soft-success" title="Invoice">
                                         <i class="fa-regular fa-file-lines"></i>
                                     </a>';
 
                     $deleteForm = '
-                        <form class="delete-form d-inline"
-                            action="'.route('orders.destroy', $row->id).'" method="POST">
+                        <form class="delete-form d-inline" action="'.route('orders.destroy', $row->id).'" method="POST">
                             '.csrf_field().method_field('DELETE').'
                             <button type="button" class="btn btn-icon btn-soft-danger btn-delete" title="Delete Order">
                                 <i class="fa-regular fa-trash-can"></i>
@@ -661,7 +650,7 @@ class SaleController extends Controller implements HasMiddleware
                                 '.$showBtn.' '.$editBtn.' '.$invoiceBtn.' '.$deleteForm.'
                             </div>';
                 })
-                ->rawColumns(['payment_status','status','action'])
+                ->rawColumns(['payment_status', 'status', 'action'])
                 ->make(true);
         }
         return view('backend.order.return');
@@ -679,7 +668,7 @@ class SaleController extends Controller implements HasMiddleware
                 ->addColumn('order_date', fn ($row) => $row->created_at->format('d M, Y'))
                 ->addColumn('total_amount', fn ($row) => number_format($row->total, 2) . ' ৳')
                 ->addColumn('payment_status', function ($row) {
-                    $class = match ($row->payment_status) {
+                    $class = match (strtolower($row->payment_status)) {
                         'paid' => 'success',
                         'due', 'pending' => 'warning',
                         default => 'secondary',
@@ -693,7 +682,7 @@ class SaleController extends Controller implements HasMiddleware
                         'on-the-way' => '#6366f1',
                         'return'     => '#6b7280',
                         'completed'  => '#10b981',
-                        'cancelled'  => '#ef4444', // Red for cancelled
+                        'cancelled'  => '#ef4444',
                     ];
 
                     $status = $row->status ?? 'cancelled';
@@ -701,7 +690,7 @@ class SaleController extends Controller implements HasMiddleware
 
                     return '
                         <button class="btn-order-status btn-status-change"
-                            data-id="'.$row->id.'"
+                            data-id="'.$row->id.'" disabled
                             style="
                                 background: '.$color.'15;
                                 color: '.$color.';
@@ -716,26 +705,22 @@ class SaleController extends Controller implements HasMiddleware
                     ';
                 })
                 ->addColumn('action', function ($row) {
-                    $showBtn = '<button class="btn btn-icon btn-soft-info btn-show"
-                                    data-id="'.$row->id.'" title="View Order">
+                    $showBtn = '<button class="btn btn-icon btn-soft-info btn-show" data-id="'.$row->id.'" title="View Order">
                                     <i class="fa-regular fa-eye"></i>
                                 </button>';
 
-                    $editBtn = '<a href="'.route('orders.edit', $row->id).'"
-                                    class="btn btn-icon btn-soft-primary" title="Edit Order">
+                    $editBtn = '<a href="'.route('orders.edit', $row->id).'" class="btn btn-icon btn-soft-primary" title="Edit Order">
                                     <i class="fa-regular fa-pen-to-square"></i>
                                 </a>';
 
-                    $invoiceBtn = '<a href="'.route('orders.invoice', $row->id).'"
-                                        target="_blank" class="btn btn-icon btn-soft-success" title="Invoice">
+                    $invoiceBtn = '<a href="'.route('orders.invoice', $row->id).'" target="_blank" class="btn btn-icon btn-soft-success" title="Invoice">
                                         <i class="fa-regular fa-file-lines"></i>
                                     </a>';
 
                     $deleteForm = '
-                        <form class="delete-form d-inline"
-                            action="'.route('orders.destroy', $row->id).'" method="POST">
+                        <form class="delete-form d-inline" action="'.route('orders.destroy', $row->id).'" method="POST">
                             '.csrf_field().method_field('DELETE').'
-                            <button type="button" class="btn btn-icon btn-soft-danger btn-delete" title="Delete Order">
+                            <button type="button" class="btn btn-icon btn-soft-danger btn-delete" title="Delete Order" disabled>
                                 <i class="fa-regular fa-trash-can"></i>
                             </button>
                         </form>
@@ -745,7 +730,7 @@ class SaleController extends Controller implements HasMiddleware
                                 '.$showBtn.' '.$editBtn.' '.$invoiceBtn.' '.$deleteForm.'
                             </div>';
                 })
-                ->rawColumns(['payment_status','status','action'])
+                ->rawColumns(['payment_status', 'status', 'action'])
                 ->make(true);
         }
         return view('backend.order.cancelled');

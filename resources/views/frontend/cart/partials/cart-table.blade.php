@@ -1,76 +1,67 @@
- @php
+
+
+@php
     $subtotal = 0;
-    $shipping = $shipping ?? 60;
-    $total = $subtotal + $shipping;
 @endphp
 
-    @if($cart && count($cart) > 0)
-        @foreach($cart as $id => $item)
-            @php
-                $itemTotal = $item['price'] * $item['quantity'];
-                $subtotal += $itemTotal;
-            @endphp
-            <tr>
-                <!-- REMOVE -->
-                <td class="product-remove">
-
-                    <a href="javascript:void(0)"
-                        class="remove-item"
-                        data-id="{{ $id }}">
-                            <i class="fa fa-trash"></i>
-                        </a>
-                </td>
-
-                <!-- PRODUCT -->
-                <td class="product-thumbnail">
-                    <a href="#">
-                        <img src="{{ asset($item['image']) }}" width="60">
-                    </a>
-
-                    <h4 class="title">
-                        {{ $item['name'] }}
-                    </h4>
-
-                    @if(!empty($item['color']) || !empty($item['size']))
-                        <div class="product-variation">
-                            @if(!empty($item['color']))
-                                <p class="mb-0">
-                                    <strong>Color:</strong> {{ $item['color'] }}
-                                </p>
-                            @endif
-
-                            @if(!empty($item['size']))
-                                <p class="mb-0">
-                                    <strong>Size:</strong> {{ $item['size'] }}
-                                </p>
-                            @endif
-                        </div>
-                    @endif
-                </td>
-
-                <!-- PRICE -->
-                <td class="product-price">
-                    <span class="amount">৳{{ number_format($item['price'], 2) }}</span>
-                </td>
-
-                <!-- QUANTITY -->
-                <td class="product-quantity">
-                    <div class="quantity__group">
-                        <input type="number" class="qty-input" data-id="{{ $id }}"
-                                name="quantities[{{ $id }}]" value="{{ $item['quantity'] }}" min="1">
-                    </div>
-                </td>
-                <!-- SUBTOTAL -->
-                <td class="product-subtotal">
-                    <span class="amount">৳{{ number_format($itemTotal, 2) }}</span>
-                </td>
-            </tr>
-        @endforeach
-    @else
+@if($cart && count($cart) > 0)
+    @foreach($cart as $id => $item)
+        @php
+            $itemTotal = $item['price'] * $item['quantity'];
+            $subtotal += $itemTotal;
+        @endphp
         <tr>
-            <td colspan="5" class="text-center">
-                Your cart is empty
+            <td>
+                <div class="cart-product-info">
+                    <div class="cart-img-wrap">
+                        <img src="{{ asset($item['image']) }}" alt="product">
+                    </div>
+                    <div>
+                        <h4 class="cart-product-title">{{ $item['name'] }}</h4>
+                        @if(!empty($item['color']) || !empty($item['size']))
+                            <div class="d-flex gap-2 flex-wrap">
+                                @if(!empty($item['color'])) 
+                                    <span class="var-badge">Color: {{ $item['color'] }}</span> 
+                                @endif
+                                @if(!empty($item['size'])) 
+                                    <span class="var-badge">Size: {{ $item['size'] }}</span> 
+                                @endif
+                            </div>
+                        @endif
+                    </div>
+                </div>
+            </td>
+
+            <td class="text-center fw-medium text-dark currency" style="font-size: 15px;">
+                ৳{{ number_format($item['price'], 2) }}
+            </td>
+
+            <td>
+                <div class="qty-input-wrap">
+                    <input type="number" class="qty-input" data-id="{{ $id }}"
+                           name="quantities[{{ $id }}]" value="{{ $item['quantity'] }}" min="1">
+                </div>
+            </td>
+
+            <td class="text-end fw-bold currency" style="color: #008a7a; font-size: 16px;">
+                ৳{{ number_format($itemTotal, 2) }}
+            </td>
+
+            <td>
+                <button type="button" class="btn-remove remove-item" data-id="{{ $id }}" title="Remove item">
+                    <i class="fa-solid fa-trash-can"></i>
+                </button>
             </td>
         </tr>
-    @endif
-
+    @endforeach
+@else
+    <tr>
+        <td colspan="5" class="text-center py-5">
+            <div class="py-4">
+                <i class="fa-solid fa-cart-arrow-down mb-3" style="font-size: 40px; color: #cbd5e1;"></i>
+                <h5 class="text-muted fw-medium">Your cart is currently empty.</h5>
+                <a href="{{ url('/') }}" class="btn-modern btn-outline-modern mt-3 d-inline-block">Continue Shopping</a>
+            </div>
+        </td>
+    </tr>
+@endif

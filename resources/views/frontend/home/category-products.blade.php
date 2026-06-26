@@ -1007,7 +1007,7 @@
                     url: '/cart/add',
                     type: 'POST',
                     data: {
-                        _token: $('meta[name="csrf-token"]').attr('content'),
+                        _token: "{{ csrf_token() }}",
                         product_id: product_id,
                         qty: qty,
                         size_id: size_id,

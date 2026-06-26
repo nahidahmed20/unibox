@@ -152,35 +152,33 @@
 @push('scripts')
 <script>
     $(function () {
-
+        // DataTable Initialization
         let table = $('#orderTable').DataTable({
             processing: true,
             serverSide: true,
-
             dom: '<"row align-items-center mb-4"<"col-md-4"l><"col-md-4 d-flex justify-content-center"B><"col-md-4 d-flex justify-content-end"f>>rt<"d-flex justify-content-between align-items-center mt-4"ip>',
             buttons: [
                 {
                     extend: 'copy', text: '<i class="fa-regular fa-copy"></i> Copy',
-                    exportOptions: { columns: ':not(:nth-child(5)):not(:nth-child(9))' }
+                    exportOptions: { columns: ':not(:last-child)' } // Action কলাম বাদ দেওয়া হলো
                 },
                 {
                     extend: 'excel', text: '<i class="fa-regular fa-file-excel"></i> Excel',
-                    exportOptions: { columns: ':not(:nth-child(5)):not(:nth-child(9))' }
+                    exportOptions: { columns: ':not(:last-child)' }
                 },
                 {
                     extend: 'csv', text: '<i class="fa-solid fa-file-csv"></i> CSV',
-                    exportOptions: { columns: ':not(:nth-child(5)):not(:nth-child(9))' }
+                    exportOptions: { columns: ':not(:last-child)' }
                 },
                 {
                     extend: 'pdf', text: '<i class="fa-regular fa-file-pdf"></i> PDF',
-                    exportOptions: { columns: ':not(:nth-child(5)):not(:nth-child(9))' }
+                    exportOptions: { columns: ':not(:last-child)' }
                 },
                 {
                     extend: 'print', text: '<i class="fa-solid fa-print"></i> Print',
-                    exportOptions: { columns: ':not(:nth-child(5)):not(:nth-child(9))' }
+                    exportOptions: { columns: ':not(:last-child)' }
                 }
             ],
-
             ajax: "{{ route('orders.index') }}",
             columns: [
                 { data: 'DT_RowIndex',    name: 'DT_RowIndex',    orderable: false, searchable: false },
@@ -202,55 +200,41 @@
                     previous: '<i class="fa-solid fa-angle-left"></i>',
                     next: '<i class="fa-solid fa-angle-right"></i>'
                 }
-            },
-            footerCallback: function (row, data, start, end, display) {
-                let api = this.api();
-
-                let intVal = function (i) {
-                    return typeof i === 'string'
-                        ? i.replace(/[\$,]/g, '') * 1
-                        : typeof i === 'number' ? i : 0;
-                };
-
-                let totalPurchase = api.column(5, { page: 'current' }).data().reduce((a, b) => intVal(a) + intVal(b), 0);
-                let totalSelling  = api.column(6, { page: 'current' }).data().reduce((a, b) => intVal(a) + intVal(b), 0);
-
-                $('#totalPurchase').html('<span class="taka-symbol">৳</span>' + totalPurchase.toLocaleString(undefined, {minimumFractionDigits: 2}));
-                $('#totalSelling').html('<span class="taka-symbol">৳</span>' + totalSelling.toLocaleString(undefined, {minimumFractionDigits: 2}));
             }
         });
 
-        // VIEW
+        // ================= VIEW ORDER MODAL =================
         $(document).on('click', '.btn-show', function () {
             let id = $(this).data('id');
-
-            $('#orderDetails').html(`
-                <div class="text-center py-5">
-                    <div class="spinner-border text-dark"></div>
-                </div>
-            `);
-
+            let btn = $(this);
+            let originalHtml = btn.html();
+            btn.html('<i class="fa-solid fa-spinner fa-spin"></i>').prop('disabled', true);
             $.get("{{ url('/admin/orders') }}/" + id, function (html) {
                 $('#orderDetails').html(html);
-                $('#showOrderModal').modal('show');
+                $('#showOrderModal').modal('show'); 
+                
+            }).always(function() {
+                btn.html(originalHtml).prop('disabled', false);
             });
         });
 
-        // STATUS
+
+        // ================= STATUS MODAL =================
         $(document).on('click', '.btn-status-change', function () {
             let id = $(this).data('id');
-            $('#statusModalBody').html(`
-                <div class="text-center py-5">
-                    <div class="spinner-border text-dark"></div>
-                </div>
-            `);
+            let btn = $(this);
+            let originalText = btn.html();
+            btn.html('<i class="fa-solid fa-spinner fa-spin"></i>').prop('disabled', true);
             $.get("{{ url('/admin/orders/status-modal') }}/" + id, function (html) {
                 $('#statusModalBody').html(html);
-                const modal = new bootstrap.Modal(document.getElementById('statusModal'));
-                modal.show();
+                $('#statusModal').modal('show'); 
+                
+            }).always(function() {
+                btn.html(originalText).prop('disabled', false);
             });
-
         });
+
+
         $(document).on('submit', '#statusUpdateForm', function (e) {
             e.preventDefault();
 
@@ -259,26 +243,28 @@
                 type: 'POST',
                 data: $(this).serialize(),
                 success: function (res) {
-                    $('#statusModal').modal('hide'); // same issue (fix below)
+                    $('#statusModal').modal('hide'); 
                     toastr.success(res.message);
-                    $('#orderTable').DataTable().ajax.reload();
+                    table.ajax.reload(null, false); 
                 },
-                error:function(xhr){
+                error: function(xhr){
                     showErrors(xhr);
                 }
             });
         });
+
     });
 
+    // ERROR HANDLER
     function showErrors(xhr) {
-        if (xhr.responseJSON &&
-            xhr.responseJSON.errors) {
+        if (xhr.responseJSON && xhr.responseJSON.errors) {
             let errors = '';
-            $.each(xhr.responseJSON.errors,
-                function(key, value) {
-                    errors += value + '<br>';
-                });
+            $.each(xhr.responseJSON.errors, function(key, value) {
+                errors += value + '<br>';
+            });
             toastr.error(errors);
+        } else if (xhr.responseJSON && xhr.responseJSON.message) {
+            toastr.error(xhr.responseJSON.message);
         } else {
             toastr.error('Something went wrong!');
         }

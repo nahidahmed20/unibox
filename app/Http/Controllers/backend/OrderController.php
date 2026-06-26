@@ -8,6 +8,7 @@ use App\Models\Courier;
 use App\Models\Order;
 use App\Models\Product;
 use App\Models\ProductStock;
+use App\Models\ProductVariant;
 use App\Models\Size;
 use App\Models\User;
 use Illuminate\Http\Request;
@@ -31,7 +32,7 @@ class OrderController extends Controller
                 ->addColumn('order_date', fn ($row) => $row->created_at->format('d M, Y'))
                 ->addColumn('total_amount', fn ($row) => number_format($row->total, 2) . ' ৳')
                 ->addColumn('payment_status', function ($row) {
-                    $class = match ($row->payment_status) {
+                    $class = match (strtolower($row->payment_status)) {
                         'paid' => 'success',
                         'due', 'pending' => 'warning',
                         default => 'secondary',
@@ -84,8 +85,7 @@ class OrderController extends Controller
                                     </a>';
 
                     $deleteForm = '
-                        <form class="delete-form d-inline"
-                            action="'.route('orders.destroy', $row->id).'" method="POST">
+                        <form class="delete-form d-inline" action="'.route('orders.destroy', $row->id).'" method="POST">
                             '.csrf_field().method_field('DELETE').'
                             <button type="button" class="btn btn-icon btn-soft-danger btn-delete" title="Delete Order">
                                 <i class="fa-regular fa-trash-can"></i>
@@ -143,9 +143,7 @@ class OrderController extends Controller
                 foreach ($order->items as $item) {
                     $this->updateStockQuantity($item, 'increment');
                 }
-                
             }
-            
             elseif (!in_array($newStatus, ['return', 'cancelled']) && in_array($oldStatus, ['return', 'cancelled'])) {
                 foreach ($order->items as $item) {
                     $this->updateStockQuantity($item, 'decrement');
@@ -170,23 +168,30 @@ class OrderController extends Controller
 
     private function updateStockQuantity($item, $action = 'increment')
     {
-        $colorId = $item->color ? (Color::where('name', $item->color)->value('id') ?? $item->color) : null;
-        $sizeId = $item->size ? (Size::where('name', $item->size)->value('id') ?? $item->size) : null;
+        $mainProduct = Product::find($item->product_id);
+        if (!$mainProduct) return;
 
-        $productStock = ProductStock::where('product_id', $item->product_id)
-            ->when($colorId, function ($query) use ($colorId) {
-                return $query->where('color_id', $colorId);
-            })
-            ->when($sizeId, function ($query) use ($sizeId) {
-                return $query->where('size_id', $sizeId);
-            })
-            ->first();
+        $qty = (int) $item->quantity;
 
-        if ($productStock) {
+        if ($action === 'increment') {
+            $mainProduct->increment('stock', $qty);
+        } else {
+            $mainProduct->decrement('stock', $qty);
+        }
+
+        if ($mainProduct->product_type === 'multiple') {
+            
+            $colorId = is_numeric($item->color_id) ? $item->color_id : ($item->color ? Color::where('name', $item->color)->value('id') : null);
+            $sizeId = is_numeric($item->size_id) ? $item->size_id : ($item->size ? Size::where('name', $item->size)->value('id') : null);
+
+            $query = ProductVariant::where('product_id', $item->product_id)
+                ->when($colorId, fn($q) => $q->where('color_id', $colorId))
+                ->when($sizeId, fn($q) => $q->where('size_id', $sizeId));
+
             if ($action === 'increment') {
-                $productStock->increment('quantity', $item->quantity);
+                $query->increment('stock', $qty);
             } else {
-                $productStock->decrement('quantity', $item->quantity);
+                $query->decrement('stock', $qty);
             }
         }
     }
@@ -215,7 +220,8 @@ class OrderController extends Controller
 
     public function show($id)
     { 
-        $order = Order::with('items.product')->findOrFail($id);
+        $order = Order::with(['items.product', 'items.color', 'items.size'])->findOrFail($id);
+       
         return view('backend.order.show', compact('order'));
     }
 
@@ -230,17 +236,16 @@ class OrderController extends Controller
     public function update(Request $request, $id)
     {
         $order = Order::with('items')->findOrFail($id);
-
         DB::beginTransaction();
 
         try {
             $order->update([
-                'full_name'      => $request->customer_name,
-                'phone'          => $request->customer_phone,
-                'address'        => $request->customer_address,
-                'shipping'       => $request->shipping,
-                'payment_status' => $request->payment_status,
-                'status'         => $request->status,
+                'full_name'       => $request->customer_name,
+                'phone'           => $request->customer_phone,
+                'address'         => $request->customer_address,
+                'shipping'        => $request->shipping,
+                'payment_status'  => $request->payment_status,
+                'status'          => $request->status,
                 'courier_id'      => $request->courier_id,
                 'tracking_number' => $request->tracking_number,
                 'return_charge'   => $request->return_charge ?? 0,
@@ -251,12 +256,26 @@ class OrderController extends Controller
                 foreach ($request->items as $itemId => $itemData) {
                     $orderItem = $order->items->find($itemId);
                     if ($orderItem) {
-                        $qty   = (int) $itemData['quantity'];
+                        $newQty   = (int) $itemData['quantity'];
+                        $oldQty   = $orderItem->quantity;
                         $price = (float) $itemData['price'];
-                        $lineTotal = $qty * $price;
+                        $lineTotal = $newQty * $price;
                         
+                        if ($newQty != $oldQty && !in_array($order->status, ['return', 'cancelled'])) {
+                            $difference = $newQty - $oldQty;
+                            $pseudoItem = clone $orderItem;
+                            
+                            if ($difference > 0) {
+                                $pseudoItem->quantity = abs($difference);
+                                $this->updateStockQuantity($pseudoItem, 'decrement');
+                            } else {
+                                $pseudoItem->quantity = abs($difference);
+                                $this->updateStockQuantity($pseudoItem, 'increment');
+                            }
+                        }
+
                         $orderItem->update([
-                            'quantity' => $qty,
+                            'quantity' => $newQty,
                             'price'    => $price,
                             'total'    => $lineTotal,
                         ]);
@@ -292,13 +311,21 @@ class OrderController extends Controller
         }
 
         try {
+            DB::beginTransaction();
+            if (!in_array($order->status, ['return', 'cancelled'])) {
+                foreach ($order->items as $item) {
+                    $this->updateStockQuantity($item, 'increment');
+                }
+            }
+
             $order->items()->delete(); 
             $order->delete(); 
-
+            DB::commit();
             return response()->json([
                 'message' => 'Order deleted successfully.'
             ]);
         } catch (\Exception $e) {
+            DB::rollBack();
             return response()->json([
                 'message' => 'Failed to delete order. ' . $e->getMessage()
             ], 500);

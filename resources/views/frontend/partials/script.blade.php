@@ -180,7 +180,7 @@
 
 
     function goToCheckout(){
-        window.location.href = "/cart/checkout";
+        window.location.href = "/cart";
     }
 
     $(document).ajaxComplete(function() {
