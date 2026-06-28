@@ -1,8 +1,7 @@
 @php
     $cart = session('cart', []);
-    $cartCount = collect($cart)->pluck('product_id')->unique()->count();
+    $cartCount = count($cart);
 @endphp
-
 <style>
     .user-dropdown {
         position: relative;
@@ -269,6 +268,41 @@
         font-weight: 700;
         box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15); 
     }
+
+    .header-2 .header-middle-inner .header-middle-right .contact-item-list .header-cart-btn {
+        background-color: var(--rr-color-theme-green);
+        display: flex;
+        align-items: center;
+        padding: 0 5px 0 5px;
+        border-radius: 100px;
+        cursor: pointer;
+        transition: all 0.3s ease;
+    }
+
+    .header-cart-btn .icon {
+        font-size: 20px;
+        text-decoration: none;
+    }
+
+    .header-cart-btn .cart-item-count-render {
+        background-color: #ffffff; 
+        color: var(--rr-color-theme-green); 
+        font-size: 13px;
+        font-weight: 700;
+        height: 24px;
+        min-width: 24px;
+        border-radius: 50%; 
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 0 6px;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    }
+
+    .header-cart-btn:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+    }
 </style>
 
 <header class="header header-2 sticky-active" style="--rr-color-theme-primary: #008a7a">
@@ -357,7 +391,7 @@
                                 <a href="javascript:void(0)" class="icon cart-toggle">
                                     <i class="fa-light fa-bag-shopping"></i>
                                 </a>
-                                <span id="cart-count" class="cart-item-count-render ">
+                                <span id="cart-count" class="cart-item-count-render">
                                     {{ $cartCount ?? 0 }} 
                                 </span>
                             </div>

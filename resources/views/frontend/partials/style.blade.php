@@ -190,7 +190,7 @@
     #cart-count{
         font-size: 16px;
         margin-left: -16px;
-        color: #fff;
+        color: #008a7a;
         margin-bottom: 14px;
     }
     .cart-summary{

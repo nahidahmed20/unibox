@@ -16,13 +16,29 @@ class UserController extends Controller
 {
     public function userLogin()
     {
+        if (Auth::guard('customer')->check()) {
+            return redirect()->route('customer.dashboard'); 
+        }
+
         if (Auth::check() && Auth::user()->type !== 'customer') {
             return redirect('/')->with('error', 'Please logout from your administrative account first.');
         }
         
-        session(['redirect_after_login' => route('cart.checkout')]);
+        if (!session()->has('otp_login')) {
+            $previousUrl = url()->previous();
 
-        return view('frontend.user.login');
+            if (str_contains($previousUrl, 'cart') || str_contains($previousUrl, 'checkout')) {
+                session(['redirect_after_login' => route('cart.checkout')]);
+            } else {
+                session()->forget('redirect_after_login'); 
+            }
+        }
+
+        return response()
+            ->view('frontend.user.login')
+            ->header('Cache-Control', 'no-cache, no-store, must-revalidate, max-age=0')
+            ->header('Pragma', 'no-cache')
+            ->header('Expires', '0');
     }
 
     public function sendOtp(Request $request)
@@ -32,24 +48,33 @@ class UserController extends Controller
         }
 
         $request->validate([
-            'name' => 'required',
+            'name' => [
+                'required',
+                function ($attribute, $value, $fail) {
+
+                    $isEmail = filter_var($value, FILTER_VALIDATE_EMAIL);
+                    
+                    $isPhone = preg_match('/^01[3-9][0-9]{8}$/', $value);
+
+                    if (!$isEmail && !$isPhone) {
+                        $fail('দয়া করে একটি সঠিক ফোন নাম্বার (১১ ডিজিট) বা ইমেইল প্রদান করুন।');
+                    }
+                },
+            ],
         ], [
-            'name.required' => 'Please enter your phone number or email.',
+            'name.required' => 'ফোন নাম্বার বা ইমেইল দেওয়া বাধ্যতামূলক।',
         ]);
 
         $login = trim($request->name);
         $field = filter_var($login, FILTER_VALIDATE_EMAIL) ? 'email' : 'phone';
 
-        // Generate a 4-digit OTP
         $otp = rand(1000, 9999); 
         
         session()->put('otp_login', $login);
-        // session()->put('otp_code', $otp);
-        session()->put('otp_code', '1234');
+        session()->put('otp_code', '1234'); 
         session()->put('otp_field', $field);
         session()->put('otp_expires_at', now()->addMinutes(2)->timestamp);
 
-        // TODO: SMS or Email Gateway integration
         \Log::info("OTP for {$login} is: {$otp}");
 
         return back();
@@ -68,6 +93,10 @@ class UserController extends Controller
         $sessionOtp = session()->get('otp_code');
         $login      = session()->get('otp_login');
         $field      = session()->get('otp_field');
+
+        if ($request->otp != $sessionOtp) {
+            return back()->with('error', 'Invalid OTP! Please try again.')->withInput();
+        }
 
         if ($request->otp != $sessionOtp) {
             return back()->with('error', 'Invalid OTP! Please try again.')->withInput();

@@ -192,6 +192,11 @@
         color: #1f2937;
         text-decoration: underline;
     }
+    .custom-input-group .otp-input {
+        font-size: 28px !important; 
+        letter-spacing: 20px !important; 
+        height: 35px;
+    }
 </style>
 
 <section class="login-section">
@@ -207,8 +212,13 @@
 
                 <form method="POST" action="{{ route('user.login.verify_otp') }}">
                     @csrf
+                    @if(session('error'))
+                        <div class="alert alert-danger" style="color: #ef4444; text-align: center; margin-bottom: 20px; font-weight: 500;">
+                            <i class="fas fa-exclamation-triangle"></i> {{ session('error') }}
+                        </div>
+                    @endif
                     <div class="custom-input-group" style="padding: 10px 20px;">
-                        <input type="text" name="otp" class="otp-input" placeholder="••••" required maxlength="4" autocomplete="off" autofocus>
+                        <input type="number" name="otp" class="otp-input" placeholder="••••" required maxlength="4" inputmode="numeric" pattern="[0-9]*"  autocomplete="one-time-code" autofocus>
                     </div>
                     @error('otp')
                         <div class="text-danger mb-3" style="font-size: 13px; margin-top:-15px; text-align:center; font-weight: 500;">
@@ -314,6 +324,12 @@
             });
 
         @endif
+    });
+
+    $('input[name="otp"]').on('input', function() {
+        if ($(this).val().length === 4) {
+            $(this).closest('form').submit();
+        }
     });
 </script>
 @endpush

@@ -44,10 +44,26 @@ use App\Http\Controllers\frontend\FontOrderController;
 use App\Http\Controllers\frontend\HomeController as FrontendHomeController;
 use App\Http\Controllers\frontend\ReviewController;
 use App\Http\Controllers\frontend\UserController as FrontendUserController;
-use Laravel\Socialite\Facades\Socialite;
 use App\Http\Controllers\ProfileController;
+use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\Route;
+use Laravel\Socialite\Facades\Socialite;
 
+Route::get('/clear-cache', function() {
+    Artisan::call('config:clear');
+    Artisan::call('cache:clear');
+    Artisan::call('route:clear');
+    Artisan::call('view:clear');
+    return "Cache cleared successfully! Now try Google Login.";
+});
+
+Route::get('/test-google', function() {
+    return response()->json([
+        'Client_ID' => config('services.google.client_id'),
+        'Client_Secret' => config('services.google.client_secret'),
+        'Redirect_URL' => config('services.google.redirect'),
+    ]);
+});
 
 Route::get('/',[FrontendHomeController::class, 'index'])->name('home');
 Route::get('/product/quick-view/{id}', [FrontendHomeController::class, 'quickView'])->name('product.quickView');

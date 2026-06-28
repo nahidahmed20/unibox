@@ -24,13 +24,27 @@ class FontOrderController extends Controller
     public function cartCheckout()
     {
         $cart = session('cart', []);
-        
+        if (empty($cart)) {
+            return redirect()->route('cart.index')->with('error', 'Your cart is empty!');
+        }
+
         foreach ($cart as $key => $item) {
+            $product = Product::find($item['product_id']);
+            
+            if (!$product) {
+                unset($cart[$key]); 
+                continue;
+            }
+
             if (!empty($item['color_id'])) {
-                $color = Color::find($item['color_id']);
-                $cart[$key]['color'] = $color?->name;
+                $cart[$key]['color'] = Color::find($item['color_id'])?->name;
+            }
+            if (!empty($item['size_id'])) {
+                $cart[$key]['size'] = Size::find($item['size_id'])?->name;
             }
         }
+
+        session(['cart' => $cart]);
 
         $divisions = Location::where('type', 'division')->get();
         $shippingCost = session('shipping_cost', 0);

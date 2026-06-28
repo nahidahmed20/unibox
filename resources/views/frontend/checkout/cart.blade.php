@@ -263,6 +263,14 @@
         
         .qty-input-wrap { margin: 0 !important; width: 120px; }
         .btn-remove { margin: 0 !important; }
+        
+        .coupon-wrapper {
+            flex-direction: column; 
+            align-items: stretch; 
+            gap: 10px; 
+            padding: 15px; 
+        }
+        
     }
 </style>
 

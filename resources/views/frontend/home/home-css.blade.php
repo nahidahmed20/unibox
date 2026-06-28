@@ -1120,4 +1120,77 @@
         transform: translateX(3px);
         /* Small slide effect on hover */
     }
+
+    /* Modal Responsive css  */
+
+    .qty-modern {
+        display: inline-flex;
+        border: 1px solid #e5e7eb;
+        border-radius: 6px;
+        height: 45px;
+    }
+    .qty-btn {
+        background: transparent;
+        border: none;
+        width: 45px;
+        font-size: 20px;
+        cursor: pointer;
+    }
+    #modalQty {
+        width: 50px;
+        text-align: center;
+        border: none;
+        border-left: 1px solid #e5e7eb;
+        border-right: 1px solid #e5e7eb;
+        font-weight: bold;
+    }
+
+    @media (max-width: 767px) {
+        
+        #cartModal .col-md-5.p-4 {
+            padding: 15px !important;
+        }
+        #modalProductImage {
+            max-height: 200px !important; 
+        }
+
+        #cartModal .col-md-7 .p-4 {
+            padding: 20px !important;
+        }
+
+        #modalProductName {
+            font-size: 20px !important;
+        }
+        #cartModal .fs-3 {
+            font-size: 22px !important; 
+        }
+
+        #cartModal .product-btn {
+            display: flex;
+            flex-direction: column;
+            gap: 15px; 
+        }
+
+        #cartModal .qty-modern {
+            width: 100%;
+            justify-content: space-between;
+        }
+        #cartModal .qty-modern input {
+            width: 100%; 
+        }
+
+        #finalAddToCart {
+            width: 100%;
+            padding: 12px;
+            border-radius: 6px;
+        }
+
+        #cartModal .btn-close {
+            background-color: white;
+            border-radius: 50%;
+            padding: 10px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+            opacity: 1;
+        }
+    }
 </style>
