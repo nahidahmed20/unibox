@@ -188,11 +188,6 @@
         min-width: 0; 
     }
 
-    .right-content {
-        width: 350px;
-        flex-shrink: 0;
-    }
-
     .right-content img {
         width: 100%;
         height: auto;
@@ -240,7 +235,6 @@
 @endpush
 
 @php
-    // মেইন প্রোডাক্টের স্টক ব্যবহার করা হয়েছে
     $totalStock = $product->stock;
 @endphp
 
@@ -282,7 +276,7 @@
                     <div class="product-info">
                         <div class="product-inner">
 
-                            <span class="category">{{ $product->brand->name ?? 'Brand' }}</span>
+                            <span class="category">{{ $product->brand->name ?? '' }}</span>
                             <h3 class="title">{{ $product->name }}</h3>
                             
                             <h4 class="price">
@@ -298,9 +292,11 @@
                                 @endif
                             </h4>
 
+                            @if($product->short_description)
                             <div class="product-desc-wrap">
                                 <p class="desc">{{ $product->short_description ?? '' }}</p>
                             </div>
+                            @endif
 
                             @if($product->product_type !== 'single' && $product->sizes->count())
                             <div class="product-size mt-3">
@@ -351,10 +347,82 @@
                             @endif
                             <input type="hidden" id="selectedColorId">
                         </div>
+                        <style>
+                            /* Quantity */
+                            .qty-box{
+                                width: 130px;
+                                height: 48px;
+                                background: #008a7a;
+                                border-radius: 2px;
+                                display: flex;
+                                align-items: center;
+                                justify-content: space-between;
+                                overflow: hidden;
+                            }
+
+                            .qty-btn{
+                                width:40px;
+                                height:50px;
+                                border:none;
+                                background:transparent;
+                                color:#fff;
+                                font-size:16px;
+                                cursor:pointer;
+                                transition:.3s;
+                            }
+
+                            .qty-btn:hover{
+                                background:rgba(255,255,255,.15);
+                            }
+
+                            .qty-box input{
+                                width:50px;
+                                border:none;
+                                background:transparent;
+                                color:#fff;
+                                font-size:18px;
+                                font-weight:700;
+                                text-align:center;
+                                outline:none;
+                            }
+
+                            .qty-box input::-webkit-inner-spin-button,
+                            .qty-box input::-webkit-outer-spin-button{
+                                -webkit-appearance:none;
+                                margin:0;
+                            }
+
+                            /* Cart Button */
+                            .cart-btn{
+                                flex:1;
+                                height:50px;
+                                border:2px solid #222;
+                                border-radius:50px;
+                                background:#fff;
+                                color:#222;
+                                font-weight:700;
+                                font-size:16px;
+                                transition:.3s;
+                            }
+
+                            .cart-btn:hover{
+                                background:#008a7a;
+                                border-color:#008a7a;
+                                color:#fff;
+                            }
+                        </style>
 
                         <div class="product-btn mt-4 d-flex gap-2 align-items-center">
                             <div class="qty-box">
-                                <input type="number" id="qty" min="1" value="1">
+                                <button class="qty-btn qty-minus">
+                                    <i class="fas fa-minus"></i>
+                                </button>
+
+                                <input type="number" id="qty" value="1" min="1">
+
+                                <button class="qty-btn qty-plus">
+                                    <i class="fas fa-plus"></i>
+                                </button>
                             </div>
                             <div class="cart-btn-wrap-2">
                                 <button type="button"
@@ -384,10 +452,10 @@
                 <button class="active" id="home-tab" data-bs-toggle="tab" data-bs-target="#home" type="button"
                     role="tab" aria-controls="home" aria-selected="true">Description</button>
             </li>
-            <li role="presentation">
+            {{-- <li role="presentation">
                 <button id="profile-tab" data-bs-toggle="tab" data-bs-target="#profile" type="button" role="tab"
                     aria-controls="profile" aria-selected="false">Additional information</button>
-            </li>
+            </li> --}}
             <li role="presentation">
                 <button id="contact-tab" data-bs-toggle="tab" data-bs-target="#contact" type="button" role="tab"
                     aria-controls="contact" aria-selected="false">Reviews ({{ $product->reviews->count() }})</button>
@@ -400,9 +468,9 @@
                     <div class="left-content">
                         {!! $product->description !!}
                     </div>
-                    @if($product->image)
+                    @if($product->size_guide)
                     <div class="right-content">
-                        <img src="{{ asset($product->image) }}" alt="{{ $product->name }}">
+                        <img src="{{ asset($product->size_guide) }}" alt="{{ $product->name }}">
                     </div>
                     @endif
                 </div>
@@ -434,7 +502,7 @@
                                         @if($review->user && $review->user->image)
                                             <img src="{{ asset($review->user->image) }}" alt="{{ $review->name }}">
                                         @else
-                                            <img src="{{ asset('assets/img/shop/default-user.jpg') }}" alt="user">
+                                            <img src="{{ asset('frontend/assets/img/shop/default-user.png') }}" alt="user">
                                         @endif
                                     </div>
                                     <div class="content">
@@ -621,6 +689,21 @@
             if (hasColor && !$('#selectedColorId').val()) { Swal.fire('Select Color', 'Please select a color', 'warning'); return false; }
             return true;
         }
+
+         $(document).ready(function() {
+            $('.qty-plus').click(function() {
+                let input = $('#qty');
+                input.val(parseInt(input.val()) + 1);
+            });
+
+            $('.qty-minus').click(function() {
+                let input = $('#qty');
+                let val = parseInt(input.val());
+                if (val > 1) {
+                    input.val(val - 1);
+                }
+            });
+        });
 
         $('#addToCartBtn').on('click', function () {
             if (!validateSelection()) return;

@@ -1182,7 +1182,7 @@
         #finalAddToCart {
             width: 100%;
             padding: 12px;
-            border-radius: 6px;
+            border-radius: 22px;
         }
 
         #cartModal .btn-close {

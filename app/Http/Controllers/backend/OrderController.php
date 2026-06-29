@@ -104,6 +104,15 @@ class OrderController extends Controller
         return view('backend.order.index');
     }
 
+    public function checkNewOrder()
+    {
+        $lastOrderId = Order::max('id');
+        
+        return response()->json([
+            'last_order_id' => $lastOrderId
+        ]);
+    }
+
     public function statusModal($id)
     {
         $order = Order::findOrFail($id);

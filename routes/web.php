@@ -177,6 +177,7 @@ Route::middleware('auth')->prefix('admin')->group(function () {
     Route::post('/blocked-phones/block', [BlockedPhoneController::class, 'block'])->name('blocked-phones.block');
     Route::post('/blocked-phones/unblock', [BlockedPhoneController::class, 'unblock'])->name('blocked-phones.unblock');
 
+     Route::get('/orders/check-new', [OrderController::class, 'checkNewOrder'])->name('orders.checkNew');
     Route::resource('orders', OrderController::class);
     Route::get('orders/invoice/{id}',[OrderController::class, 'invoice'])->name('orders.invoice');
     Route::get('orders/update-status/{id}',[OrderController::class, 'updateStatus'])->name('orders.update.status');
@@ -184,6 +185,7 @@ Route::middleware('auth')->prefix('admin')->group(function () {
     Route::post('/single-status-update/{order}', [OrderController::class, 'statusUpdate'])->name('single.status.update');
     Route::get('/orders/{id}/invoice', [OrderController::class, 'invoice'])->name('orders.invoice');
     Route::get('/order/pending-count', [OrderController::class, 'getPendingCount']);
+   
 
     Route::resource('teams',TeamController::class);
     Route::resource('testimonials',TestimonialController::class);

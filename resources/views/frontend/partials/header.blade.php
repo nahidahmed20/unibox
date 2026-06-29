@@ -138,6 +138,10 @@
     @media (max-width: 991px) {
         .mobile-search-wrap {
             display: block; 
+            padding: 5px 15px;
+        }
+        .pt-100 {
+            padding-top: 15px;
         }
     }
     
@@ -232,8 +236,8 @@
 
     .unibox-floating-cart {
         position: fixed;
-        bottom: 30px;
-        right: 30px;
+        bottom: 20px;
+        right: 15px;
         background-color: #008a7a;
         width: 60px;
         height: 60px;
@@ -306,9 +310,9 @@
 </style>
 
 <header class="header header-2 sticky-active" style="--rr-color-theme-primary: #008a7a">
-    <div class="top-bar">
-        <div class="container">
-            <div class="top-bar-inner">
+    <div class="top-bar ">
+        <div class="container d-none d-md-block">
+            <div class="top-bar-inner ">
                 <div class="top-bar-left">
                     <ul class="top-left-list">
                         <li><a href="{{ route('about.us') }}">About Us</a></li>
@@ -317,7 +321,7 @@
                         <li><a href="{{ route('faq') }}">FAQ</a></li>
                     </ul>
                 </div>
-                <div class="top-bar-right">
+                <div class="top-bar-right ">
                     <span>Need Help? Call Us: <a href="tel:{{ setting(key: 'phone') }}">{{ setting(key: 'phone') }}</a></span>
                 </div>
             </div>

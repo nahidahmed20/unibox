@@ -110,7 +110,7 @@
             success: function(res){
                 $('#cart-table-wrapper').html(res.table);
                 if (res.cart_count !== undefined) {
-                    $('.cart-item-count-render').not('.cart-badge').text(res.cart_count + ' items');
+                    $('.cart-item-count-render').not('.cart-badge').text(res.cart_count );
                     $('.cart-badge').text(res.cart_count);
                 }
                 $('#cart-section').html(res.html);

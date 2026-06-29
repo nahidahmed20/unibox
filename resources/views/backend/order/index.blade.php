@@ -269,5 +269,26 @@
             toastr.error('Something went wrong!');
         }
     }
+
+    // --- New Order Auto Reload Logic ---
+    let lastOrderId = null;
+
+    $.get("{{ route('orders.checkNew') }}", function (res) {
+        lastOrderId = res.last_order_id;
+    });
+
+    setInterval(function () {
+        $.get("{{ route('orders.checkNew') }}", function (res) {
+            
+            if (lastOrderId !== null && res.last_order_id > lastOrderId) {
+                lastOrderId = res.last_order_id; 
+                
+                window.location.reload();
+                
+                toastr.info('New Order Received!');
+            
+            }
+        });
+    }, 10000);
 </script>
 @endpush

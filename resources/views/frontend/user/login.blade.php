@@ -5,7 +5,6 @@
 @section('content')
 
 <style>
-
     /* Custom CSS */
     .login-section {
         background-color: #f4f7fb;
@@ -197,6 +196,126 @@
         letter-spacing: 20px !important; 
         height: 35px;
     }
+    /* ==========================
+    Responsive CSS
+    ========================== */
+
+    /* Tablet */
+    @media (max-width: 991px) {
+        .login-section {
+            padding: 70px 20px;
+        }
+
+        .login-box {
+            max-width: 100%;
+            padding: 40px 30px;
+        }
+    }
+
+    /* Mobile */
+    @media (max-width: 767px) {
+
+        .login-section {
+            padding: 40px 15px;
+            min-height: auto;
+        }
+
+        .login-box {
+            padding: 30px 20px;
+            border-radius: 15px;
+        }
+
+        .login-title {
+            font-size: 20px;
+            margin-bottom: 25px;
+        }
+
+        .social-btn-group {
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .btn-social {
+            width: 100%;
+            font-size: 14px;
+            padding: 13px;
+        }
+
+        .custom-input-group {
+            padding: 12px 15px;
+            margin-bottom: 18px;
+        }
+
+        .custom-input-group i {
+            font-size: 16px;
+            margin-right: 12px;
+        }
+
+        .custom-input-group input {
+            font-size: 14px;
+        }
+
+        .btn-next {
+            padding: 13px;
+            font-size: 15px;
+        }
+
+        .timer-section {
+            font-size: 13px;
+            text-align: center;
+        }
+
+        .change-number {
+            font-size: 13px;
+        }
+
+        .custom-input-group .otp-input {
+            font-size: 22px !important;
+            letter-spacing: 10px !important;
+            height: auto;
+        }
+    }
+
+    /* Small Mobile */
+    @media (max-width: 480px) {
+
+        .login-section {
+            padding: 25px 10px;
+        }
+
+        .login-box {
+            padding: 25px 15px;
+            border-radius: 12px;
+        }
+
+        .login-title {
+            font-size: 18px;
+        }
+
+        .btn-social {
+            font-size: 13px;
+            padding: 12px;
+        }
+
+        .custom-input-group {
+            padding: 10px 12px;
+        }
+
+        .custom-input-group input {
+            font-size: 13px;
+        }
+
+        .btn-next {
+            font-size: 14px;
+            padding: 12px;
+        }
+
+        .custom-input-group .otp-input {
+            font-size: 20px !important;
+            letter-spacing: 6px !important;
+        }
+    }
+   
 </style>
 
 <section class="login-section">
@@ -261,7 +380,7 @@
                     @csrf
                     <div class="custom-input-group">
                         <i class="fas fa-envelope"></i> 
-                        <input type="text" name="name" value="{{ old('name') }}" placeholder="Phone Number or Email" required autocomplete="off">
+                        <input type="text" name="name" value="{{ old('name') }}" placeholder="Phone Number" required autocomplete="off">
                     </div>
                     @error('name')
                         <div class="text-danger mb-3" style="font-size: 13px; margin-top:-15px; font-weight: 500;">

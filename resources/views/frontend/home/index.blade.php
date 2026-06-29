@@ -107,10 +107,12 @@
                         <div class="swiper-slide">
                             <div class="category-item">
 
-                                <div class="category-img">
-                                    <img src="{{ asset($category->image ?? 'frontend/assets/img/images/default.png') }}"
-                                        alt="category">
-                                </div>
+                                <a href="{{ route('category.show', $category->slug) }}">
+                                    <div class="category-img">
+                                        <img src="{{ asset($category->image ?? 'frontend/assets/img/images/default.png') }}"
+                                            alt="{{ $category->name }}">
+                                    </div>
+                                </a>
 
                                 <h3 class="title">
                                     <a href="{{ route('category.show', $category->slug) }}">

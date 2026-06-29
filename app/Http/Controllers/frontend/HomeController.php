@@ -8,7 +8,7 @@ use App\Models\Blog;
 use App\Models\BlogCategory;
 use App\Models\Brand;
 use App\Models\Category;
-use App\Models\Subcategory;
+use App\Models\SubCategory;
 use App\Models\Client;
 use App\Models\Contact;
 use App\Models\Newsletter;
@@ -184,7 +184,7 @@ class HomeController extends Controller
         $isSubcategory = false;
 
         if (!$category) {
-            $category = Subcategory::where('slug', $slug)->firstOrFail();
+            $category = SubCategory::where('slug', $slug)->firstOrFail();
             $isSubcategory = true;
         }
 
@@ -192,7 +192,7 @@ class HomeController extends Controller
             ->where('status', 1);
 
         if (!$isSubcategory) {
-            $subIds = Subcategory::where('category_id', $category->id)->pluck('id')->toArray();
+            $subIds = SubCategory::where('category_id', $category->id)->pluck('id')->toArray();
             $query->where(function($q) use ($category, $subIds) {
                 $q->where('category_id', $category->id)
                 ->orWhereIn('subcategory_id', $subIds);

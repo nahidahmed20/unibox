@@ -3793,7 +3793,7 @@ START: Header CSS
 
 @media only screen and (max-width: 767px) {
   .header-2 .primary-header .primary-header-inner {
-    padding: 15px 0;
+    padding: 5px 0;
   }
 }
 
@@ -5025,8 +5025,10 @@ START: Header CSS
   font-weight: 600;
   margin-top: 15px;
   margin-bottom: 0;
-  text-transform: uppercase;
+  text-transform: capitalize; 
 }
+
+
 
 .category-item .title a {
   -webkit-transition: all 0.4s ease-in-out;
@@ -5064,8 +5066,34 @@ START: Header CSS
     height: 42px;
     width: 42px;
   }
+  
 }
+@media (max-width: 767px) {
+    .category-item {
+        padding: 8px 5px 10px 5px !important;
+    }
 
+    .category-item .category-img img {
+        width: 100%;
+        height: 70px !important; 
+        object-fit: cover !important; 
+        border-radius: 8px;
+    }
+
+    .category-item .title {
+        font-size: 11px !important;
+        line-height: 1.3 !important;
+        margin-top: 8px !important;
+        white-space: normal; 
+        display: -webkit-box;
+        -webkit-line-clamp: 2; 
+        -webkit-box-orient: vertical;
+        overflow: hidden;
+    }
+    .category-img {
+        height: 75px !important; 
+    }
+}
 .discount-item .shape {
   position: absolute;
   bottom: 0;
@@ -8892,11 +8920,11 @@ blockquote .content p {
   margin-top: 40px;
 }
 
-.tab-content .tab-pane .desc-wrap {
+/* .tab-content .tab-pane .desc-wrap {
   display: grid;
   grid-gap: 50px;
   grid-template-columns: 1fr 535px;
-}
+} */
 
 @media only screen and (max-width: 992px) {
   .tab-content .tab-pane .desc-wrap {
@@ -8905,7 +8933,7 @@ blockquote .content p {
 }
 
 .tab-content .tab-pane .desc-wrap .right-content img {
-  height: 100%;
+  margin-top: 65px;
   max-width: 535px;
   width: 100%;
   object-fit: cover;
@@ -10123,7 +10151,7 @@ blockquote .content p {
 
 @media only screen and (max-width: 767px) {
   .product-details-wrap .product-gallary .gallary-item {
-    height: 450px;
+    height: 330px;
   }
 }
 
@@ -10175,11 +10203,6 @@ blockquote .content p {
   }
 }
 
-@media only screen and (max-width: 767px) {
-  .product-info {
-    padding-top: 40px;
-  }
-}
 
 .product-info .category {
   color: var(--rr-color-theme-primary);
