@@ -86,7 +86,7 @@
                     ১. Sales & Orders (Sales, POS, E-commerce)
                 ========================================== --}}
                 @canany(['sale.all', 'sale.view', 'order-sale.view', 'order-return.view', 'order-cancel.view', 'pos.view', 'pos-create'])
-                    <li class="nav-item {{ request()->routeIs('sales.*', 'orders.*', 'order.*') ? 'menu-open' : '' }}">
+                    <li class="nav-item {{ request()->routeIs('sales.*', 'orders.*', 'order.*','orders.sales-list') ? 'menu-open' : '' }}">
                         <a href="#" class="nav-link {{ request()->routeIs('sales.*', 'orders.*', 'order.*') ? 'active' : '' }}">
                             <i class="nav-icon bi bi-cart-check-fill"></i>
                             <p>
@@ -116,6 +116,14 @@
                                     <a href="{{ route('orders.index') }}" class="nav-link {{ request()->routeIs('orders.index') ? 'active' : '' }}">
                                         <i class="bi bi-shop"></i>
                                         <p>Ecommerce Orders <span id="pending-order-count" class="badge bg-danger float-end" style="display:none;">0</span></p>
+                                    </a>
+                                </li>
+                            @endcan
+                            @can('sale.view')
+                                <li class="nav-item">
+                                    <a href="{{ route('orders.sales-list') }}" class="nav-link {{ request()->routeIs('orders.sales-list') ? 'active' : '' }}">
+                                        <i class="bi bi-list-ul"></i>
+                                        <p>Ecommerce Sale List</p>
                                     </a>
                                 </li>
                             @endcan

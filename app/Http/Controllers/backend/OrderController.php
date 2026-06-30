@@ -104,6 +104,41 @@ class OrderController extends Controller
         return view('backend.order.index');
     }
 
+    public function ecommerceSales(Request $request)
+    {
+        if ($request->ajax()) {
+            $data = Order::where('status', 'completed')->latest();
+
+            return DataTables::of($data)
+                ->addIndexColumn()
+                ->addColumn('invoice_no', fn ($row) => $row->order_number)
+                ->addColumn('customer_name', fn ($row) => $row->full_name)
+                ->addColumn('order_date', fn ($row) => $row->created_at->format('d M, Y'))
+                ->addColumn('total_amount', fn ($row) => number_format($row->total, 2) . ' ৳')
+                ->addColumn('payment_status', function ($row) {
+                    $class = match (strtolower($row->payment_status)) {
+                        'paid' => 'success',
+                        'due', 'pending' => 'warning',
+                        default => 'secondary',
+                    };
+                    return '<span class="badge bg-' . $class . '">' . ucfirst($row->payment_status) . '</span>';
+                })
+                ->addColumn('status', function ($row) {
+                    return '<span class="badge bg-success">Completed</span>';
+                })
+                ->addColumn('action', function ($row) {
+                    $showBtn = '<button class="btn btn-icon btn-soft-info btn-show" data-id="'.$row->id.'" title="View Order"><i class="fa-regular fa-eye"></i></button>';
+                    $invoiceBtn = '<a href="'.route('orders.invoice', $row->id).'" target="_blank" class="btn btn-icon btn-soft-success" title="Invoice"><i class="fa-regular fa-file-lines"></i></a>';
+                    
+                    return '<div class="d-flex align-items-center justify-content-center gap-2">'.$showBtn.' '.$invoiceBtn.'</div>';
+                })
+                ->rawColumns(['payment_status','status','action'])
+                ->make(true);
+        }
+
+        return view('backend.order.complete_orders');
+    }
+
     public function checkNewOrder()
     {
         $lastOrderId = Order::max('id');
