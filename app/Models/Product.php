@@ -65,5 +65,13 @@ class Product extends Model
         return $this->hasMany(ProductVariant::class, 'product_id');
     }
 
+    public function getTotalQuantityAttribute()
+    {
+        if ($this->variants && $this->variants->count() > 0) {
+            return $this->variants->sum('stock');
+        }
+        return $this->stock ?? 0; 
+    }
+
     
 }

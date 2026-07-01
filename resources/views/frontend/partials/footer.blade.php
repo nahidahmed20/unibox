@@ -17,11 +17,11 @@
             <div class="col-xl-3 col-lg-3 col-md-6 col-sm-6">
                 <div class="footer-feature-item d-flex align-items-center gap-3">
                     <div class="icon-box">
-                        <img src="{{ asset('frontend/assets/img/icon/footer-2.png') }}" alt="Easy Return">
+                        <img src="{{ asset('frontend/assets/img/icon/footer-2.png') }}" alt="Instant Return">
                     </div>
                     <div class="content">
-                        <h4 class="title fw-bold mb-1 fs-6">Easy Return</h4>
-                        <span class="text-muted small">7 Days Return Policy</span>
+                        <h4 class="title fw-bold mb-1 fs-6">Instant Return</h4>
+                        <span class="text-muted small">Return on Delivery</span>
                     </div>
                 </div>
             </div>
@@ -272,11 +272,11 @@
     }
     .footer-link:hover {
         color: #008a7a;
-        transform: translateX(15px);
+        transform: translateX(2px);
     }
     .footer-link:hover::before {
         opacity: 1;
-        left: -15px;
+        left: -2px;
     }
 
     /* Social Buttons */

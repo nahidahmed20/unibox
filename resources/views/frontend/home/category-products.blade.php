@@ -202,7 +202,7 @@
         .product-item.product-item-2 {
             width: 100%;
             background: #fff;
-            border: 1px solid #edf0f2;
+            border: 1px solid rgba(0, 138, 122, 0.3); 
             border-radius: 12px;
             overflow: hidden;
             transition: all .3s ease;
@@ -213,8 +213,9 @@
         }
 
         .product-item.product-item-2:hover {
-            box-shadow: 0 10px 30px rgba(0,0,0,.08);
-            border-color: #008a7a;
+            transform: translateY(0px);
+            box-shadow: 0 10px 30px rgba(0, 138, 122, 0.15); 
+            border-color: #008a7a; 
         }
 
         /* ====================================
@@ -551,32 +552,15 @@
             .list-product-action .rr-primary-btn{
                 width:100%;
             }
+            .single-category-page{
+                padding-top:30px !important; 
+            }
 
         }
     </style>
 @endpush
 
-    <section class="page-header">
-            <div class="container">
-                <div class="page-header-content">
-                    <h1 class="title">Shop Grid</h1>
-                    <h4 class="sub-title">
-                        <span class="home">
-                            <a href="#">
-                                <span>Home</span>
-                            </a>
-                        </span>
-                        <span class="icon"><i class="fa-solid fa-angle-right"></i></span>
-                        <span class="inner">
-                            <span>Shop Grid</span>
-                        </span>
-                    </h4>
-                </div>
-            </div>
-        </section>
-        <!-- ./ page-header -->
-
-        <section class="shop-grid pt-100 pb-100">
+        <section class="shop-grid pt-60 pb-100 single-category-page">
             <div class="container">
                 <div class="row">
                     <div class="col-lg-12 ">

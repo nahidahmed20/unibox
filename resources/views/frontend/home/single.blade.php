@@ -231,6 +231,87 @@
             width: 100% !important; 
         }
     }
+
+    /* Quantity */
+    .qty-box{
+        width: 130px;
+        height: 48px;
+        background: #008a7a;
+        border-radius: 2px;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        overflow: hidden;
+    }
+
+    .qty-btn{
+        width:40px;
+        height:50px;
+        border:none;
+        background:transparent;
+        color:#fff;
+        font-size:16px;
+        cursor:pointer;
+        transition:.3s;
+    }
+
+    .qty-btn:hover{
+        background:rgba(255,255,255,.15);
+    }
+
+    .qty-box input{
+        width:50px;
+        border:none;
+        background:transparent;
+        color:#fff;
+        font-size:18px;
+        font-weight:700;
+        text-align:center;
+        outline:none;
+    }
+
+    .qty-box input::-webkit-inner-spin-button,
+    .qty-box input::-webkit-outer-spin-button{
+        -webkit-appearance:none;
+        margin:0;
+    }
+
+    /* Cart Button */
+    .cart-btn{
+        flex:1;
+        height:50px;
+        border:2px solid #222;
+        border-radius:50px;
+        background:#fff;
+        color:#222;
+        font-weight:700;
+        font-size:16px;
+        transition:.3s;
+    }
+
+    .cart-btn:hover{
+        background:#008a7a;
+        border-color:#008a7a;
+        color:#fff;
+    }
+
+    .product-rich-description {
+        overflow-x: hidden; 
+        word-wrap: break-word;
+    }
+
+    .product-rich-description img {
+        max-width: 100% !important;
+        height: auto !important;
+    }
+
+    .product-rich-description table {
+        width: 100% !important;
+        max-width: 100% !important;
+        display: block;
+        overflow-x: auto; 
+        white-space: nowrap;
+    }
 </style>
 @endpush
 
@@ -347,70 +428,7 @@
                             @endif
                             <input type="hidden" id="selectedColorId">
                         </div>
-                        <style>
-                            /* Quantity */
-                            .qty-box{
-                                width: 130px;
-                                height: 48px;
-                                background: #008a7a;
-                                border-radius: 2px;
-                                display: flex;
-                                align-items: center;
-                                justify-content: space-between;
-                                overflow: hidden;
-                            }
-
-                            .qty-btn{
-                                width:40px;
-                                height:50px;
-                                border:none;
-                                background:transparent;
-                                color:#fff;
-                                font-size:16px;
-                                cursor:pointer;
-                                transition:.3s;
-                            }
-
-                            .qty-btn:hover{
-                                background:rgba(255,255,255,.15);
-                            }
-
-                            .qty-box input{
-                                width:50px;
-                                border:none;
-                                background:transparent;
-                                color:#fff;
-                                font-size:18px;
-                                font-weight:700;
-                                text-align:center;
-                                outline:none;
-                            }
-
-                            .qty-box input::-webkit-inner-spin-button,
-                            .qty-box input::-webkit-outer-spin-button{
-                                -webkit-appearance:none;
-                                margin:0;
-                            }
-
-                            /* Cart Button */
-                            .cart-btn{
-                                flex:1;
-                                height:50px;
-                                border:2px solid #222;
-                                border-radius:50px;
-                                background:#fff;
-                                color:#222;
-                                font-weight:700;
-                                font-size:16px;
-                                transition:.3s;
-                            }
-
-                            .cart-btn:hover{
-                                background:#008a7a;
-                                border-color:#008a7a;
-                                color:#fff;
-                            }
-                        </style>
+                       
 
                         <div class="product-btn mt-4 d-flex gap-2 align-items-center">
                             <div class="qty-box">
@@ -464,15 +482,17 @@
 
         <div class="tab-content" id="product-tab-content">
             <div class="tab-pane fade show active description" id="home" role="tabpanel" aria-labelledby="home-tab">
-                <div class="desc-wrap">
-                    <div class="left-content">
+                <div class="desc-wrap row gy-4"> 
+                    <div class="col-12 {{ $product->size_guide ? 'col-lg-8' : '' }} left-content product-rich-description">
                         {!! $product->description !!}
                     </div>
+                    
                     @if($product->size_guide)
-                    <div class="right-content">
-                        <img src="{{ asset($product->size_guide) }}" alt="{{ $product->name }}">
+                    <div class="col-12 col-lg-4 right-content text-center">
+                        <img src="{{ asset($product->size_guide) }}" alt="{{ $product->name }}" class="img-fluid rounded">
                     </div>
                     @endif
+
                 </div>
             </div>
 

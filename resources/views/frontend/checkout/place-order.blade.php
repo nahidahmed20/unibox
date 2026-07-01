@@ -385,6 +385,16 @@
                             </p>
                         </div>
 
+                        <div class="terms-condition-wrap mt-3 px-2">
+                            <div style="display: flex; align-items: flex-start; gap: 8px;">
+                                <input type="checkbox" name="terms_agreed" id="terms" required style="margin-top: 5px; width: 16px; height: 16px; accent-color: #008a7a; cursor: pointer;">
+                                <label for="terms" style="margin-bottom: 0; font-size: 14px; cursor: pointer; color: #555;">
+                                    I have read and agree to the website 
+                                    <a href="#" style="color: #008a7a; text-decoration: underline;">terms and conditions</a>. <span class="text-danger">*</span>
+                                </label>
+                            </div>
+                        </div>
+
                         <button type="submit" class="order-btn">
                             Place Order <i class="fas fa-arrow-right ml-2"></i>
                         </button>

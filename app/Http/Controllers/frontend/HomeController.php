@@ -188,8 +188,7 @@ class HomeController extends Controller
             $isSubcategory = true;
         }
 
-        $query = Product::with(['category', 'brand'])
-            ->where('status', 1);
+        $query = Product::with(['category', 'brand','variants'])->where('status', 1);
 
         if (!$isSubcategory) {
             $subIds = SubCategory::where('category_id', $category->id)->pluck('id')->toArray();
@@ -234,6 +233,7 @@ class HomeController extends Controller
         $filterUrl = route('category.show', $slug);
 
         if ($request->ajax()) {
+ 
             return response()->json([
                 'html' => view('frontend.home.partials.product_list', compact('products'))->render()
             ]);

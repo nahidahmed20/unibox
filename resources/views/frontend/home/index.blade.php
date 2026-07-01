@@ -167,12 +167,12 @@
 
                                 <h4 class="quantity">
                                     @if($product->total_quantity > 0)
-                                        <span style="color:#16a34a">
+                                        <span class="in-stock" style="color:#16a34a; font-weight: 500;">
                                             In Stock ({{ $product->total_quantity }})
                                         </span>
                                     @else
-                                        <span style="color:#dc2626">
-                                            Out of Stock
+                                        <span class="out-stock" style="color:#dc2626; font-weight: 500;">
+                                            <i class="fas fa-times-circle"></i> Out of Stock
                                         </span>
                                     @endif
                                 </h4>
@@ -259,12 +259,12 @@
 
                                 <h4 class="quantity">
                                     @if($product->total_quantity > 0)
-                                        <span style="color:#16a34a">
-                                            In Stock ({{ $product->total_quantity }})
+                                        <span class="in-stock" style="color:#16a34a; font-weight: 500;">
+                                            <i class="fas fa-check-circle"></i> In Stock ({{ $product->total_quantity }})
                                         </span>
                                     @else
-                                        <span style="color:#dc2626">
-                                            Out of Stock
+                                        <span class="out-stock" style="color:#dc2626; font-weight: 500;">
+                                            <i class="fas fa-times-circle"></i> Out of Stock
                                         </span>
                                     @endif
                                 </h4>
