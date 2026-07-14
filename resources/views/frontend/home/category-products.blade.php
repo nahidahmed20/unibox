@@ -41,75 +41,10 @@
         .qty-modern {
             display: flex;
             align-items: center;
-            width: fit-content;
-            border: 1px solid #ddd;
-            border-radius: 50px;
-            overflow: hidden;
-        }
-
-        .qty-modern input {
-            width: 60px;
-            text-align: center;
-            border: none;
-            font-weight: 600;
-        }
-
-        .qty-btn {
-            width: 45px;
-            height: 45px;
-            border: none;
-            background: #f5f5f5;
-            font-size: 20px;
-            font-weight: bold;
-        }
-
-        .qty-btn:hover {
-            background: #ff6600;
-            color: #fff;
-        }
-
-        .size-box.disabled {
-            opacity: .5;
-            cursor: not-allowed;
-            pointer-events: none;
-        }
-
-        .color-box-modal.stock-out {
-            opacity: .4;
-            cursor: not-allowed;
-            position: relative;
-        }
-
-        .color-box-modal.stock-out::after {
-            /* content:'✕'; */
-            position: absolute;
-            inset: 0;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: #fff;
-            font-weight: bold;
-        }
-
-
-
-
-        .product-btn {
-            display: flex;
-            align-items: center;
-            gap: 20px;
-            width: 100%;
-        }
-
-        /* Quantity Box */
-        .qty-modern {
-            display: flex;
-            align-items: center;
             justify-content: center;
             width: 130px;
             height: 52px;
             background: #008a7a;
-            /* screenshot color */
             border-radius: 0;
             overflow: hidden;
         }
@@ -123,6 +58,10 @@
             font-size: 22px;
             font-weight: 600;
             cursor: pointer;
+        }
+
+        .qty-btn:hover {
+            background: rgba(255, 255, 255, 0.1);
         }
 
         .qty-modern input {
@@ -139,7 +78,26 @@
             outline: none;
         }
 
-        /* Cart Button */
+        .size-box.disabled {
+            opacity: .5;
+            cursor: not-allowed;
+            pointer-events: none;
+        }
+
+        .color-box-modal.stock-out {
+            opacity: .4;
+            cursor: not-allowed;
+            position: relative;
+        }
+
+        .product-btn {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+            width: 100%;
+        }
+
+        /* Cart Button (Desktop) */
         .cart-btn {
             flex: 1;
             height: 52px;
@@ -152,7 +110,6 @@
             transition: .3s;
             display: flex;
             justify-content: center;
-            /* horizontal */
             align-items: center;
         }
 
@@ -161,40 +118,29 @@
             color: #fff;
         }
 
-        /* Responsive */
-        @media (max-width:576px) {
 
-            .product-btn {
-                gap: 12px;
-            }
+        /* ==========================================================================
+        2. CART MODAL CUSTOM ADDITIONS (DESKTOP)
+        ========================================================================== */
+        .custom-modal-img-container {
+            background-color: #ffffff !important;
+            display: flex !important;
+            align-items: center !important;
+            justify-content: center !important;
+            padding: 30px !important;
+        }
 
-            .qty-modern {
-                width: 100px;
-                height: 48px;
-            }
-
-            .qty-btn {
-                width: 30px;
-                height: 48px;
-                font-size: 18px;
-            }
-
-            .qty-modern input {
-                width: 40px;
-                font-size: 16px;
-            }
-
-            .cart-btn {
-                height: 48px;
-                font-size: 15px;
-            }
+        #modalProductImage {
+            max-height: 350px !important;
+            width: auto !important;
+            max-width: 100% !important;
+            object-fit: contain !important;
         }
 
 
-        /* ====================================
-        PRODUCT CARD - HOME PAGE STYLE
-        ==================================== */
-
+        /* ==========================================================================
+        3. PRODUCT CARD - HOME PAGE STYLE
+        ========================================================================== */
         .product-box {
             display: flex;
         }
@@ -218,22 +164,12 @@
             border-color: #008a7a; 
         }
 
-        /* ====================================
-        DESKTOP 5 PRODUCTS PER ROW
-        ==================================== */
-
         @media (min-width:1200px){
-
             .col-xl-20{
                 flex: 0 0 20%;
                 max-width: 20%;
             }
-
         }
-
-        /* ====================================
-        PRODUCT IMAGE
-        ==================================== */
 
         .product-thumb {
             height: 220px;
@@ -255,10 +191,6 @@
         .product-item:hover .product-thumb img {
             transform: scale(1.05);
         }
-
-        /* ====================================
-        CONTENT
-        ==================================== */
 
         .product-content {
             flex: 1;
@@ -287,11 +219,9 @@
             font-weight: 600;
             color: #222;
             text-decoration: none;
-
             display: -webkit-box;
             -webkit-line-clamp: 2;
             -webkit-box-orient: vertical;
-
             overflow: hidden;
         }
 
@@ -321,10 +251,6 @@
             font-weight: 500;
         }
 
-        /* ====================================
-        BUTTON
-        ==================================== */
-
         .product-bottom {
             padding: 0 15px 15px;
         }
@@ -338,47 +264,10 @@
             transition: .3s;
         }
 
-        /* ====================================
-        MOBILE
-        ==================================== */
 
-        @media (max-width: 767px) {
-
-            .product-thumb {
-                height: 150px;
-                padding: 10px;
-            }
-
-            .product-content {
-                padding: 10px;
-            }
-
-            .product-content .title {
-                min-height: 42px;
-            }
-
-            .product-content .title a {
-                font-size: 13px;
-            }
-
-            .product-content .price {
-                font-size: 18px;
-            }
-
-            .product-bottom {
-                padding: 0 10px 10px;
-            }
-
-            .product-bottom .rr-primary-btn {
-                height: 40px;
-                font-size: 13px;
-            }
-        }
-
-        /* ===================================
-        MODERN LIST VIEW
-        =================================== */
-
+        /* ==========================================================================
+        4. MODERN LIST VIEW STYLES
+        ========================================================================== */
         .list-view-wrapper{
             display:flex;
             flex-direction:column;
@@ -421,8 +310,6 @@
         .list-product-card:hover .list-product-image img{
             transform:scale(1.05);
         }
-
-        /* Content */
 
         .list-product-content{
             flex:1;
@@ -472,8 +359,6 @@
             margin:0;
         }
 
-        /* Right Side */
-
         .list-product-action{
             min-width:220px;
             display:flex;
@@ -501,29 +386,57 @@
             height:48px;
         }
 
-        /* ===================================
-        TABLET
-        =================================== */
 
+        /* ==========================================================================
+        5. RESPONSIVE MEDIA QUERIES
+        ========================================================================== */
+
+        /* --- Tablet Devices (max-width: 991px) --- */
         @media(max-width:991px){
-
             .list-product-card{
                 flex-wrap:wrap;
             }
-
             .list-product-action{
                 width:100%;
                 align-items:flex-start;
             }
-
         }
 
-        /* ===================================
-        MOBILE
-        =================================== */
+        /* --- Mobile Grid & List (max-width: 767px) --- */
+        @media (max-width: 767px) {
+            
+            /* Home Page & Grid Changes */
+            .product-thumb {
+                height: 150px;
+                padding: 10px;
+            }
 
-        @media(max-width:767px){
+            .product-content {
+                padding: 10px;
+            }
 
+            .product-content .title {
+                min-height: 42px;
+            }
+
+            .product-content .title a {
+                font-size: 13px;
+            }
+
+            .product-content .price {
+                font-size: 18px;
+            }
+
+            .product-bottom {
+                padding: 0 10px 10px;
+            }
+
+            .product-bottom .rr-primary-btn {
+                height: 40px;
+                font-size: 13px;
+            }
+
+            /* List View Changes */
             .list-product-card{
                 flex-direction:column;
                 text-align:center;
@@ -552,10 +465,140 @@
             .list-product-action .rr-primary-btn{
                 width:100%;
             }
+
             .single-category-page{
                 padding-top:30px !important; 
             }
 
+            /* ----------------------------------------------------
+            CRITICAL FIX: CART MODAL RESPONSIVE STYLES (MOBILE)
+            ---------------------------------------------------- */
+            .custom-modal-img-container {
+                padding: 20px 15px 5px 15px !important; 
+                background-color: #ffffff !important;
+            }
+
+            #modalProductImage {
+                max-height: 300px !important;
+                width: auto !important;
+                max-width: 85% !important;
+                margin: 0 auto !important;
+                display: block !important;
+            }
+
+            #cartModal .btn-close {
+                position: absolute !important;
+                top: 15px;
+                right: 15px;
+                background-color: #ffffff;
+                border-radius: 50%;
+                padding: 10px;
+                box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+                opacity: 1;
+                z-index: 1055;
+            }
+
+            #cartModal .col-md-7 .p-4 {
+                padding: 15px 22px 25px 22px !important; 
+            }
+
+            #modalProductName {
+                font-size: 18px !important; 
+                font-weight: 700;
+                line-height: 1.4;
+                color: #111;
+                margin-top: 5px;
+            }
+
+            #cartModal .fs-3 {
+                font-size: 22px !important;
+            }
+
+            #cartModal .mb-4 {
+                margin-bottom: 12px !important;
+            }
+
+            /* Side-by-Side Button Layout for Modal */
+            #cartModal .product-btn {
+                display: grid !important;
+                grid-template-columns: 120px 1fr !important; 
+                gap: 12px !important;
+                align-items: center !important;
+                margin-top: 20px !important;
+                width: 100% !important;
+            }
+
+            #cartModal .qty-modern {
+                width: 100% !important;
+                height: 46px !important; 
+                border-radius: 30px !important; 
+                padding: 0 8px !important;
+                display: flex !important;
+                align-items: center !important;
+                justify-content: space-between !important;
+                background: #008a7a !important;
+            }
+
+            #cartModal .qty-modern .qty-btn {
+                width: 25px !important;
+                height: 25px !important;
+                font-size: 20px !important;
+                background: transparent !important;
+                color: #fff !important;
+                display: flex !important;
+                align-items: center !important;
+                justify-content: center !important;
+            }
+
+            #cartModal .qty-modern input {
+                width: 30px !important;
+                font-size: 16px !important;
+                font-weight: 600 !important;
+                text-align: center !important;
+                border: none !important;
+                background: transparent !important;
+                color: #fff !important;
+            }
+
+            #finalAddToCart {
+                width: 100% !important;
+                height: 46px !important; 
+                display: flex !important;
+                align-items: center !important;
+                justify-content: center !important;
+                font-size: 15px !important;
+                font-weight: 600 !important;
+                border-radius: 30px !important; 
+                border: 1.5px solid #000000 !important;
+                background-color: #ffffff !important;
+                color: #000000 !important;
+                padding: 0 !important;
+            }
+        }
+
+        /* --- Extra Small Devices (max-width: 576px) --- */
+        @media (max-width: 576px) {
+            /* Home page card buttons generic fallback sizes */
+            .product-btn:not(#cartModal .product-btn) {
+                gap: 12px;
+            }
+            .qty-modern:not(#cartModal .qty-modern) {
+                width: 100px;
+                height: 48px;
+            }
+            .qty-btn:not(#cartModal .qty-modern .qty-btn) {
+                width: 30px;
+                height: 48px;
+                font-size: 18px;
+            }
+            .qty-modern input:not(#cartModal .qty-modern input) {
+                width: 40px;
+                font-size: 16px;
+            }
+            .cart-btn:not(#finalAddToCart) {
+                height: 48px;
+                font-size: 15px;
+            }
         }
     </style>
 @endpush
@@ -757,18 +800,18 @@
                             <div class="p-4 p-lg-5">
                                 <h3 id="modalProductName" class="fw-bold mb-2">
                                 </h3>
-                                <div class="mb-4">
+                                <div class="mb-3">
                                     <span class="fs-3 fw-bold text-danger">
                                         ৳<span id="modalProductPrice"></span>
                                     </span>
                                 </div>
                                 <!-- SIZE -->
-                                <div class="mb-4" id="sizeSection">
+                                <div class="mb-3" id="sizeSection">
                                     <label class="fw-semibold mb-2 d-block">Size</label>
                                     <div id="modalSizeWrap" class="d-flex flex-wrap gap-2"></div>
                                 </div>
                                 <!-- COLOR -->
-                                <div class="mb-4" id="colorSection">
+                                <div class="mb-3" id="colorSection">
                                     <label class="fw-semibold mb-2 d-block">Color</label>
                                     <div id="modalColorWrap" class="d-flex flex-wrap gap-2"></div>
                                 </div>
@@ -812,6 +855,8 @@
                 }
             });
         }
+
+        
     </script>
     <script>
         $(document).ready(function() {
@@ -975,6 +1020,39 @@
                 return true;
             }
 
+            $(document).on('click', '#qtyPlus', function(e) {
+                e.preventDefault();
+                let qtyInput = $('#modalQty');
+                let currentVal = parseInt(qtyInput.val()) || 1;
+                
+                // বর্তমান ভ্যারিয়েন্টের স্টক চেক করা হচ্ছে
+                let maxStock = updateModalPriceAndStock(); 
+
+                if (currentVal < maxStock) {
+                    qtyInput.val(currentVal + 1);
+                } else {
+                    Swal.fire({
+                        icon: 'warning',
+                        title: 'স্টক লিমিট',
+                        text: 'দুঃখিত, স্টকে এর চেয়ে বেশি পণ্য নেই!',
+                        timer: 1500,
+                        showConfirmButton: false
+                    });
+                }
+            });
+
+            // Quantity Minus (-) Button Click Event
+            $(document).on('click', '#qtyMinus', function(e) {
+                e.preventDefault();
+                let qtyInput = $('#modalQty');
+                let currentVal = parseInt(qtyInput.val()) || 1;
+
+                // Quantity যেন 1 এর নিচে না নামে
+                if (currentVal > 1) {
+                    qtyInput.val(currentVal - 1);
+                }
+            });
+            
             $('#finalAddToCart').on('click', function() {
                 let btn = $(this);
                 if (btn.prop('disabled')) return;

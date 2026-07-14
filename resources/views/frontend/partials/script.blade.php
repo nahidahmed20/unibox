@@ -16,6 +16,14 @@
 <script src="{{ asset('frontend/assets/js/main.js') }}"></script>
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
+<script>
+    $(window).on('pageshow',function(event){
+        if(event.originalEvent.persisted){
+            location.reload();
+        }
+    });
+</script>
+
 @if(session('success'))
 <script>
     Swal.fire({

@@ -4,7 +4,6 @@
 @section('content')
 @push('css')
 <style>
-
     .checkout-section {
         background-color: #f4f7fb;
         padding: 60px 0 100px 0;
@@ -238,6 +237,22 @@
 
     $subtotal = collect($cart)->sum(fn($i) => $i['price'] * $i['quantity']);
     $total = $subtotal + $shippingCost;
+
+    // --- DATA LAYER এর জন্য আইটেম প্রসেসিং ---
+    $dataLayerItems = [];
+    foreach($cart as $item) {
+        $variantParts = [];
+        if(!empty($item['size'])) $variantParts[] = $item['size'];
+        if(!empty($item['color'])) $variantParts[] = $item['color'];
+        
+        $dataLayerItems[] = [
+            'item_id' => $item['product_id'] ?? '',
+            'item_name' => $item['name'] ?? '',
+            'price' => (float) ($item['price'] ?? 0),
+            'quantity' => (int) ($item['quantity'] ?? 1),
+            'item_variant' => implode(' - ', $variantParts)
+        ];
+    }
 @endphp
 
 <section class="checkout-section">
@@ -409,6 +424,22 @@
 @endsection
 
 @push('javascript')
+    {{-- =========================
+         DATA LAYER INTEGRATION 
+         ========================= --}}
+    <script>
+        window.dataLayer = window.dataLayer || [];
+        window.dataLayer.push({
+            event: "begin_checkout",
+            ecommerce: {
+                currency: "BDT",
+                value: {{ (float) $total }},
+                items: @json($dataLayerItems)
+            }
+        });
+    </script>
+    {{-- ========================= --}}
+
     <script>
         $(document).ready(function () {
             

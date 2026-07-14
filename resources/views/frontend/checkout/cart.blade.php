@@ -385,14 +385,34 @@
 
 @push('javascript')
 <script>
-    function formatMoney(amount) {
-        return parseFloat(amount).toFixed(2);
+    window.dataLayer = window.dataLayer || [];
+    
+    function pushCartData(cart, subtotal, shipping) {
+        let items = [];
+        @foreach($cart as $id => $item)
+            items.push({
+                item_id: "{{ $id }}",
+                item_name: "{{ $item['name'] }}",
+                price: {{ $item['price'] }},
+                quantity: {{ $item['quantity'] }}
+            });
+        @endforeach
+
+        window.dataLayer.push({
+            event: "view_cart",
+            ecommerce: {
+                currency: "BDT",
+                value: subtotal + shipping,
+                items: items
+            }
+        });
     }
+
+    pushCartData(@json($cart), {{ $subtotal }}, {{ $shippingCost }});
 
     $(document).on('change', 'input[name="shipping"]', function () {
         let zone = $(this).val();
         
-        // Add active class to selected box
         $('.shipping-box').removeClass('active-box');
         $(this).closest('.shipping-box').addClass('active-box');
 
@@ -407,6 +427,15 @@
                 if (res.success) {
                     $('.total-value').text('৳' + formatMoney(res.total));
                     $('.shipping-value').text('৳' + formatMoney(res.shipping));
+
+                    // শিপিং পরিবর্তনের পর ডেটা লেয়ার আপডেট
+                    window.dataLayer.push({
+                        event: "cart_shipping_updated",
+                        ecommerce: {
+                            shipping_tier: zone,
+                            value: res.total
+                        }
+                    });
                 }
             }
         });

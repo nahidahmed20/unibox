@@ -190,6 +190,9 @@
                             @can('variation.view')
                                 <li class="nav-item"><a href="{{ route('variations.index') }}" class="nav-link {{ request()->routeIs('variations.index') ? 'active' : '' }}"><i class="bi bi-sliders"></i><p>Variation List</p></a></li>
                             @endcan
+                            @can('view product')
+                                <li class="nav-item"><a href="{{ route('products.barcode.index') }}" class="nav-link {{ request()->routeIs('products.barcode.index') || request()->routeIs('products.barcode.print') ? 'active' : '' }}"><i class="bi bi-upc-scan"></i><p>Print Barcode</p></a></li>
+                            @endcan
                         </ul>
                     </li>
                 @endcanany

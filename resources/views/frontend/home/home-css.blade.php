@@ -290,12 +290,14 @@
     }
 
     .qty-modern {
-        display: flex;
         align-items: center;
         width: fit-content;
-        border: 1px solid #ddd;
         border-radius: 50px;
         overflow: hidden;
+        display: inline-flex;
+        border: 1px solid #e5e7eb;
+        border-radius: 6px;
+        height: 45px;
     }
 
     .qty-modern input {
@@ -315,7 +317,7 @@
     }
 
     .qty-btn:hover {
-        background: #ff6600;
+        background: #008a7a;
         color: #fff;
     }
 
@@ -1119,13 +1121,6 @@
     }
 
     /* Modal Responsive css  */
-
-    .qty-modern {
-        display: inline-flex;
-        border: 1px solid #e5e7eb;
-        border-radius: 6px;
-        height: 45px;
-    }
     .qty-btn {
         background: transparent;
         border: none;
@@ -1142,52 +1137,99 @@
         font-weight: bold;
     }
 
+    .custom-modal-img-container {
+        background-color: #ffffff !important; 
+        display: flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+        padding: 30px !important;
+    }
+
+    #modalProductImage {
+        max-height: 350px !important; 
+        width: auto !important;
+        max-width: 100% !important;
+        object-fit: contain !important;
+    }
+
     @media (max-width: 767px) {
         
-        #cartModal .col-md-5.p-4 {
-            padding: 15px !important;
+        .custom-modal-img-container {
+            padding: 20px 15px 5px 15px !important; 
+            background-color: #ffffff !important;
         }
+
         #modalProductImage {
-            max-height: 200px !important; 
-        }
-
-        #cartModal .col-md-7 .p-4 {
-            padding: 20px !important;
-        }
-
-        #modalProductName {
-            font-size: 20px !important;
-        }
-        #cartModal .fs-3 {
-            font-size: 22px !important; 
-        }
-
-        #cartModal .product-btn {
-            display: flex;
-            flex-direction: column;
-            gap: 15px; 
-        }
-
-        #cartModal .qty-modern {
-            width: 100%;
-            justify-content: space-between;
-        }
-        #cartModal .qty-modern input {
-            width: 100%; 
-        }
-
-        #finalAddToCart {
-            width: 100%;
-            padding: 12px;
-            border-radius: 22px;
+            max-height: 300px !important; 
+            width: auto !important;
+            max-width: 85% !important; 
+            margin: 0 auto !important;
+            display: block !important;
         }
 
         #cartModal .btn-close {
-            background-color: white;
+            position: absolute !important;
+            top: 15px;
+            right: 15px;
+            background-color: #ffffff;
             border-radius: 50%;
             padding: 10px;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+            box-shadow: 0 2px 8px rgba(0,0,0,0.15);
             opacity: 1;
+            z-index: 1055;
+        }
+
+        #cartModal .col-md-7 .p-4 {
+            padding: 15px 22px 25px 22px !important; 
+        }
+
+        #modalProductName {
+            font-size: 18px !important; 
+            font-weight: 700;
+            line-height: 1.4;
+            color: #111;
+            margin-top: 5px;
+        }
+
+        #cartModal .fs-3 {
+            font-size: 22px !important;
+        }
+
+        #cartModal .mb-4 {
+            margin-bottom: 12px !important;
+        }
+
+        #cartModal .product-btn {
+            display: grid !important;
+            grid-template-columns: 120px 1fr !important; 
+            gap: 12px !important;
+            align-items: center;
+            margin-top: 20px !important;
+        }
+
+        #cartModal .qty-modern {
+            width: 100% !important;
+            height: 46px !important; 
+            border-radius: 30px !important; 
+            padding: 0 8px !important;
+            display: flex !important;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        #finalAddToCart {
+            width: 100% !important;
+            height: 46px !important; 
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 15px !important;
+            font-weight: 600 !important;
+            border-radius: 30px !important; 
+            border: 1.5px solid #000000 !important;
+            background-color: #ffffff !important;
+            color: #000000 !important;
+            padding: 0 !important;
         }
     }
 </style>

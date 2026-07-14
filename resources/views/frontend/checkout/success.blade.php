@@ -3,6 +3,25 @@
 
 @section('content')
 
+@php
+    $dataLayerItems = [];
+    foreach($order->items as $item) {
+        $variantParts = [];
+        if(!empty($item->size->name)) $variantParts[] = $item->size->name;
+        if(!empty($item->color->name)) $variantParts[] = $item->color->name;
+        
+        $unitPrice = $item->price ?? ($item->quantity > 0 ? ($item->total / $item->quantity) : 0);
+
+        $dataLayerItems[] = [
+            'item_id' => (string) ($item->product_id ?? $item->product?->id ?? ''),
+            'item_name' => $item->product_name ?? ($item->product->name ?? 'Unknown Product'),
+            'price' => (float) $unitPrice,
+            'quantity' => (int) $item->quantity,
+            'item_variant' => implode(' - ', $variantParts)
+        ];
+    }
+@endphp
+
 <style>
     @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
 
@@ -173,7 +192,7 @@
                     </svg>
                 </div>
                 <h2>অর্ডার সফলভাবে সম্পন্ন হয়েছে</h2>
-                <p>ধন্যবাদ! আপনার অর্ডারটি সফলভাবে গ্রহণ করা হয়েছে। খুব শীঘ্রই আমাদের টিম আপনার সাথে যোগাযোগ করবে।</p>
+                <p>ধন্যবাদ! আপনার অর্ডারটি সফলভাবে করা হয়েছে। খুব শীঘ্রই আমাদের টিম আপনার সাথে যোগাযোগ করবে।</p>
                 <div class="order-number-badge">
                     Order No: <strong>{{ $order->order_number }}</strong>
                 </div>
@@ -265,3 +284,20 @@
 </div>
 
 @endsection
+
+@push('javascript')
+    <script>
+        window.dataLayer = window.dataLayer || [];
+        window.dataLayer.push({
+            event: "purchase",
+            ecommerce: {
+                transaction_id: "{{ $order->order_number }}",
+                value: {{ (float) $order->total }},
+                tax: 0.00,
+                shipping: {{ (float) ($order->shipping ?? 0) }},
+                currency: "BDT",
+                items: @json($dataLayerItems)
+            }
+        });
+    </script>
+@endpush

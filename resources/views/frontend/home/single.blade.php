@@ -614,6 +614,38 @@
 
 @push('javascript')
     <script>
+        window.dataLayer = window.dataLayer || [];
+        window.dataLayer.push({
+            event: "view_item",
+            ecommerce: {
+                currency: "BDT",
+                value: {{ $product->selling_price }},
+                items: [
+                    {
+                        item_id: "{{ $product->id }}",
+                        item_name: {!! json_encode($product->name) !!},
+                        item_category: {!! json_encode($product->category->name ?? '') !!},
+                        item_brand: {!! json_encode($product->brand->name ?? '') !!},
+                        price: {{ $product->selling_price }},
+                        quantity: 1
+                    }
+                ]
+            }
+        });
+
+        // FB ViewContent
+        if (typeof fbq === 'function') {
+            fbq('track', 'ViewContent', {
+                content_name: {!! json_encode($product->name) !!},
+                content_category: {!! json_encode($product->category->name ?? '') !!},
+                content_ids: ["{{ $product->id }}"],
+                content_type: 'product',
+                value: {{ $product->selling_price }},
+                currency: 'BDT'
+            });
+        }
+    </script>
+    <script>
         $(document).ready(function () {
 
         const productType = "{{ $product->product_type }}";

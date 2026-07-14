@@ -252,6 +252,9 @@ Route::middleware('auth')->prefix('admin')->group(function () {
     Route::get('/upazilas/{id}/edit', [LocationController::class, 'editUpazila'])->name('locations.upazilas.edit');
     Route::put('/upazilas/{id}', [LocationController::class, 'updateUpazila'])->name('locations.upazilas.update');
     Route::delete('/upazilas/{id}', [LocationController::class, 'destroyUpazila'])->name('locations.upazilas.destroy');
+
+    Route::get('product/barcode', [ProductController::class, 'barcodeIndex'])->name('products.barcode.index');
+    Route::post('product/barcode/print', [ProductController::class, 'barcodePrint'])->name('products.barcode.print');
 });
 
 Route::middleware('customer.guest')->group(function () {

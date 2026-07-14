@@ -348,8 +348,8 @@
                             </ul>
                         </div>
                         <div class="category-form-wrap">
-                            <form class="header-form" id="searchForm" action="{{ route('search') }}" method="GET">
-                                <input class="form-control" type="text" name="search" placeholder="Search for products, categories or brands">
+                            <form class="header-form" id="searchForm" action="{{ route('search') }}" method="GET" autocomplete="off">
+                                <input class="form-control" type="text" name="search" placeholder="Search for products, categories or brands" autocomplete="off">
                                 <input type="hidden" name="category_id" id="category_id">
                                 <button class="submit rr-primary-btn">
                                     Search <i class="fa-light fa-magnifying-glass"></i>
@@ -521,4 +521,5 @@
         });
     });
 </script>
+
 @endpush

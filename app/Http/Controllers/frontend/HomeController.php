@@ -296,12 +296,7 @@ class HomeController extends Controller
             ->paginate(12)
             ->appends($request->all());
 
-        /*
-        |------------------------------------------------------
-        | If category not selected but products found
-        | then get first product category for ajax filter
-        |------------------------------------------------------
-        */
+     
         if (!$category && $products->count() > 0) {
             $category = $products->first()->category;
         }
@@ -330,17 +325,21 @@ class HomeController extends Controller
             ]);
         }
 
-        return view(
-            'frontend.home.category-products',
-            compact(
-                'category',
-                'products',
-                'categories',
-                'brands',
-                'sizes',
-                'filterUrl'
+        return response()
+            ->view(
+                'frontend.home.category-products',
+                compact(
+                    'category',
+                    'products',
+                    'categories',
+                    'brands',
+                    'sizes',
+                    'filterUrl'
+                )
             )
-        );
+            ->header('Cache-Control', 'no-cache, no-store, must-revalidate')
+            ->header('Pragma', 'no-cache')
+            ->header('Expires', '0');
     }
 
     public function searchSuggestion(Request $request)

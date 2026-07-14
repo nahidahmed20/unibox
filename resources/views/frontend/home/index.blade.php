@@ -662,28 +662,28 @@
                 <button type="button" class="btn-close position-absolute end-0 top-0 m-3 z-3"
                     data-bs-dismiss="modal"></button>
                 <div class="row g-0">
+                    
                     <!-- IMAGE -->
-                    <div class="col-md-5 bg-light d-flex align-items-center justify-content-center p-4">
-                        <img id="modalProductImage" src="" class="img-fluid rounded-3"
-                            style="max-height:350px;object-fit:contain;">
+                    <div class="col-md-5 custom-modal-img-container">
+                        <img id="modalProductImage" src="" class="rounded-3" alt="Product Image">
                     </div>
                     <!-- CONTENT -->
                     <div class="col-md-7">
                         <div class="p-4 p-lg-5">
                             <h3 id="modalProductName" class="fw-bold mb-2">
                             </h3>
-                            <div class="mb-4">
+                            <div class="mb-3">
                                 <span class="fs-3 fw-bold text-danger">
                                     ৳<span id="modalProductPrice"></span>
                                 </span>
                             </div>
                             <!-- SIZE -->
-                            <div class="mb-4" id="sizeSection">
+                            <div class="mb-3" id="sizeSection">
                                 <label class="fw-semibold mb-2 d-block">Size</label>
                                 <div id="modalSizeWrap" class="d-flex flex-wrap gap-2"></div>
                             </div>
                             <!-- COLOR -->
-                            <div class="mb-4" id="colorSection">
+                            <div class="mb-3" id="colorSection">
                                 <label class="fw-semibold mb-2 d-block">Color</label>
                                 <div id="modalColorWrap" class="d-flex flex-wrap gap-2"></div>
                             </div>

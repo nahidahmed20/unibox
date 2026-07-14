@@ -28,11 +28,12 @@ use Illuminate\Http\Request;
 use Illuminate\Routing\Controllers\HasMiddleware;
 use Illuminate\Routing\Controllers\Middleware;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\File;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Str;
 use Maatwebsite\Excel\Facades\Excel;
 use Yajra\DataTables\Facades\DataTables;
-use Illuminate\Support\Facades\File;
-use Illuminate\Support\Facades\Log;
+use Milon\Barcode\Facades\DNS1DFacade as DNS1D;
 
 class ProductController extends Controller implements HasMiddleware
 {
@@ -597,5 +598,65 @@ class ProductController extends Controller implements HasMiddleware
                 'message' => 'Something went wrong: ' . $e->getMessage()
             ], 500);
         }
+    }
+
+    public function barcodeIndex()
+    {
+        $products = Product::select('id', 'name', 'sku', 'selling_price', 'image')
+            ->where('status', 1)
+            ->orderBy('name')
+            ->get();
+
+        return view('backend.product.barcode', compact('products'));
+    }
+
+
+    public function barcodePrint(Request $request)
+    {
+        $request->validate([
+            'products'           => 'required|array|min:1',
+            'products.*.qty'     => 'required|integer|min:1|max:500',
+            'label_width'        => 'required|numeric|min:10|max:200',
+            'label_height'       => 'required|numeric|min:10|max:200',
+            'columns'            => 'required|integer|min:1|max:10',
+            'gap'                => 'nullable|numeric|min:0|max:30',
+        ]);
+
+        $productIds = array_keys($request->products);
+        $products   = Product::whereIn('id', $productIds)->get()->keyBy('id');
+
+        $labels = [];
+
+        foreach ($request->products as $id => $item) {
+            $product = $products->get($id);
+            if (!$product) {
+                continue;
+            }
+
+            $code = $product->sku ?: ('PID' . str_pad($product->id, 8, '0', STR_PAD_LEFT));
+
+            $barcodeSvg = DNS1D::getBarcodeSVG($code, 'C128', 1.6, 45, 'black', false);
+
+            $qty = (int) $item['qty'];
+
+            for ($i = 0; $i < $qty; $i++) {
+                $labels[] = [
+                    'name'    => $product->name,
+                    'sku'     => $code,
+                    'price'   => $product->selling_price,
+                    'barcode' => $barcodeSvg,
+                ];
+            }
+        }
+
+        return view('backend.product.barcode-print', [
+            'labels'       => $labels,
+            'label_width'  => $request->label_width,
+            'label_height' => $request->label_height,
+            'columns'      => $request->columns,
+            'gap'          => $request->gap ?? 2,
+            'show_price'   => $request->boolean('show_price', true),
+            'show_name'    => $request->boolean('show_name', true),
+        ]);
     }
 }
