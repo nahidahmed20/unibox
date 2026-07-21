@@ -366,9 +366,9 @@
                 <h3 class="login-title">Welcome Back</h3>
                 
                 <div class="social-btn-group">
-                    <a href="{{ route('login.facebook') }}" class="btn-social btn-facebook">
+                    {{-- <a href="{{ route('login.facebook') }}" class="btn-social btn-facebook">
                         <i class="fab fa-facebook-f"></i> Facebook
-                    </a>
+                    </a> --}}
                     <a href="{{ route('login.google') }}" class="btn-social btn-google">
                         <i class="fab fa-google"></i> Google
                     </a>

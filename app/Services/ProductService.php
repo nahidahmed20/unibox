@@ -57,6 +57,7 @@ class ProductService
                 'size_guide'        => $sizeGuide,
                 'short_description' => $data['short_description'] ?? null,
                 'description'       => $data['description'] ?? null,
+                'extra_note'        => $data['extra_note'] ?? null,
                 'is_featured'       => $data['is_featured'] ?? 1,
                 'is_new'            => $data['is_new'] ?? 1,
                 'is_purchased'      => 0, 
@@ -203,7 +204,6 @@ class ProductService
                 $data['discount_type'] ?? null
             );
 
-            /* ================= UPDATE MAIN PRODUCT ================= */
             $product->update([
                 'name'              => $data['name'],
                 'slug'              => $slug,
@@ -227,8 +227,9 @@ class ProductService
                 'dimensions'        => $data['dimensions'] ?? null,
                 'image'             => $mainImage,
                 'size_guide'        => $sizeGuide,
-                'short_description' => $data['short_description'] ?? null, // <-- Short Description
-                'description'       => $data['description'] ?? null,       // <-- Full Description (Summernote)
+                'short_description' => $data['short_description'] ?? null, 
+                'description'       => $data['description'] ?? null,  
+                'extra_note'        => $data['extra_note'] ?? null,     
                 'is_featured'       => $data['is_featured'] ?? 1,
                 'is_new'            => $data['is_new'] ?? 1,
                 'is_bestseller'     => $data['is_bestseller'] ?? 0,

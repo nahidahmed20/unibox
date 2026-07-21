@@ -236,7 +236,7 @@
 
     .unibox-floating-cart {
         position: fixed;
-        bottom: 20px;
+        bottom: 90px;
         right: 15px;
         background-color: #008a7a;
         width: 60px;
@@ -255,6 +255,28 @@
         width: 28px;
         height: 28px;
         }
+
+    .unibox-whatsapp-float {
+        position: fixed;
+        bottom: 20px;      
+        right: 15px;
+        background-color: #25D366;
+        width: 60px;
+        height: 60px;
+        border-radius: 50%;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        box-shadow: 0 8px 20px rgba(10, 107, 45, 0.35);
+        z-index: 9;
+        cursor: pointer;
+        text-decoration: none;
+        transition: all 0.3s ease;
+    }
+
+    .unibox-whatsapp-float:hover {
+        transform: scale(1.05);
+    }
 
     .cart-badge-middle {
         position: absolute;

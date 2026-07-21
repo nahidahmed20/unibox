@@ -312,6 +312,15 @@
         overflow-x: auto; 
         white-space: nowrap;
     }
+    .product-extra-note {
+        background: #fff8e6;
+        border: 1px solid #ffe4a1;
+        color: #8a6d1a;
+        padding: 10px 14px;
+        border-radius: 8px;
+        font-size: 16px;
+        line-height: 1.5;
+    }
 </style>
 @endpush
 
@@ -456,6 +465,11 @@
                         <a href="#" class="shop-details-btn rr-primary-btn mt-2 d-inline-block text-center" id="buyNowBtn" data-id="{{ $product->id }}">
                             Buy Now
                         </a>
+                        @if($product->extra_note)
+                        <div class="product-extra-note mt-3">
+                            <i class="fa-solid fa-circle-info me-1"></i> {{ $product->extra_note }}
+                        </div>
+                        @endif
                     </div>
                 </div>
             </div>

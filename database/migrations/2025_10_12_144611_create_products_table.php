@@ -37,6 +37,7 @@ return new class extends Migration
             $table->string('image')->nullable();
             $table->string('size_guide')->nullable();
             $table->text('short_description')->nullable();
+            $table->text('extra_note')->nullable();
             $table->longText('description')->nullable();
             $table->tinyInteger('is_featured')->default(1);
             $table->tinyInteger('is_new')->default(1);

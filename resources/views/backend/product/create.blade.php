@@ -258,6 +258,14 @@
                             <textarea name="description" class="form-control summernote">{{ old('description') }}</textarea>
                             @error('description')<small class="text-danger">{{ $message }}</small>@enderror
                         </div>
+                        <div class="mt-4">
+                            <label class="form-label">Extra Note <span class="text-muted fw-normal">(Product Page - Optional)</span></label>
+                            <textarea name="extra_note" class="form-control" rows="2" placeholder="বিশেষ নোট">{{ old('extra_note', $product->extra_note ?? '') }}</textarea>
+                            <small class="text-muted d-block mt-1">
+                                <i class="fa-solid fa-circle-info me-1"></i> এই মেসেজ শুধু এই প্রোডাক্টের পেজে "Add to Cart" বাটনের নিচে দেখাবে। খালি রাখলে কিছু দেখাবে না।
+                            </small>
+                            @error('extra_note')<small class="text-danger mt-1 d-block">{{ $message }}</small>@enderror
+                        </div>
                     </div>
                 </div>
 

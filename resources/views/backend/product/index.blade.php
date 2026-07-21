@@ -323,7 +323,10 @@ $(document).ready(function () {
                             <div class="bg-white rounded-4 p-4 border shadow-sm mt-4">
                                 <h6 class="fw-bold text-uppercase text-muted mb-3" style="font-size: 12px; letter-spacing: 1px;">Short Description</h6>
                                 <p class="text-dark bg-light p-3 rounded-3 border" style="font-size: 14px;">${res.short_description || 'No short description provided.'}</p>
-                                
+
+                                <h6 class="fw-bold text-uppercase text-muted mt-4 mb-3" style="font-size: 12px; letter-spacing: 1px;">বিশেষ নোট</h6>
+                                <p class="text-dark bg-light p-3 rounded-3 border" style="font-size: 14px;">${res.extra_note || 'কোনো বিশেষ নোট দেওয়া হয়নি।'}</p>
+
                                 <h6 class="fw-bold text-uppercase text-muted mt-4 mb-3" style="font-size: 12px; letter-spacing: 1px;">Full Description</h6>
                                 <div class="text-dark bg-light p-3 rounded-3 border" style="font-size: 14px; max-height: 250px; overflow-y: auto;">
                                     ${res.description || 'No full description provided.'}
