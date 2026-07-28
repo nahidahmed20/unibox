@@ -130,6 +130,8 @@ Route::get('/blog/{slug}', [FrontendHomeController::class, 'blogDetails'])->name
 Route::get('/search', [FrontendHomeController::class, 'search'])->name('search');
 Route::get('/search-suggestion', [FrontendHomeController::class, 'searchSuggestion'])->name('search.suggestion');
 
+Route::get('/best-selling-products', [FrontendHomeController::class, 'bestsellers'])->name('shop.bestsellers');
+
 Route::middleware('auth')->prefix('admin')->group(function () {
     Route::get('/home', [DashboardController::class, 'index'])->name('dashboard');
 
@@ -142,6 +144,8 @@ Route::middleware('auth')->prefix('admin')->group(function () {
     Route::resource('sub-categories', SubCategoryController::class);
     Route::resource('brands', BrandController::class);
     Route::resource('units', UnitController::class);
+    Route::get('products/bulk-price', [ProductController::class, 'bulkPriceForm'])->name('products.bulkPrice.form');
+    Route::post('products/bulk-price', [ProductController::class, 'bulkPriceUpdate'])->name('products.bulkPrice.update');
     Route::resource('products', ProductController::class);
     Route::resource('members', MemberController::class);
     Route::resource('suppliers', SupplierController::class);

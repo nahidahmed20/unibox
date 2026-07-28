@@ -4,6 +4,7 @@ namespace App\Http\Controllers\backend;
 
 use App\Exports\ProductDemoExport;
 use App\Http\Controllers\Controller;
+use App\Http\Requests\BulkPriceUpdateRequest;
 use App\Http\Requests\StoreProductRequest;
 use App\Http\Requests\UpdateProductRequest;
 use App\Imports\ProductsImport;
@@ -32,8 +33,8 @@ use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Str;
 use Maatwebsite\Excel\Facades\Excel;
-use Yajra\DataTables\Facades\DataTables;
 use Milon\Barcode\Facades\DNS1DFacade as DNS1D;
+use Yajra\DataTables\Facades\DataTables;
 
 class ProductController extends Controller implements HasMiddleware
 {
@@ -340,9 +341,6 @@ class ProductController extends Controller implements HasMiddleware
         return response()->json($subcategories);
     }
 
-    /**
-     * নতুন ভ্যারিয়েশন টেবিল অনুযায়ী সাইজ/আইটেম লোড করার ডাইনামিক মেথড (AJAX)
-     */
     public function getSizesByVariation($variation_id)
     {
         $sizes = DB::table('variation_items')
@@ -658,6 +656,25 @@ class ProductController extends Controller implements HasMiddleware
             'gap'          => $request->gap ?? 2,
             'show_price'   => $request->boolean('show_price', true),
             'show_name'    => $request->boolean('show_name', true),
+        ]);
+    }
+
+    public function bulkPriceUpdate(BulkPriceUpdateRequest $request)
+    {
+        try {
+            $count = $this->productService->bulkPriceUpdate($request->validated());
+
+            return redirect()->back()->with('success', "{$count} টি প্রোডাক্টের দাম আপডেট হয়েছে!");
+        } catch (Exception $e) {
+            return redirect()->back()->with('error', 'কিছু একটা সমস্যা হয়েছে: ' . $e->getMessage());
+        }
+    }
+
+    public function bulkPriceForm()
+    {
+        return view('backend.product.bulk-price', [
+            'categories' => Category::all(),
+            'brands'     => Brand::all(),
         ]);
     }
 }

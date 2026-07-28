@@ -27,6 +27,8 @@ return new class extends Migration
             $table->decimal('selling_price', 15, 2)->default(0)->nullable();
             $table->enum('discount_type', ['fixed', 'percent'])->nullable();
             $table->decimal('discount_value', 15, 2)->default(0)->nullable();
+            $table->timestamp('discount_starts_at')->nullable();
+            $table->timestamp('discount_ends_at')->nullable();
             $table->decimal('main_price', 15, 2)->default(0)->nullable();
             $table->decimal('max_price', 15, 2)->default(0)->nullable();
             $table->decimal('alert_quantity', 15, 2)->default(0)->nullable();

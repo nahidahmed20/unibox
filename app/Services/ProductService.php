@@ -2,6 +2,7 @@
 
 namespace App\Services;
 
+use App\Models\PriceHistory;
 use App\Models\Product;
 use App\Models\ProductColor;
 use App\Models\ProductColorImage;
@@ -74,7 +75,7 @@ class ProductService
                 }
 
                 foreach ($request->file('images') as $image) {
-                    if ($image instanceof \Illuminate\Http\UploadedFile && $image->isValid()) {
+                    if ($image instanceof UploadedFile && $image->isValid()) {
                         $imgName = time() . '_' . uniqid() . '.' . $image->getClientOriginalExtension();
                         $image->move($galleryPath, $imgName);
                         $product->images()->create([
@@ -123,7 +124,7 @@ class ProductService
                         $imagesArray = is_array($newImages) ? $newImages : [$newImages];
 
                         foreach ($imagesArray as $image) {
-                            if ($image instanceof \Illuminate\Http\UploadedFile && $image->isValid()) {
+                            if ($image instanceof UploadedFile && $image->isValid()) {
                                 $imgName = time() . '_' . uniqid() . '.' . $image->getClientOriginalExtension();
                                 $image->move($colorPath, $imgName);
                                 
@@ -253,7 +254,7 @@ class ProductService
                 }
 
                 foreach ($request->file('images') as $image) {
-                    if ($image instanceof \Illuminate\Http\UploadedFile && $image->isValid()) {
+                    if ($image instanceof UploadedFile && $image->isValid()) {
                         $imgName = time() . '_' . uniqid() . '.' . $image->getClientOriginalExtension();
                         $image->move($galleryPath, $imgName);
                         $product->images()->create([
@@ -316,7 +317,7 @@ class ProductService
                         $imagesArray = is_array($newImages) ? $newImages : [$newImages];
 
                         foreach ($imagesArray as $image) {
-                            if ($image instanceof \Illuminate\Http\UploadedFile && $image->isValid()) {
+                            if ($image instanceof UploadedFile && $image->isValid()) {
                                 $imgName = time() . '_' . uniqid() . '.' . $image->getClientOriginalExtension();
                                 $image->move($colorPath, $imgName);
                                 
@@ -330,6 +331,39 @@ class ProductService
             }
 
             return $product;
+        });
+    }
+
+    public function bulkPriceUpdate(array $data)
+    {
+        return DB::transaction(function () use ($data) {
+            $query = Product::query();
+
+            if (!empty($data['category_id'])) $query->where('category_id', $data['category_id']);
+            if (!empty($data['brand_id']))    $query->where('brand_id', $data['brand_id']);
+
+            $products = $query->get();
+
+            foreach ($products as $product) {
+                $oldPrice = $product->selling_price;
+
+                $newPrice = $data['type'] === 'percent'
+                    ? $oldPrice + ($oldPrice * $data['value'] / 100)
+                    : $oldPrice + $data['value'];
+
+                $newPrice = max(0, round($newPrice, 2));
+
+                $product->update(['selling_price' => $newPrice]);
+
+                PriceHistory::create([
+                    'product_id' => $product->id,
+                    'old_price'  => $oldPrice,
+                    'new_price'  => $newPrice,
+                    'changed_by' => auth()->id(),
+                ]);
+            }
+
+            return $products->count();
         });
     }
 }

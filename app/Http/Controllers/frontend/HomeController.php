@@ -267,6 +267,12 @@ class HomeController extends Controller
         return view('frontend.home.single', compact('product'));
     }
 
+    public function bestsellers()
+    {
+        $bestsellers = Product::where('is_bestseller', 1)->paginate(24);
+        return view('frontend.bestsellers', compact('bestsellers'));
+    }
+
     public function search(Request $request)
     {
         $query = Product::with([

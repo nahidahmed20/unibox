@@ -73,5 +73,24 @@ class Product extends Model
         return $this->stock ?? 0; 
     }
 
+    public function getFinalPriceAttribute()
+    {
+        $now = now();
+        if ($this->discount_type
+            && $this->discount_starts_at
+            && $this->discount_ends_at
+            && $now->between($this->discount_starts_at, $this->discount_ends_at)) {
+
+            return $this->discount_type === 'percent'
+                ? $this->selling_price - ($this->selling_price * $this->discount_value / 100)
+                : $this->selling_price - $this->discount_value;
+        }
+        return $this->selling_price;
+    }
+
+    public function priceHistories()
+    {
+        return $this->hasMany(PriceHistory::class);
+    }
     
 }

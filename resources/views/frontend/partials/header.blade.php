@@ -329,6 +329,50 @@
         transform: translateY(-2px);
         box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
     }
+    @media (min-width: 992px) {
+        .header-menu-wrap ul .sub-menu {
+            overflow: visible !important;
+        }
+
+        .header-menu-wrap ul .sub-menu li {
+            position: relative !important;
+            width: 100% !important;
+            display: block !important;
+        }
+
+        .header-menu-wrap ul .sub-menu li a {
+            color: #333333 !important; 
+            display: block !important;
+            padding: 10px 20px !important;
+            white-space: nowrap !important; 
+            font-size: 14px;
+        }
+
+        .header-menu-wrap ul li .sub-menu li .sub-menu {
+            position: absolute !important;
+            top: 0 !important;
+            left: 100% !important; 
+            min-width: 220px !important; 
+            background-color: #ffffff !important; 
+            box-shadow: 0 5px 15px rgba(0,0,0,0.15) !important; 
+            z-index: 9999 !important;
+            
+            display: block !important;
+            opacity: 0 !important;
+            visibility: hidden !important;
+            transition: all 0.2s ease-in-out !important;
+        }
+
+        .header-menu-wrap ul li .sub-menu li:hover > .sub-menu {
+            opacity: 1 !important;
+            visibility: visible !important;
+        }
+
+        .header-menu-wrap ul li .sub-menu li .sub-menu li a:hover {
+            color: #008a7a !important; 
+            background-color: #f8f9fa !important;
+        }
+    }
 </style>
 
 <header class="header header-2 sticky-active" style="--rr-color-theme-primary: #008a7a">
@@ -440,8 +484,48 @@
                     <div class="mobile-menu-items">
                         <ul>
                             <li class="menu-item-has-children active"><a href="{{ route('home') }}">Home</a></li>
+                            
+                            <li class="menu-item-has-children">
+                                <a href="javascript:void(0)">Categories</a>
+                                <ul class="sub-menu">
+                                    
+                                    @foreach($categories as $category)
+                                        @php
+                                            $hasSubcategories = $category->subcategories && $category->subcategories->count() > 0;
+                                        @endphp
+                                        
+                                        <li class="{{ $hasSubcategories ? 'menu-item-has-children' : '' }}">
+                                            
+                                            <a href="{{ $hasSubcategories ? 'javascript:void(0)' : route('category.show', $category->slug ?? $category->id) }}">
+                                                {{ $category->name }}
+                                            </a>
+                                            
+                                            @if($hasSubcategories)
+                                                <ul class="sub-menu">
+                                                    <li>
+                                                        <a href="{{ route('category.show', $category->slug ?? $category->id) }}">
+                                                            View All {{ $category->name }}
+                                                        </a>
+                                                    </li>
+                                                    
+                                                    @foreach($category->subcategories as $subcategory)
+                                                        <li>
+                                                            <a href="{{ route('category.show', $subcategory->slug ?? $subcategory->id) }}">
+                                                                {{ $subcategory->name }}
+                                                            </a>
+                                                        </li>
+                                                    @endforeach
+                                                </ul>
+                                            @endif
+                                            
+                                        </li>
+                                    @endforeach
+                                    
+                                </ul>
+                            </li>
+
                             <li><a href="{{ route('our-blogs') }}">Blog</a></li>
-                            <li><a href="{{ route('about.us') }}">About</a></li>
+                            <li><a href="{{ route('about.us') }}">About Us</a></li>
                             <li><a href="{{ route('contact.us') }}">Contact</a></li>
                         </ul>
                     </div>
@@ -512,6 +596,15 @@
         
         <span id="cart-count" class="cart-badge-middle cart-item-count-render">{{ $cartCount ?? 0 }}</span>
     </div>
+
+    <a href="https://wa.me/8801632242724"
+        target="_blank"
+        rel="noopener noreferrer"
+        class="unibox-whatsapp-float">
+            <svg viewBox="0 0 24 24" fill="white" width="28" height="28">
+                <path d="M12.04 2C6.58 2 2.13 6.45 2.13 11.91c0 1.75.46 3.45 1.32 4.95L2 22l5.29-1.39a9.9 9.9 0 0 0 4.75 1.21h.01c5.46 0 9.9-4.45 9.9-9.91 0-2.65-1.03-5.14-2.9-7.01A9.82 9.82 0 0 0 12.04 2zm0 18.02h-.01a8.2 8.2 0 0 1-4.19-1.15l-.3-.18-3.12.82.83-3.04-.2-.31a8.18 8.18 0 0 1-1.26-4.34c0-4.53 3.69-8.21 8.24-8.21 2.2 0 4.27.86 5.83 2.42a8.15 8.15 0 0 1 2.41 5.8c0 4.53-3.69 8.19-8.23 8.19zm4.51-6.13c-.25-.12-1.47-.72-1.7-.81-.23-.08-.39-.12-.56.13-.17.24-.64.81-.78.97-.15.17-.29.19-.54.06-.25-.12-1.04-.38-1.99-1.22-.74-.66-1.23-1.47-1.38-1.72-.15-.24-.02-.38.11-.5.11-.11.25-.29.37-.43.13-.15.17-.25.25-.42.08-.17.04-.31-.02-.43-.06-.12-.56-1.34-.76-1.84-.2-.48-.41-.42-.56-.42-.14-.01-.31-.01-.48-.01-.17 0-.44.06-.67.31-.23.24-.87.85-.87 2.08 0 1.22.89 2.4 1.01 2.57.13.17 1.76 2.69 4.26 3.77.6.26 1.06.41 1.42.53.6.19 1.14.16 1.57.1.48-.07 1.47-.6 1.68-1.18.21-.58.21-1.08.15-1.18-.06-.1-.23-.16-.48-.28z"/>
+            </svg>
+    </a>
         
 </header>
 

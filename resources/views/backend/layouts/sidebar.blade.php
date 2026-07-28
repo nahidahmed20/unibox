@@ -169,6 +169,9 @@
                             @can('product.bulk-product')
                                 <li class="nav-item"><a href="{{ route('products.bulk_upload_view') }}" class="nav-link {{ request()->routeIs('products.bulk_upload_view') ? 'active' : '' }}"><i class="bi bi-cloud-arrow-up"></i><p>Bulk Product</p></a></li>
                             @endcan
+                             @can('products.bulkPrice')
+                                <li class="nav-item"><a href="{{ route('products.bulkPrice.form') }}" class="nav-link {{ request()->routeIs('products.bulkPrice.form') ? 'active' : '' }}"><i class="bi bi-plus-circle-fill"></i><p>Product Price</p></a></li>
+                            @endcan
                             @can('category.view')
                                 <li class="nav-item"><a href="{{ route('categories.index') }}" class="nav-link {{ request()->routeIs('categories.index') ? 'active' : '' }}"><i class="bi bi-grid-fill"></i><p>Category List</p></a></li>
                             @endcan

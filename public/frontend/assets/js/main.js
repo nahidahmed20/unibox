@@ -156,12 +156,7 @@
             linksCursor = $("a, .swiper-nav, button, .cursor-effect"),
             crossCursor = $(".cross-cursor");
 
-        $(window).on("mousemove", function (e) {
-            cursor.css({
-                transform: "translate(" + (e.clientX - 15) + "px," + (e.clientY - 15) + "px)",
-                visibility: "inherit",
-            });
-        });
+        
 
         /* Odometer */
         $(".odometer").waypoint(

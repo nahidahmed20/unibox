@@ -152,10 +152,10 @@
             // Load more count
             var loadItems = isMobile ? 4 : 5;
 
-            var totalProducts = $('.product-box').length;
+            var totalProducts = $('.filter-items .product-box').length;
 
-            $('.product-box').hide();
-            $('.product-box').slice(0, initialItems).show();
+            $('.filter-items .product-box').hide();
+            $('.filter-items .product-box').slice(0, initialItems).show();
 
             $grid.isotope('layout');
 
@@ -168,13 +168,13 @@
             $('#loadMore').click(function (e) {
                 e.preventDefault();
 
-                $('.product-box:hidden')
+                $('.filter-items .product-box:hidden')
                     .slice(0, loadItems)
                     .fadeIn();
 
                 $grid.isotope('layout');
 
-                if ($('.product-box:hidden').length === 0) {
+                if ($('.filter-items .product-box:hidden').length === 0) {
                     $('#loadMoreWrapper').fadeOut();
                 }
             });

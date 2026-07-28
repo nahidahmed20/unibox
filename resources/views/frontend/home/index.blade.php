@@ -2,11 +2,93 @@
 @section('title', 'Home')
 @section('content')
     @include('frontend.home.home-css')
-   <section class="hero-section-2 pt-60">
+    <style>
+        .hero-list-wrap {
+            background: #ffffff;
+            border-radius: 12px; 
+            box-shadow: 0 5px 20px rgba(0,0,0,0.05); 
+            border: 1px solid #e9ecef;
+            overflow: hidden; 
+        }
+
+        .category-header-custom {
+            display: flex;
+            align-items: center;
+            background-color: #f4f6f8; 
+            padding: 20px;
+            position: relative;
+            border-bottom: 1px solid #e0e0e0;
+        }
+
+        .category-header-custom::after {
+            content: '';
+            position: absolute;
+            bottom: -10px;
+            left: 30px;
+            border-width: 10px 10px 0;
+            border-style: solid;
+            border-color: #f4f6f8 transparent transparent transparent;
+            z-index: 1;
+        }
+
+        .header-icon-wrap {
+            font-size: 32px;
+            color: #00897b; 
+            margin-right: 15px;
+            line-height: 1;
+        }
+
+        .header-title-text {
+            margin: 0;
+            font-size: 20px;
+            font-weight: 800;
+            letter-spacing: 1px;
+            color: #2c3e50;
+            text-transform: uppercase;
+        }
+
+        .hero-list {
+            padding: 10px 0;
+            margin: 0;
+            max-height: 330px; 
+            overflow-y: auto;
+        }
+
+        .hero-list::-webkit-scrollbar {
+            width: 5px; 
+        }
+
+        .hero-list::-webkit-scrollbar-track {
+            background: #f4f6f8; 
+            border-radius: 10px;
+        }
+
+        .hero-list::-webkit-scrollbar-thumb {
+            background: #d1d5db; 
+            border-radius: 10px;
+        }
+
+        .hero-list::-webkit-scrollbar-thumb:hover {
+            background: #00897b; 
+        }
+    </style>
+
+    <section class="hero-section-2 pt-60 pb-3">
         <div class="container">
             <div class="row gy-lg-0 gy-4 justify-content-center">
+                
+                <!-- Category Sidebar -->
                 <div class="col-md-3 d-none d-md-block">
                     <div class="hero-list-wrap">
+                        
+                        <!-- NEW BEAUTIFUL HEADER -->
+                        <div class="category-header-custom">
+                            <div class="header-icon-wrap">
+                                <i class="fa-solid fa-folder-open"></i>
+                            </div>
+                            <h4 class="header-title-text">Categories</h4>
+                        </div>
+                        
                         <ul class="hero-list">
                             @foreach ($categories as $category)
                                 @php
@@ -63,7 +145,7 @@
                     </div>
                 </div>
 
-                <!-- Slider Section Keeps Unchanged -->
+                <!-- Slider Section (Unchanged) -->
                 <div class="col-md-9">
                     <div id="heroSlider" class="carousel slide" data-bs-ride="carousel">
                         <div class="carousel-inner">
@@ -84,12 +166,13 @@
                         </button>
                     </div>
                 </div>
+                
             </div>
         </div>
     </section>
     <!-- ./ hero-section -->
 
-    <section class="category-section pt-100 pb-100">
+    {{-- <section class="category-section pt-100 pb-100">
         <div class="container">
             <div class="category-top heading-space space-border">
                 <div class="section-heading mb-0">
@@ -126,10 +209,10 @@
                 </div>
             </div>
         </div>
-    </section>
+    </section> --}}
     <!-- ./ food-section -->
 
-    @php
+   @php
         $bestsellers = $products->where('is_bestseller', 1)->take(6);
     @endphp
 
@@ -144,7 +227,7 @@
             
             <div class="row gy-4 justify-content-center">
                 @foreach ($bestsellers as $product)
-                    <div class="col-xl-2 col-lg-3 col-6 single-item p-1 product-box">
+                    <div class="col-xl-2 col-lg-3 col-6 single-item p-1 bestseller-box">
                         <div class="product-item product-item-2">
                             
                             <div class="product-thumb">
@@ -200,13 +283,6 @@
                 @endforeach
             </div>
 
-            <div class="text-center mt-4" id="loadMoreWrapper">
-                <div class="d-inline-block">
-                    <button id="loadMore" class="rr-primary-btn">
-                        Show More
-                    </button>
-                </div>
-            </div>
         </div>
     </section>
     @endif
@@ -215,8 +291,10 @@
     <section class="popular-product bg-grey pb-60 pt-60">
         <div class="container">
             <div class="product-top-content heading-space mb-25">
-                <div class="section-heading mb-0 heading-2">
-                    <h2 class="section-title"> Products</h2>
+                <div class="product-top-content mb-25 text-start">
+                    <div class="section-heading mb-0">
+                        <h2 class="section-title">All Products</h2>
+                    </div>
                 </div>
                 <!-- FILTER -->
                 <ul class="project-filter text-center">
@@ -300,6 +378,7 @@
                     </button>
                 </div>
             </div>
+            
         </div>
     </section>
     <!-- ./ popular-product -->
@@ -709,24 +788,7 @@
     
     
 
-    <div class="unibox-floating-cart cart-toggle">
-        <svg viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-            <circle cx="9" cy="21" r="1"></circle>
-            <circle cx="20" cy="21" r="1"></circle>
-            <path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"></path>
-        </svg>
-        
-        <span id="cart-count" class="cart-badge-middle cart-item-count-render">{{ $cartCount ?? 0 }}</span>
-    </div>
-
-    <a href="https://wa.me/8801632242724"
-        target="_blank"
-        rel="noopener noreferrer"
-        class="unibox-whatsapp-float">
-            <svg viewBox="0 0 24 24" fill="white" width="28" height="28">
-                <path d="M12.04 2C6.58 2 2.13 6.45 2.13 11.91c0 1.75.46 3.45 1.32 4.95L2 22l5.29-1.39a9.9 9.9 0 0 0 4.75 1.21h.01c5.46 0 9.9-4.45 9.9-9.91 0-2.65-1.03-5.14-2.9-7.01A9.82 9.82 0 0 0 12.04 2zm0 18.02h-.01a8.2 8.2 0 0 1-4.19-1.15l-.3-.18-3.12.82.83-3.04-.2-.31a8.18 8.18 0 0 1-1.26-4.34c0-4.53 3.69-8.21 8.24-8.21 2.2 0 4.27.86 5.83 2.42a8.15 8.15 0 0 1 2.41 5.8c0 4.53-3.69 8.19-8.23 8.19zm4.51-6.13c-.25-.12-1.47-.72-1.7-.81-.23-.08-.39-.12-.56.13-.17.24-.64.81-.78.97-.15.17-.29.19-.54.06-.25-.12-1.04-.38-1.99-1.22-.74-.66-1.23-1.47-1.38-1.72-.15-.24-.02-.38.11-.5.11-.11.25-.29.37-.43.13-.15.17-.25.25-.42.08-.17.04-.31-.02-.43-.06-.12-.56-1.34-.76-1.84-.2-.48-.41-.42-.56-.42-.14-.01-.31-.01-.48-.01-.17 0-.44.06-.67.31-.23.24-.87.85-.87 2.08 0 1.22.89 2.4 1.01 2.57.13.17 1.76 2.69 4.26 3.77.6.26 1.06.41 1.42.53.6.19 1.14.16 1.57.1.48-.07 1.47-.6 1.68-1.18.21-.58.21-1.08.15-1.18-.06-.1-.23-.16-.48-.28z"/>
-            </svg>
-    </a>
+    
     
 @endsection
 

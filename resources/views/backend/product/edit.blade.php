@@ -398,20 +398,53 @@
                 </div>
 
                 <div class="card modern-card">
+                    <div class="modern-card-header">
+                        <h5><i class="fa-regular fa-eye text-muted"></i> Visibility</h5>
+                    </div>
                     <div class="card-body">
                         <div class="row">
-                            <div class="col-6 mb-3">
-                                <label class="form-label">Status</label>
-                                <select name="status" class="form-select">
-                                    <option value="1" {{ old('status', $product->status) == '1' ? 'selected' : '' }}>Active</option>
-                                    <option value="0" {{ old('status', $product->status) == '0' ? 'selected' : '' }}>Inactive</option>
-                                </select>
-                            </div>
+                            {{-- Featured --}}
                             <div class="col-6 mb-3">
                                 <label class="form-label">Featured</label>
                                 <select name="is_featured" class="form-select">
                                     <option value="1" {{ old('is_featured', $product->is_featured) == '1' ? 'selected' : '' }}>Yes</option>
                                     <option value="0" {{ old('is_featured', $product->is_featured) == '0' ? 'selected' : '' }}>No</option>
+                                </select>
+                            </div>
+                            
+                            {{-- New Arrival --}}
+                            <div class="col-6 mb-3">
+                                <label class="form-label">New Arrival</label>
+                                <select name="is_new" class="form-select">
+                                    <option value="1" {{ old('is_new', $product->is_new) == '1' ? 'selected' : '' }}>Yes</option>
+                                    <option value="0" {{ old('is_new', $product->is_new) == '0' ? 'selected' : '' }}>No</option>
+                                </select>
+                            </div>
+
+                            {{-- Best Seller --}}
+                            <div class="col-6 mb-3">
+                                <label class="form-label">Best Seller</label>
+                                <select name="is_bestseller" class="form-select">
+                                    <option value="1" {{ old('is_bestseller', $product->is_bestseller) == '1' ? 'selected' : '' }}>Yes</option>
+                                    <option value="0" {{ old('is_bestseller', $product->is_bestseller) == '0' ? 'selected' : '' }}>No</option>
+                                </select>
+                            </div>
+
+                            {{-- Trending --}}
+                            <div class="col-6 mb-3">
+                                <label class="form-label">Trending</label>
+                                <select name="is_trending" class="form-select">
+                                    <option value="1" {{ old('is_trending', $product->is_trending) == '1' ? 'selected' : '' }}>Yes</option>
+                                    <option value="0" {{ old('is_trending', $product->is_trending) == '0' ? 'selected' : '' }}>No</option>
+                                </select>
+                            </div>
+
+                            {{-- Status --}}
+                            <div class="col-12 mt-2">
+                                <label class="form-label">Status</label>
+                                <select name="status" class="form-select {{ old('status', $product->status) == '1' ? 'bg-success text-white border-0' : 'bg-secondary text-white border-0' }}" id="statusSelect">
+                                    <option value="1" {{ old('status', $product->status) == '1' ? 'selected' : '' }}>Active (Published)</option>
+                                    <option value="0" {{ old('status', $product->status) == '0' ? 'selected' : '' }}>Inactive (Draft)</option>
                                 </select>
                             </div>
                         </div>
