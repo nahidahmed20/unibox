@@ -5,7 +5,7 @@ namespace App\Http\Controllers\backend;
 use App\Models\Product;
 use App\Models\Purchase;
 use App\Models\Supplier;
-use App\Models\ProductVariant; // নতুন ভ্যারিয়েন্ট মডেল
+use App\Models\ProductVariant; 
 use App\Models\PurchaseDetail;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -70,35 +70,6 @@ class PurchaseController extends Controller implements HasMiddleware
         return view('backend.purchase.create', compact('suppliers', 'nextInvoiceNo'));
     }
 
-    // [MODIFIED] Search ekti product er sathe tar variants gulo pull korbe
-    public function search(Request $request)
-    {
-        $query = $request->q;
-
-        $products = Product::query()
-            ->select(['id', 'name', 'sku', 'purchase_price', 'product_type'])
-            ->where('status', 1)
-            ->where(function ($q) use ($query) {
-                $q->where('name', 'like', "%{$query}%")
-                ->orWhere('sku', 'like', "%{$query}%")
-                
-                ->orWhereHas('variants', function($vQ) use ($query) {
-                    $vQ->where('sku', 'like', "%{$query}%")
-                        ->orWhereHas('color', function($cQ) use ($query) {
-                            $cQ->where('name', 'like', "%{$query}%");
-                        })
-                        ->orWhereHas('size', function($sQ) use ($query) {
-                            $sQ->where('name', 'like', "%{$query}%");
-                        });
-                });
-            })
-            ->with(['variants.color', 'variants.size']) 
-            ->limit(10)
-            ->get();
-
-        return response()->json($products);
-    }
-
     public function store(Request $request)
     {
         $request->validate([
@@ -107,9 +78,10 @@ class PurchaseController extends Controller implements HasMiddleware
             'purchase_date'       => 'required|date',
             'products'            => 'required|array|min:1',
             'products.*.id'       => 'required|exists:products,id',
-            'products.*.variant_id'=> 'nullable', // Added variant_id
+            'products.*.variant_id'=> 'nullable',
             'products.*.qty'      => 'required|numeric|min:1',
             'products.*.price'    => 'required|numeric|min:0',
+            'products.*.selling_price' => 'nullable|numeric|min:0', 
         ]);
 
         DB::beginTransaction();
@@ -140,10 +112,10 @@ class PurchaseController extends Controller implements HasMiddleware
                     'total_price'        => $item['qty'] * $item['price'],
                 ]);
 
-                // Update Stock
+                $newSellingPrice = $item['selling_price'] ?? null;
+                $this->updateProductPrices($item['id'], $variantId, $item['qty'], $item['price'], $newSellingPrice);
                 $this->adjustStock($item['id'], $variantId, $item['qty'], 'add');
 
-                // Mark product as purchased
                 Product::where('id', $item['id'])->update(['is_purchased' => 1]);
             }
 
@@ -153,6 +125,34 @@ class PurchaseController extends Controller implements HasMiddleware
             DB::rollBack();
             return response()->json(['status' => 'error', 'message' => $e->getMessage()], 500);
         }
+    }
+
+    public function search(Request $request)
+    {
+        $query = $request->q;
+
+        $products = Product::query()
+            ->select(['id', 'name', 'sku', 'purchase_price', 'selling_price', 'product_type']) 
+            ->where('status', 1)
+            ->where(function ($q) use ($query) {
+                $q->where('name', 'like', "%{$query}%")
+                ->orWhere('sku', 'like', "%{$query}%")
+                
+                ->orWhereHas('variants', function($vQ) use ($query) {
+                    $vQ->where('sku', 'like', "%{$query}%")
+                        ->orWhereHas('color', function($cQ) use ($query) {
+                            $cQ->where('name', 'like', "%{$query}%");
+                        })
+                        ->orWhereHas('size', function($sQ) use ($query) {
+                            $sQ->where('name', 'like', "%{$query}%");
+                        });
+                });
+            })
+            ->with(['variants.color', 'variants.size']) 
+            ->limit(10)
+            ->get();
+
+        return response()->json($products);
     }
 
     public function show($id)
@@ -194,6 +194,7 @@ class PurchaseController extends Controller implements HasMiddleware
             'products.*.variant_id' => 'nullable|exists:product_variants,id',
             'products.*.qty'        => 'required|numeric|min:1',
             'products.*.price'      => 'required|numeric|min:0',
+            'products.*.selling_price' => 'nullable|numeric|min:0', 
         ]);
 
         DB::beginTransaction();
@@ -201,7 +202,7 @@ class PurchaseController extends Controller implements HasMiddleware
         try {
             $purchase = Purchase::with('details')->findOrFail($id);
 
-            if ($purchase->is_sale == 1) {
+            if (isset($purchase->is_sale) && $purchase->is_sale == 1) {
                 return response()->json(['status' => 'error', 'message' => 'Purchase has been sold, cannot update!'], 400);
             }
 
@@ -237,6 +238,9 @@ class PurchaseController extends Controller implements HasMiddleware
                     'total_price'        => $item['qty'] * $item['price'],
                 ]);
 
+                $newSellingPrice = $item['selling_price'] ?? null;
+                $this->updateProductPrices($item['id'], $variantId, $item['qty'], $item['price'], $newSellingPrice);
+
                 $this->adjustStock($item['id'], $variantId, $item['qty'], 'add');
             }
 
@@ -248,6 +252,56 @@ class PurchaseController extends Controller implements HasMiddleware
         }
     }
 
+    private function updateProductPrices($productId, $variantId, $newQty, $newPurchasePrice, $newSellingPrice = null)
+    {
+        $product = Product::find($productId);
+        if (!$product) return;
+
+        $oldStock = $product->stock ?? 0;
+        $oldPurchasePrice = $product->purchase_price ?? 0;
+        
+        $oldTotalValue = $oldStock * $oldPurchasePrice;
+        $newTotalValue = $newQty * $newPurchasePrice;
+        $totalQty = $oldStock + $newQty;
+        
+        $averagePurchasePrice = $totalQty > 0 ? ($oldTotalValue + $newTotalValue) / $totalQty : $newPurchasePrice;
+        
+        $updateData = [
+            'purchase_price' => round($averagePurchasePrice, 2)
+        ];
+
+        if (!empty($newSellingPrice) && $newSellingPrice > 0) {
+            $updateData['selling_price'] = $newSellingPrice;
+        }
+
+        $product->update($updateData);
+
+        if ($product->product_type === 'multiple' && $variantId) {
+            $variant = ProductVariant::find($variantId);
+            
+            if ($variant) {
+                $vOldStock = $variant->stock ?? 0;
+                $vOldPurchasePrice = $variant->purchase_price ?? 0;
+                
+                $vOldTotalValue = $vOldStock * $vOldPurchasePrice;
+                $vTotalQty = $vOldStock + $newQty;
+                
+                $vAvgPurchasePrice = $vTotalQty > 0 ? ($vOldTotalValue + $newTotalValue) / $vTotalQty : $newPurchasePrice;
+                
+                $vUpdateData = [
+                    'purchase_price' => round($vAvgPurchasePrice, 2)
+                ];
+
+                if (!empty($newSellingPrice) && $newSellingPrice > 0) {
+                    $vUpdateData['selling_price'] = $newSellingPrice;
+                }
+
+                $variant->update($vUpdateData);
+            }
+        }
+    }
+
+  
     public function destroy($id)
     {
         DB::beginTransaction();

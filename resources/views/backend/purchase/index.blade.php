@@ -5,40 +5,127 @@
 @section('content')
 @push('styles')
     <style>
+        /* ================= SHOPIFY MODERN UI ================= */
         .shopify-modal {
-            border-radius: 16px;
-            overflow: hidden;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            border-radius: 12px;
+            border: none;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.15);
         }
 
         .shopify-header {
-            background: #000032;
-            color: #fff;
-            padding: 16px 24px;
-            border-bottom: none;
+            background: #ffffff;
+            color: #202223;
+            padding: 20px 24px;
+            border-bottom: 1px solid #e1e3e5;
+            border-top-left-radius: 12px;
+            border-top-right-radius: 12px;
         }
 
-        .shopify-box {
-            background: #f8fafc;
-            border: 1px solid #e2e8f0;
-            border-radius: 12px;
-            padding: 16px;
-            height: 100%;
+        .shopify-header .modal-title {
+            font-size: 1.15rem;
+            color: #202223;
+            letter-spacing: -0.3px;
         }
-        
-        .shopify-box p {
-            margin-bottom: 8px;
-            color: #334155;
+
+        .shopify-header .btn-close {
+            opacity: 0.6;
+            transition: opacity 0.2s;
         }
-        
-        .shopify-box p:last-child {
+        .shopify-header .btn-close:hover {
+            opacity: 1;
+        }
+
+        .shopify-card-custom {
+            background: #ffffff;
+            border: 1px solid #e1e3e5;
+            border-radius: 8px;
+            padding: 20px;
+            box-shadow: 0 1px 2px rgba(0, 0, 0, 0.04);
+        }
+
+        .shopify-card-custom h6 {
+            font-size: 0.85rem;
+            letter-spacing: 0.5px;
+            color: #6d7175;
+            text-transform: uppercase;
+            font-weight: 600;
+            margin-bottom: 16px;
+        }
+
+        .shopify-data-row {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 12px;
+            font-size: 0.95rem;
+        }
+        .shopify-data-row:last-child {
             margin-bottom: 0;
         }
-        #purchaseModalBody {
-            transition: opacity 0.3s ease-in-out;
+
+        .shopify-data-label {
+            color: #6d7175;
         }
-        .loading-state {
-            opacity: 0.5;
+
+        .shopify-data-value {
+            color: #202223;
+            font-weight: 500;
+        }
+
+        /* Modern Table inside Modal */
+        .shopify-table-container {
+            border: 1px solid #e1e3e5;
+            border-radius: 8px;
+            overflow: hidden;
+        }
+        
+        .shopify-table {
+            margin-bottom: 0;
+        }
+
+        .shopify-table th {
+            background-color: #f4f6f8;
+            color: #495057;
+            font-size: 0.85rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            padding: 12px 16px;
+            border-bottom: 1px solid #e1e3e5;
+        }
+
+        .shopify-table td {
+            vertical-align: middle;
+            padding: 16px;
+            color: #202223;
+            font-size: 0.9rem;
+            border-bottom: 1px solid #f1f2f4;
+        }
+
+        /* Status Badges - Shopify Style */
+        .badge-shopify-success {
+            background-color: #c0ebd7;
+            color: #008060;
+            padding: 4px 10px;
+            border-radius: 20px;
+            font-weight: 600;
+            font-size: 0.8rem;
+        }
+        .badge-shopify-danger {
+            background-color: #ffd7d7;
+            color: #d82c0d;
+            padding: 4px 10px;
+            border-radius: 20px;
+            font-weight: 600;
+            font-size: 0.8rem;
+        }
+        .badge-variant {
+            background-color: #f4f6f8;
+            border: 1px solid #e1e3e5;
+            color: #202223;
+            font-weight: 500;
+            padding: 3px 8px;
+            border-radius: 4px;
+            font-size: 0.75rem;
         }
     </style>
 @endpush
@@ -100,15 +187,17 @@
         </div>
     </div>
 
+    <!-- Shopify Style Modal -->
     <div class="modal fade" id="purchaseModal" tabindex="-1">
         <div class="modal-dialog modal-xl modal-dialog-centered modal-dialog-scrollable">
             <div class="modal-content shopify-modal">
                 <div class="modal-header shopify-header d-flex justify-content-between align-items-center">
-                    <h5 class="modal-title fw-bold mb-0">Purchase Details</h5>
-                    <button class="btn-close btn-close-white shadow-none" data-bs-dismiss="modal"></button>
+                    <h5 class="modal-title fw-bold mb-0" id="modalInvoiceTitle">Purchase Details</h5>
+                    <button type="button" class="btn-close shadow-none" data-bs-dismiss="modal"></button>
                 </div>
-                <div class="modal-body p-4" id="purchaseModalBody">
-                    </div>
+                <div class="modal-body p-4" id="purchaseModalBody" style="background-color: #f6f6f7;">
+                    <!-- Ajax content goes here -->
+                </div>
             </div>
         </div>
     </div>
@@ -124,6 +213,8 @@
                 processing: true,
                 serverSide: true,
                 ajax: "{{ route('purchases.index') }}",
+                lengthMenu: [[10, 25, 100, 500, -1], [10, 25, 100, 500, "All"]],
+                pageLength: 10,
                 columns: [
                     { data: 'DT_RowIndex', orderable: false, searchable: false },
                     { data: 'invoice_no', className: "text-center fw-semibold" },
@@ -149,7 +240,7 @@
                     { extend: 'pdf', text: '<i class="fa-regular fa-file-pdf"></i> PDF', exportOptions: { columns: [0, 1, 2, 3, 4, 5] } },
                     { extend: 'print', text: '<i class="fa-solid fa-print"></i> Print', exportOptions: { columns: [0, 1, 2, 3, 4, 5] } }
                 ],
-                order: [[1, 'desc']], // Usually it's better to show the latest purchases first
+                order: [[1, 'desc']], 
                 responsive: true,
                 language: {
                     search: "_INPUT_",
@@ -161,101 +252,140 @@
                     }
                 },
                 
-                // ================= FIXED FOOTER CALLBACK =================
                 footerCallback: function (row, data, start, end, display) {
                     let api = this.api();
-
                     let intVal = function (i) {
                         return typeof i === 'string' ? i.replace(/[\$,]/g, '') * 1 : typeof i === 'number' ? i : 0;
                     };
-
-                    // Total amount is at Index 4 (0:#, 1:Invoice, 2:Supplier, 3:Date, 4:Total)
                     let totalAmount = api.column(4, { page: 'current' }).data().reduce((a, b) => intVal(a) + intVal(b), 0);
-
-                    // Update the correct ID
-                    $('#totalAmount').html('<span class="taka-symbol me-1">৳</span>' + totalAmount.toLocaleString('en-US', {minimumFractionDigits: 2}));
+                    $('#totalAmount').html('<span class="me-1">৳</span>' + totalAmount.toLocaleString('en-US', {minimumFractionDigits: 2}));
                 }
             });
 
-            // ================= SHOW MODAL =================
+            // ================= SHOW MODAL (Shopify Style) =================
             $(document).on('click', '.btn-show', function() {
                 let id = $(this).data('id');
+                let btn = $(this);
                 
-                $(this).html('<i class="fa-solid fa-spinner fa-spin"></i>').addClass('disabled');
+                btn.html('<i class="fa-solid fa-spinner fa-spin"></i>').addClass('disabled');
 
                 $.get('/admin/purchases/' + id, function(res) {
                     let p = res.data;
-                    let badgeClass = p.status == 1 ? 'bg-success' : 'bg-danger';
+                    let badgeClass = p.status == 1 ? 'badge-shopify-success' : 'badge-shopify-danger';
                     let statusText = p.status == 1 ? 'Active' : 'Inactive';
+                    
+                    // Update Header Title
+                    $('#modalInvoiceTitle').text('Purchase: ' + p.invoice_no);
 
                     let html = `
-                        <div class="row g-4 mb-4">
+                        <!-- Top Cards Info -->
+                        <div class="row g-3 mb-4">
+                            <!-- Supplier Card -->
                             <div class="col-md-6">
-                                <div class="shopify-box">
-                                    <h6 class="text-uppercase text-muted fw-bold mb-3" style="font-size:0.8rem;">Supplier Info</h6>
-                                    <p><b>Invoice:</b> <span class="text-primary fw-bold">${p.invoice_no}</span></p>
-                                    <p><b>Supplier:</b> ${p.supplier?.name ?? '-'}</p>
-                                    <p><b>Date:</b> ${p.purchase_date}</p>
+                                <div class="shopify-card-custom h-100">
+                                    <h6>Supplier Details</h6>
+                                    <div class="shopify-data-row">
+                                        <span class="shopify-data-label">Supplier Name</span>
+                                        <span class="shopify-data-value">${p.supplier?.name ?? 'Unknown Supplier'}</span>
+                                    </div>
+                                    <div class="shopify-data-row">
+                                        <span class="shopify-data-label">Phone</span>
+                                        <span class="shopify-data-value">${p.supplier?.phone ?? '-'}</span>
+                                    </div>
+                                    <div class="shopify-data-row">
+                                        <span class="shopify-data-label">Address</span>
+                                        <span class="shopify-data-value text-end" style="max-width: 60%;">${p.supplier?.address ?? '-'}</span>
+                                    </div>
                                 </div>
                             </div>
+                            
+                            <!-- Summary Card -->
                             <div class="col-md-6">
-                                <div class="shopify-box">
-                                    <h6 class="text-uppercase text-muted fw-bold mb-3" style="font-size:0.8rem;">Summary</h6>
-                                    <p><b>Status:</b> <span class="badge ${badgeClass}">${statusText}</span></p>
-                                    <p><b>Total Amount:</b> <span class="fs-5 fw-bold text-dark">৳ ${parseFloat(p.total_amount).toFixed(2)}</span></p>
+                                <div class="shopify-card-custom h-100">
+                                    <h6>Document Summary</h6>
+                                    <div class="shopify-data-row">
+                                        <span class="shopify-data-label">Purchase Date</span>
+                                        <span class="shopify-data-value">${new Date(p.purchase_date).toLocaleDateString('en-US', { day:'numeric', month:'short', year:'numeric' })}</span>
+                                    </div>
+                                    <div class="shopify-data-row">
+                                        <span class="shopify-data-label">Status</span>
+                                        <span class="${badgeClass}">${statusText}</span>
+                                    </div>
+                                    <div class="shopify-data-row mt-3 pt-2" style="border-top: 1px dashed #e1e3e5;">
+                                        <span class="shopify-data-label fw-bold text-dark">Total Amount</span>
+                                        <span class="fs-5 fw-bold" style="color: #008060;">৳ ${parseFloat(p.total_amount).toLocaleString('en-US', {minimumFractionDigits: 2})}</span>
+                                    </div>
                                 </div>
                             </div>
                         </div>
 
-                        <h6 class="fw-bold text-slate-800 mb-3">Product List</h6>
-                        <div class="table-responsive border rounded-3">
-                            <table class="table table-hover table-striped mb-0">
-                                <thead class="bg-light">
-                                    <tr>
-                                        <th class="text-center">#</th>
-                                        <th>Product Name</th>
-                                        <th class="text-center">SKU</th>
-                                        <th class="text-center">Variant (S/C)</th>
-                                        <th class="text-end">Price</th>
-                                        <th class="text-center">Qty</th>
-                                        <th class="text-end">Total</th>
-                                    </tr>
-                                </thead>
-                                <tbody>`;
+                        <!-- Product Table -->
+                        <h6 class="fw-bold mb-3" style="color: #202223; font-size: 1rem;">Purchased Items</h6>
+                        <div class="shopify-table-container bg-white">
+                            <div class="table-responsive">
+                                <table class="table shopify-table mb-0">
+                                    <thead>
+                                        <tr>
+                                            <th class="text-center" width="5%">#</th>
+                                            <th>Product Details</th>
+                                            <th class="text-center">Variant</th>
+                                            <th class="text-end">Unit Price</th>
+                                            <th class="text-center">Quantity</th>
+                                            <th class="text-end">Total Price</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>`;
 
                     if (p.details && p.details.length > 0) {
                         p.details.forEach((item, i) => {
-                            let sizeName = item.variant?.size?.name ?? '-';
-                            let colorName = item.variant?.color?.name ?? '-';
+                            let sizeName = item.variant?.size?.name;
+                            let colorName = item.variant?.color?.name;
                             
+                            let variantHtml = '';
+                            if (sizeName || colorName) {
+                                variantHtml += '<div class="d-flex gap-1 justify-content-center flex-wrap">';
+                                if (sizeName) variantHtml += `<span class="badge-variant">Size: ${sizeName}</span>`;
+                                if (colorName) variantHtml += `<span class="badge-variant">Color: ${colorName}</span>`;
+                                variantHtml += '</div>';
+                            } else {
+                                variantHtml = '<span class="text-muted" style="font-size:0.85rem;">Standard</span>';
+                            }
+                            
+                            let productName = item.product?.name ?? 'Unknown Product';
+                            let productSku = item.product_variant_id ? (item.variant?.sku ?? item.product?.sku) : (item.product?.sku ?? '-');
+
                             html += `
                                 <tr>
-                                    <td class="text-center">${i + 1}</td>
-                                    <td class="fw-medium">${item.product?.name ?? '-'}</td>
-                                    <td class="text-center text-muted">${item.product?.sku ?? '-'}</td>
-                                    <td class="text-center">
-                                        <span class="badge bg-light text-dark border">S: ${sizeName}</span>
-                                        <span class="badge bg-light text-dark border">C: ${colorName}</span>
-                                    </td> 
-                                    <td class="text-end">৳ ${parseFloat(item.buying_price).toFixed(2)}</td>
-                                    <td class="text-center fw-bold">${item.quantity}</td>
-                                    <td class="text-end fw-bold text-dark">৳ ${parseFloat(item.total_price).toFixed(2)}</td>
+                                    <td class="text-center text-muted">${i + 1}</td>
+                                    <td>
+                                        <div class="fw-bold text-dark mb-1">${productName}</div>
+                                        <div class="text-muted" style="font-size: 0.8rem;">SKU: ${productSku}</div>
+                                    </td>
+                                    <td class="text-center align-middle">${variantHtml}</td>
+                                    <td class="text-end">৳ ${parseFloat(item.buying_price).toLocaleString('en-US', {minimumFractionDigits: 2})}</td>
+                                    <td class="text-center fw-bold text-dark">${item.quantity}</td>
+                                    <td class="text-end fw-bold text-dark">৳ ${parseFloat(item.total_price).toLocaleString('en-US', {minimumFractionDigits: 2})}</td>
                                 </tr>`;
                         });
+                    } else {
+                        html += `<tr><td colspan="6" class="text-center text-muted py-4">No products found for this purchase.</td></tr>`;
                     }
 
-                    html += `</tbody></table></div>`;
+                    html += `       </tbody>
+                                </table>
+                            </div>
+                        </div>`;
 
                     $('#purchaseModalBody').html(html);
                     $('#purchaseModal').modal('show');
                     
-                    $('.btn-show').html('<i class="fa-regular fa-eye"></i>').removeClass('disabled');
+                    btn.html('<i class="fa-regular fa-eye"></i>').removeClass('disabled');
                     
                 }).fail(function() {
-                    alert("Failed to load data.");
-                    $('.btn-show').html('<i class="fa-regular fa-eye"></i>').removeClass('disabled');
+                    alert("Failed to load purchase details. Please try again.");
+                    btn.html('<i class="fa-regular fa-eye"></i>').removeClass('disabled');
                 });
-            });             
+            });            
 
         });
     </script>

@@ -34,7 +34,8 @@
                                 <tr style="background-color: #f8fafc;">
                                     <th class="ps-4 text-secondary text-uppercase py-3" style="font-size: 0.75rem; font-weight: 700; letter-spacing: 0.5px; border-bottom: 1px solid #e2e8f0; color: #64748b;">Variant Combination</th>
                                     <th class="text-secondary text-uppercase py-3" style="font-size: 0.75rem; font-weight: 700; letter-spacing: 0.5px; border-bottom: 1px solid #e2e8f0; color: #64748b;">SKU</th>
-                                    <th class="text-secondary text-uppercase py-3 text-end" style="font-size: 0.75rem; font-weight: 700; letter-spacing: 0.5px; border-bottom: 1px solid #e2e8f0; color: #64748b; width: 140px;">Unit Price (BDT)</th>
+                                    <th class="text-secondary text-uppercase py-3 text-end" style="font-size: 0.75rem; font-weight: 700; letter-spacing: 0.5px; border-bottom: 1px solid #e2e8f0; color: #64748b; width: 140px;">Buy Price</th>
+                                    <th class="text-secondary text-uppercase py-3 text-end" style="font-size: 0.75rem; font-weight: 700; letter-spacing: 0.5px; border-bottom: 1px solid #e2e8f0; color: #64748b; width: 140px;">Sell Price</th>
                                     <th class="pe-4 text-secondary text-uppercase py-3 text-center" style="font-size: 0.75rem; font-weight: 700; letter-spacing: 0.5px; border-bottom: 1px solid #e2e8f0; color: #64748b; width: 140px;">Quantity</th>
                                 </tr>
                             </thead>
