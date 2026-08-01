@@ -385,6 +385,10 @@
 
 @push('javascript')
 <script>
+    function formatMoney(amount) {
+        return Number(amount).toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+    }
+
     window.dataLayer = window.dataLayer || [];
     
     function pushCartData(cart, subtotal, shipping) {
@@ -425,10 +429,9 @@
             },
             success: function (res) {
                 if (res.success) {
-                    $('.total-value').text('৳' + formatMoney(res.total));
                     $('.shipping-value').text('৳' + formatMoney(res.shipping));
+                    $('.total-value').text('৳' + formatMoney(res.total));
 
-                    // শিপিং পরিবর্তনের পর ডেটা লেয়ার আপডেট
                     window.dataLayer.push({
                         event: "cart_shipping_updated",
                         ecommerce: {
@@ -436,7 +439,12 @@
                             value: res.total
                         }
                     });
+                } else {
+                    alert(res.message || 'Could not update shipping zone.');
                 }
+            },
+            error: function (xhr) {
+                console.log("Shipping AJAX Error: ", xhr.responseText);
             }
         });
     });

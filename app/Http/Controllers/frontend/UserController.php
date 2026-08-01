@@ -3,14 +3,16 @@
 namespace App\Http\Controllers\frontend;
 
 use App\Http\Controllers\Controller;
-use App\Models\User;
-use App\Models\Order;
 use App\Models\Location;
+use App\Models\Order;
+use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
-use Illuminate\Support\Str; // For generating random passwords
-use Laravel\Socialite\Facades\Socialite; // For Social Login
+use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Str; 
+use Laravel\Socialite\Facades\Socialite; 
+use App\Services\SmsService;
 
 class UserController extends Controller
 {
@@ -51,13 +53,11 @@ class UserController extends Controller
             'name' => [
                 'required',
                 function ($attribute, $value, $fail) {
-
                     $isEmail = filter_var($value, FILTER_VALIDATE_EMAIL);
-                    
                     $isPhone = preg_match('/^01[3-9][0-9]{8}$/', $value);
 
                     if (!$isEmail && !$isPhone) {
-                        $fail('দয়া করে একটি সঠিক ফোন নাম্বার (১১ ডিজিট) বা ইমেইল প্রদান করুন।');
+                        $fail('দয়া করে একটি সঠিক বাংলাদেশি ফোন নাম্বার (১১ ডিজিট) বা ইমেইল প্রদান করুন।');
                     }
                 },
             ],
@@ -71,35 +71,49 @@ class UserController extends Controller
         $otp = rand(1000, 9999); 
         
         session()->put('otp_login', $login);
-        session()->put('otp_code', '1234'); 
+        session()->put('otp_code', (string) $otp); 
         session()->put('otp_field', $field);
         session()->put('otp_expires_at', now()->addMinutes(2)->timestamp);
 
-        \Log::info("OTP for {$login} is: {$otp}");
+        if ($field === 'phone') {
+            $message = "Your OTP code is: {$otp}. Valid for 2 minutes.";
+            
+            $isSent = SmsService::send($login, $message);
 
-        return back();
+            if (!$isSent) {
+                Log::error("Failed to send OTP SMS to: {$login}");
+                return back()->withErrors(['name' => 'এসএমএস পাঠাতে ব্যর্থ হয়েছে। দয়া করে আবার চেষ্টা করুন।']);
+            }
+        } else {
+            Log::info("OTP for Email [{$login}] is: {$otp}");
+        }
+
+        return back()->with('success', 'আপনার প্রদত্ত নাম্বারে/ইমেইলে ওটিপি পাঠানো হয়েছে।');
     }
 
     public function verifyOtp(Request $request)
     {
         $request->validate([
             'otp' => 'required|numeric|digits:4',
+        ], [
+            'otp.required' => 'ওটিপি কোডটি প্রদান করুন।',
+            'otp.digits' => 'ওটিপি কোডটি অবশ্যই ৪ ডিজিটের হতে হবে।'
         ]);
 
         if (now()->timestamp > session('otp_expires_at')) {
-            return back()->with('error', 'OTP has expired! Please request a new one.')->withInput();
+            return back()->with('error', 'OTP has expired! Please request a new one.');
         }
 
         $sessionOtp = session()->get('otp_code');
         $login      = session()->get('otp_login');
         $field      = session()->get('otp_field');
 
-        if ($request->otp != $sessionOtp) {
-            return back()->with('error', 'Invalid OTP! Please try again.')->withInput();
+        if (!$sessionOtp || !$login) {
+            return redirect()->route('user.login')->with('error', 'Session expired! Please try again.');
         }
 
         if ($request->otp != $sessionOtp) {
-            return back()->with('error', 'Invalid OTP! Please try again.')->withInput();
+            return back()->with('error', 'Invalid OTP! Please try again.');
         }
 
         $user = User::where($field, $login)->where('type', 'customer')->first();
@@ -118,21 +132,11 @@ class UserController extends Controller
             }
         }
 
-        // $message = "Your Unibox OTP is: $otp";
-        // $sms = sendSms($phone, $message); 
-
-        // Auth::guard('customer')->login($user, true);
-        // session()->forget(['otp_login', 'otp_code', 'otp_field', 'otp_expires_at']);
-
-        // $redirect = session()->pull('redirect_after_login', route('cart.checkout'));
-        
-        // return redirect($redirect);
-
         Auth::guard('customer')->login($user, true);
 
-        $redirect = session()->pull('redirect_after_login', route('customer.dashboard')); 
-        
         session()->forget(['otp_login', 'otp_code', 'otp_field', 'otp_expires_at']);
+
+        $redirect = session()->pull('redirect_after_login', route('customer.dashboard')); 
         
         return redirect($redirect);
     }

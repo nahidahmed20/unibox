@@ -217,7 +217,7 @@
     @endphp
 
     @if($bestsellers->count() > 0)
-    <section class="bestseller-product bg-grey pt-60 pb-30">
+    <section class="bestseller-product pt-60 pb-30">
         <div class="container">
             <div class="product-top-content mb-25 text-center">
                 <div class="section-heading mb-0">
