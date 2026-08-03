@@ -123,32 +123,24 @@
 {{-- CONTENT --}}
 <div class="app-content">
     <div class="container-fluid">
-
         <div class="card modern-card shadow-sm">
-
             {{-- HEADER --}}
             <div class="modern-card-header d-flex align-items-center justify-content-between">
-
                 <h4 class="card-title mb-0">
                     <i class="fa-solid fa-users text-muted me-2"></i>
                     All Users
                 </h4>
-
                 <a href="{{ route('users.create') }}"
                    class="btn btn-dark rounded-pill px-4 fw-bold shadow-sm">
                     <i class="fa-solid fa-plus me-1"></i>
                     Add User
                 </a>
-
             </div>
 
             {{-- TABLE --}}
             <div class="card-body p-0">
-
                 <div class="p-4">
-
                     <table id="userTable" class="table table-modern table-hover w-100">
-
                         <thead>
                             <tr>
                                 <th width="5%">#</th>
@@ -158,17 +150,11 @@
                                 <th width="15%" class="text-center">Action</th>
                             </tr>
                         </thead>
-
                         <tbody></tbody>
-
                     </table>
-
                 </div>
-
             </div>
-
         </div>
-
     </div>
 </div>
 
@@ -179,14 +165,11 @@
 @push('scripts')
 <script>
     $(document).ready(function () {
-
         let table = $('#userTable').DataTable({
-
             processing: true,
             serverSide: true,
-
             ajax: "{{ route('users.index') }}",
-
+            lengthMenu: [[10, 25, 50, 100, 500, -1], [10, 25, 50, 100, 500, "All"]],
             columns: [
                 { data: 'DT_RowIndex', orderable:false, searchable:false },
                 { data: 'name' },
@@ -194,9 +177,7 @@
                 { data: 'roles', orderable:false, searchable:false },
                 { data: 'action', orderable:false, searchable:false, className:'text-center' }
             ],
-
             dom: '<"row align-items-center mb-4"<"col-md-4"l><"col-md-4 d-flex justify-content-center"B><"col-md-4 d-flex justify-content-end"f>>rt<"d-flex justify-content-between align-items-center mt-4"ip>',
-
             buttons: [
                 {
                     extend: 'copy',

@@ -144,28 +144,18 @@
     </div>
 </div>
 
-
 <div class="app-content">
     <div class="container-fluid">
-
         <div class="card modern-card">
-
             <div class="modern-card-header">
-
                 <h4 class="card-title">
                     <i class="fa-solid fa-cart-shopping text-muted me-2"></i>
                     All Sales
                 </h4>
-
             </div>
-
             <div class="card-body p-0">
-
                 <div class="p-4">
-
-                    <table class="table table-modern table-hover w-100"
-                        id="saleTable">
-
+                    <table class="table table-modern table-hover w-100" id="saleTable">
                         <thead>
                             <tr>
                                 <th width="5%">#</th>
@@ -175,51 +165,27 @@
                                 <th>Total (৳)</th>
                                 <th>Delivery (৳)</th>
                                 <th>Status</th>
-                                <th width="12%" class="text-center">
-                                    Action
-                                </th>
+                                <th width="12%" class="text-center"> Action </th>
                             </tr>
                         </thead>
-
                         <tbody>
-
                         </tbody>
-
                         <tfoot>
                             <tr>
-                                <th colspan="4"
-                                    class="text-end text-uppercase text-muted"
-                                    style="font-size:12px;">
-
+                                <th colspan="4"  class="text-end text-uppercase text-muted" style="font-size:12px;">
                                     Page Total:
-
                                 </th>
-
-                                <th id="totalAmount"
-                                    class="text-success fw-bold fs-6">
-
-                                </th>
-
+                                <th id="totalAmount" class="text-success fw-bold fs-6"> </th>
                                 <th colspan="3"></th>
-
                             </tr>
                         </tfoot>
-
                     </table>
-
                 </div>
-
             </div>
-
         </div>
-
     </div>
 </div>
 
-
-<!--=========================
-        SALE DETAILS MODAL
-==========================-->
 
 <div class="modal fade" id="saleModal" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog modal-xl modal-dialog-scrollable modal-dialog-centered">
@@ -264,6 +230,7 @@
         processing: true,
         serverSide: true,
         ajax: "{{ route('sales.index') }}",
+        lengthMenu: [[10, 25, 50, 100, 500, -1], [10, 25, 50, 100, 500, "All"]],
         columns: [
             { data: 'DT_RowIndex', name: 'DT_RowIndex', orderable: false, searchable: false },
             { data: 'invoice_no', name: 'invoice_no' },

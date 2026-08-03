@@ -33,29 +33,23 @@
 {{-- CONTENT --}}
 <div class="app-content">
     <div class="container-fluid">
-
         <div class="card modern-card shadow-sm">
-
             {{-- HEADER --}}
             <div class="modern-card-header d-flex align-items-center justify-content-between">
-
                 <h4 class="card-title mb-0">
                     <i class="fa-solid fa-user-shield text-muted me-2"></i>
                     All Roles
                 </h4>
-
                 <a href="{{ route('roles.create') }}"
                     class="btn btn-dark rounded-pill px-4 fw-bold shadow-sm">
                     <i class="fa-solid fa-plus me-1"></i>
                     Add Role
                 </a>
-
             </div>
 
             {{-- TABLE --}}
             <div class="card-body p-0">
                 <div class="p-4">
-
                     <table id="roleTable" class="table table-modern table-hover w-100">
                         <thead>
                             <tr>
@@ -67,12 +61,9 @@
                         </thead>
                         <tbody></tbody>
                     </table>
-
                 </div>
             </div>
-
         </div>
-
     </div>
 </div>
 
@@ -81,14 +72,11 @@
 @push('scripts')
 <script>
 $(document).ready(function () {
-
     let table = $('#roleTable').DataTable({
-
         processing: true,
         serverSide: true,
-
         ajax: "{{ route('roles.index') }}",
-
+        lengthMenu: [[10, 25, 50, 100, 500, -1], [10, 25, 50, 100, 500, "All"]],
         columns: [
             { data: 'DT_RowIndex', orderable:false, searchable:false },
             { data: 'name' },

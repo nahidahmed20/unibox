@@ -124,15 +124,12 @@
 @push('scripts')
 <script>
 $(document).ready(function () {
-
     // DATATABLE (Supplier style)
     let table = $('#permissionTable').DataTable({
-
         processing: true,
         serverSide: true,
-
         ajax: "{{ route('permissions.index') }}",
-
+        lengthMenu: [[10, 25, 50, 100, 500, -1], [10, 25, 50, 100, 500, "All"]],
         columns: [
             { data: 'DT_RowIndex', orderable:false, searchable:false },
             { data: 'name', name:'name' },

@@ -156,11 +156,12 @@
         let table = $('#orderTable').DataTable({
             processing: true,
             serverSide: true,
+            lengthMenu: [[10, 25, 50, 100, 500, -1], [10, 25, 50, 100, 500, "All"]],
             dom: '<"row align-items-center mb-4"<"col-md-4"l><"col-md-4 d-flex justify-content-center"B><"col-md-4 d-flex justify-content-end"f>>rt<"d-flex justify-content-between align-items-center mt-4"ip>',
             buttons: [
                 {
                     extend: 'copy', text: '<i class="fa-regular fa-copy"></i> Copy',
-                    exportOptions: { columns: ':not(:last-child)' } // Action কলাম বাদ দেওয়া হলো
+                    exportOptions: { columns: ':not(:last-child)' } 
                 },
                 {
                     extend: 'excel', text: '<i class="fa-regular fa-file-excel"></i> Excel',

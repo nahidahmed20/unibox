@@ -34,30 +34,22 @@
     {{-- CONTENT --}}
     <div class="app-content">
         <div class="container-fluid">
-
             <div class="card modern-card shadow-sm">
-
                 {{-- CARD HEADER --}}
                 <div class="modern-card-header d-flex align-items-center justify-content-between">
-
                     <h4 class="card-title mb-0">
                         <i class="fa-solid fa-ruler text-muted me-2"></i>
                         All Units
                     </h4>
-
                     <button class="btn btn-dark rounded-pill px-4 fw-bold shadow-sm" id="addUnitBtn">
                         <i class="fa-solid fa-plus me-1"></i>
                         Add Unit
                     </button>
-
                 </div>
-
                 {{-- TABLE --}}
                 <div class="card-body p-0">
                     <div class="p-4">
-
                         <table id="unitTable" class="table table-modern table-hover w-100">
-
                             <thead>
                                 <tr>
                                     <th width="5%">#</th>
@@ -66,68 +58,52 @@
                                     <th width="15%" class="text-center">Action</th>
                                 </tr>
                             </thead>
-
                             <tbody></tbody>
-
                         </table>
-
                     </div>
                 </div>
-
             </div>
-
         </div>
     </div>
-
     {{-- MODAL --}}
 
     <div class="modal fade" id="unitModal" tabindex="-1">
         <div class="modal-dialog modal-lg modal-dialog-centered">
             <div class="modal-content">
-
                 <form id="unitForm">
                     @csrf
                     <input type="hidden" id="unit_id" name="unit_id">
-
                     <div class="modern-card-header d-flex justify-content-between align-items-center"
                         style="background:#000032; color:#fff; padding:15px 20px;">
-
                         <h4 class="card-title mb-0" style="color:#fff;">
                             <i class="fa-solid fa-ruler me-2" style="color:#fff;"></i>
                             <span id="modalTitle" style="color:#fff;">
                                 Add Unit
                             </span>
                         </h4>
-
                         <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
                     </div>
 
                     <div class="card-body p-4">
-
                         <div class="mb-3">
                             <label class="form-label">Unit Name</label>
                             <input type="text" class="form-control" id="name" name="name">
                         </div>
-
                         <div class="mb-3">
                             <label class="form-label">Short Name</label>
                             <input type="text" class="form-control" id="short_name" name="short_name">
                         </div>
-
                     </div>
 
                     <div class="modal-footer">
                         <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
                             Close
                         </button>
-
                         <button type="submit" class="btn btn-primary">
                             Save
                         </button>
                     </div>
-
                 </form>
-
             </div>
         </div>
     </div>
@@ -141,6 +117,7 @@
                 processing: true,
                 serverSide: true,
                 ajax: "{{ route('units.index') }}",
+                lengthMenu: [[10, 25, 50, 100, 500, -1], [10, 25, 50, 100, 500, "All"]],
                 columns: [{
                         data: 'DT_RowIndex',
                         name: 'DT_RowIndex',

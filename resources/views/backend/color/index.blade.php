@@ -30,31 +30,21 @@
 
     <div class="app-content">
         <div class="container-fluid">
-
             <div class="card modern-card">
-
                 <div class="modern-card-header">
-
                     <h4 class="card-title">
                         <i class="fa-solid fa-tags text-muted me-2"></i>
                         All Colors
                     </h4>
-
                     <button class="btn btn-dark rounded-pill px-4 fw-bold shadow-sm" id="addColorBtn">
-
                         <i class="fa-solid fa-plus me-1"></i>
                         Add Color
-
                     </button>
-
                 </div>
 
                 <div class="card-body p-0">
-
                     <div class="p-4">
-
                         <table id="colorTable" class="table table-modern table-hover w-100">
-
                             <thead>
                                 <tr>
                                     <th>#</th>
@@ -64,17 +54,11 @@
                                     <th class="text-center">Action</th>
                                 </tr>
                             </thead>
-
                             <tbody></tbody>
-
                         </table>
-
                     </div>
-
                 </div>
-
             </div>
-
         </div>
     </div>
 
@@ -85,14 +69,11 @@
                 <form id="colorForm">
                     @csrf
                     <input type="hidden" id="color_id">
-
                     <div class="modern-card-header d-flex justify-content-between align-items-center"
                         style="background:#000032; color:#fff; padding:15px 20px;">
-                        
                         <h4 id="modalTitle" style="color:#fff; margin-bottom:0;">
                             Add Color
                         </h4>
-
                         <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
                     </div>
 
@@ -101,21 +82,16 @@
                             <label>Color Name</label>
                             <input type="text" id="name" class="form-control">
                         </div>
-
                         <div class="mb-3">
                             <label>Color Code</label>
                             <input type="color" id="code" class="form-control form-control-color w-100">
                         </div>
-
                     </div>
-
                     <div class="modal-footer">
                         <button class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
                         <button class="btn btn-primary">Save</button>
                     </div>
-
                 </form>
-
             </div>
         </div>
     </div>
@@ -126,13 +102,11 @@
     $(document).ready(function () {
 
     let table = $('#colorTable').DataTable({
-
         processing: true,
         serverSide: true,
         responsive: true,
-
         ajax: "{{ route('colors.index') }}",
-
+        lengthMenu: [[10, 25, 50, 100, 500, -1], [10, 25, 50, 100, 500, "All"]],
         columns: [
             { data: 'DT_RowIndex', orderable:false, searchable:false },
             { data: 'name', className:'fw-bold' },

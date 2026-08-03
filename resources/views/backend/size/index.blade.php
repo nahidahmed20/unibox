@@ -126,15 +126,12 @@
 @push('scripts')
     <script>
         $(document).ready(function() {
-
             var table = $('#sizeTable').DataTable({
-
                 processing: true,
                 serverSide: true,
                 responsive: true,
-
                 ajax: "{{ route('sizes.index') }}",
-
+                lengthMenu: [[10, 25, 50, 100, 500, -1], [10, 25, 50, 100, 500, "All"]],
                 columns: [{
                         data: 'DT_RowIndex',
                         orderable: false,
@@ -198,66 +195,40 @@
             });
 
             $('#addSizeBtn').click(function() {
-
                 $('#sizeForm')[0].reset();
-
                 $('#size_id').val('');
-
                 $('#modalTitle').text('Add Size');
-
                 $('#sizeModal').modal('show');
             });
 
             $(document).on('click', '.btn-edit', function() {
-
                 let id = $(this).data('id');
-
                 $.get(`/admin/sizes/${id}/edit`, function(data) {
-
                     $('#size_id').val(data.id);
-
                     $('#name').val(data.name);
-
                     $('#status').val(data.status);
-
                     $('#modalTitle').text('Edit Size');
-
                     $('#sizeModal').modal('show');
                 });
             });
 
             $('#sizeForm').submit(function(e) {
-
                 e.preventDefault();
-
                 let id = $('#size_id').val();
-
-                let url = id ?
-                    `/admin/sizes/${id}` :
-                    "{{ route('sizes.store') }}";
-
-                let formData = {
-                    name: $('#name').val(),
-                    status: $('#status').val(),
+                let url = id ? `/admin/sizes/${id}` :"{{ route('sizes.store') }}";
+                let formData = { name: $('#name').val(), status: $('#status').val(),
                     _token: "{{ csrf_token() }}"
                 };
-
                 if (id) {
                     formData._method = "PUT";
                 }
-
                 $.ajax({
-
                     url: url,
                     type: 'POST',
                     data: formData,
-
                     success: function(res) {
-
                         toastr.success(res.message);
-
                         $('#sizeModal').modal('hide');
-
                         table.ajax.reload(null, false);
                     },
                     error:function(xhr){

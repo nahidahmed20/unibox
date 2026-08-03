@@ -180,6 +180,7 @@
                 serverSide: true,
                 responsive: true,
                 ajax: "{{ route('shippings.index') }}",
+                lengthMenu: [[10, 25, 50, 100, 500, -1], [10, 25, 50, 100, 500, "All"]],
                 columns: [
                     {
                         data: 'DT_RowIndex',

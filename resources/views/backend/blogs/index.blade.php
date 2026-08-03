@@ -79,6 +79,7 @@
                 processing: true,
                 serverSide: true,
                 ajax: "{{ route('blogs.index') }}",
+                lengthMenu: [[10, 25, 50, 100, 500, -1], [10, 25, 50, 100, 500, "All"]],
                 columns: [
                     {
                         data: 'DT_RowIndex',

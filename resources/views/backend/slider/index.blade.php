@@ -4,301 +4,104 @@
 
 @section('content')
 
-
-    {{-- HEADER --}}
-
     <div class="app-content-header mb-4 mt-3">
-
         <div class="container-fluid">
-
             <div class="row align-items-center">
-
-
                 <div class="col-sm-6">
-
                     <h3 class="mb-0 fw-bold" style="color:#212b36;">
                         Sliders
                     </h3>
-
                 </div>
-
-
-
                 <div class="col-sm-6">
-
                     <ol class="breadcrumb float-sm-end mb-0 bg-transparent p-0">
-
-
                         <li class="breadcrumb-item">
-
                             <a href="{{ route('dashboard') }}" class="text-muted text-decoration-none">
-
                                 Dashboard
-
                             </a>
-
                         </li>
-
-
-                        <li class="breadcrumb-item active fw-bold text-dark">
-
-                            Slider List
-
-                        </li>
-
-
+                        <li class="breadcrumb-item active fw-bold text-dark"> Slider List </li>
                     </ol>
-
-
                 </div>
-
-
             </div>
-
         </div>
-
     </div>
-
-
-
-
-
     {{-- CONTENT --}}
-
-
     <div class="app-content">
-
         <div class="container-fluid">
-
-
             <div class="card modern-card shadow-sm">
-
-
-
                 {{-- CARD HEADER --}}
-
-
                 <div class="modern-card-header d-flex align-items-center justify-content-between">
-
-
                     <h4 class="card-title mb-0">
-
                         <i class="fa-solid fa-images text-muted me-2"></i>
-
                         All Sliders
-
                     </h4>
-
-
-
-
                     <button class="btn btn-dark rounded-pill px-4 fw-bold shadow-sm" id="addSliderBtn">
-
-
                         <i class="fa-solid fa-plus me-1"></i>
-
                         Add Slider
-
-
                     </button>
-
-
                 </div>
-
-
-
-
-
                 {{-- TABLE --}}
-
-
                 <div class="card-body p-0">
-
                     <div class="p-4">
-
-
                         <table id="sliderTable" class="table table-modern table-hover w-100">
-
-
                             <thead>
-
                                 <tr>
-
-
                                     <th width="5%">#</th>
-
                                     <th>Image</th>
-
                                     <th>Mobile Image</th>
-
                                     <th>Title</th>
-
                                     <th>Description</th>
-
                                     <th>Status</th>
-
                                     <th width="15%" class="text-center">
                                         Action
                                     </th>
-
-
                                 </tr>
-
-
                             </thead>
-
-
                             <tbody></tbody>
-
-
                         </table>
-
-
                     </div>
-
-
                 </div>
-
-
-
             </div>
-
-
         </div>
-
     </div>
-
-
-
-
-
-
     {{-- MODAL --}}
-
-
     <div class="modal fade" id="sliderModal" tabindex="-1">
-
-
         <div class="modal-dialog modal-lg modal-dialog-centered">
-
-
             <div class="modal-content">
-
-
                 <form id="sliderForm" enctype="multipart/form-data">
-
-
                     @csrf
-
-
                     <input type="hidden" id="slider_id" name="slider_id">
-
-
-
-
-
                     {{-- HEADER --}}
-
                     <div class="modern-card-header d-flex justify-content-between align-items-center"
                         style="background:#000032;color:#fff;padding:15px 20px;">
-
-
                         <h4 class="card-title mb-0 text-white">
-
-
                             <i class="fa-solid fa-images me-2"></i>
-
-
                             <span id="modalTitle">
-
                                 Add Slider
-
                             </span>
-
-
                         </h4>
-
-
-
-
-                        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal">
-
-                        </button>
-
-
-
+                        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
                     </div>
-
-
-
-
-
-
                     <div class="card-body p-4">
-
-
                         <div class="row">
-
-
-
                             <div class="col-md-6 mb-3">
-
-
-                                <label class="form-label">
-                                    Title
-                                </label>
-
-
+                                <label class="form-label"> Title </label>
                                 <input type="text" class="form-control" id="title" name="title">
-
-
                             </div>
-
-
-
-
                             <div class="col-md-6 mb-3">
-
-
                                 <label class="form-label">
                                     Short Description
                                 </label>
-
-
                                 <textarea class="form-control" id="short_description" name="short_description" rows="1"></textarea>
-
-
                             </div>
-
-
-
-
                             <div class="col-md-6 mb-3">
-
-
                                 <label class="form-label">
                                     Link
                                 </label>
-
-
                                 <input type="text" class="form-control" id="link" name="link">
-
-
                             </div>
-
-
-
-
-
                             <div class="col-md-6 mb-3">
-
-
-                                <label class="form-label">
-                                    Status
-                                </label>
-
-
-
+                                <label class="form-label"> Status </label>
                                 <select class="form-select" id="status" name="status">
                                     <option value="1">
                                         Active
@@ -348,6 +151,7 @@
                 processing: true,
                 serverSide: true,
                 ajax: "{{ route('sliders.index') }}",
+                lengthMenu: [[10, 25, 50, 100, 500, -1], [10, 25, 50, 100, 500, "All"]],
                 columns: [
                     {
                         data: 'DT_RowIndex',

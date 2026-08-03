@@ -126,6 +126,7 @@
                 responsive: true,
 
                 ajax: "{{ route('brands.index') }}",
+                lengthMenu: [[10, 25, 50, 100, 500, -1], [10, 25, 50, 100, 500, "All"]],
 
                 columns: [
                     {

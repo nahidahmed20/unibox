@@ -111,6 +111,7 @@
         let table = $('#featureTable').DataTable({
             processing: true, serverSide: true,
             ajax: "{{ route('features.index') }}",
+            lengthMenu: [[10, 25, 50, 100, 500, -1], [10, 25, 50, 100, 500, "All"]],
             columns: [
                 { data: 'DT_RowIndex', orderable: false, searchable: false },
                 { data: 'media', orderable: false },

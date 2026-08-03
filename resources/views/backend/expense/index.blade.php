@@ -27,15 +27,10 @@
     {{-- ================= CONTENT ================= --}}
     <div class="app-content">
         <div class="container-fluid">
-
             <div class="card modern-card shadow-sm">
-
                 <div class="card-body p-0">
-
                     <div class="p-4">
-
                         <table id="expenseTable" class="table table-modern table-hover w-100 align-middle">
-
                             <thead>
                                 <tr>
                                     <th>#</th>
@@ -47,9 +42,7 @@
                                     <th class="text-center">Action</th>
                                 </tr>
                             </thead>
-
                             <tbody></tbody>
-
                             <tfoot>
                                 <tr>
                                     <th colspan="4" class="text-end">Total:</th>
@@ -57,37 +50,25 @@
                                     <th colspan="2"></th>
                                 </tr>
                             </tfoot>
-
                         </table>
-
                     </div>
-
                 </div>
-
             </div>
-
         </div>
     </div>
 
     {{-- ================= MODAL ================= --}}
     <div class="modal fade" id="expenseModal">
         <div class="modal-dialog modal-dialog-centered">
-
             <div class="modal-content modern-card">
-
                 <div class="modal-header bg-dark text-white">
                     <h5 class="modal-title" id="modalTitle">Add Expense</h5>
                     <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
                 </div>
-
                 <div class="modal-body p-4">
-
                     <form id="expenseForm">
-
                         @csrf
-
                         <input type="hidden" id="expense_id" name="expense_id">
-
                         <div class="mb-3">
                             <label class="form-label">Expense Name</label>
                             <input type="text" class="form-control" id="name" name="name">
@@ -118,9 +99,7 @@
                             <label class="form-label">Date</label>
                             <input type="date" class="form-control" id="date" name="date">
                         </div>
-
                     </form>
-
                 </div>
 
                 <div class="modal-footer">
@@ -128,9 +107,7 @@
                         Save
                     </button>
                 </div>
-
             </div>
-
         </div>
     </div>
 
@@ -146,7 +123,7 @@
                 processing: true,
                 serverSide: true,
                 ajax: "{{ route('expenses.index') }}",
-
+                lengthMenu: [[10, 25, 50, 100, 500, -1], [10, 25, 50, 100, 500, "All"]],
                 columns: [{
                         data: 'DT_RowIndex',
                         name: 'DT_RowIndex',

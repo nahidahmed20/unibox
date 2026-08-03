@@ -175,6 +175,7 @@
                 processing: true,
                 serverSide: true,
                 ajax: "{{ route('customers.index') }}",
+                lengthMenu: [[10, 25, 50, 100, 500, -1], [10, 25, 50, 100, 500, "All"]],
                 responsive: true,
                 pageLength: 10,
                 dom: '<"row align-items-center mb-4"' +

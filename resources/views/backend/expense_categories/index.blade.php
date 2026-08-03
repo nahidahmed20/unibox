@@ -27,15 +27,10 @@
     {{-- ================= CONTENT ================= --}}
     <div class="app-content">
         <div class="container-fluid">
-
             <div class="card modern-card shadow-sm">
-
                 <div class="card-body p-0">
-
                     <div class="p-4">
-
                         <table id="categoryTable" class="table table-modern table-hover w-100 align-middle">
-
                             <thead>
                                 <tr>
                                     <th width="5%">#</th>
@@ -44,19 +39,13 @@
                                     <th width="15%" class="text-center">Action</th>
                                 </tr>
                             </thead>
-
                             <tbody>
                                 {{-- AJAX LOAD --}}
                             </tbody>
-
                         </table>
-
                     </div>
-
                 </div>
-
             </div>
-
         </div>
     </div>
 
@@ -64,21 +53,15 @@
     <div class="modal fade" id="categoryModal">
         <div class="modal-dialog modal-dialog-centered">
             <div class="modal-content modern-card">
-
                 <div class="modal-header bg-dark text-white">
                     <h5 class="modal-title" id="modalTitle">Add Category</h5>
                     <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
                 </div>
-
                 <div class="modal-body p-4">
-
                     <form id="categoryForm">
-
                         @csrf
-
                         {{-- IMPORTANT FIX --}}
                         <input type="hidden" id="categoryId" name="categoryId">
-
                         <div class="mb-3">
                             <label class="form-label">Name</label>
                             <input type="text" id="name" name="name" class="form-control"
@@ -89,17 +72,13 @@
                             <label class="form-label">Description</label>
                             <textarea id="description" name="description" class="form-control" placeholder="Enter description"></textarea>
                         </div>
-
                     </form>
-
                 </div>
-
                 <div class="modal-footer">
                     <button class="btn btn-dark px-4" id="saveBtn">
                         Save
                     </button>
                 </div>
-
             </div>
         </div>
     </div>
@@ -114,7 +93,7 @@
                 processing: true,
                 serverSide: true,
                 ajax: "{{ route('expenses-categories.index') }}",
-
+                lengthMenu: [[10, 25, 50, 100, 500, -1], [10, 25, 50, 100, 500, "All"]],
                 columns: [{
                         data: 'DT_RowIndex',
                         name: 'DT_RowIndex',

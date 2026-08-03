@@ -90,6 +90,7 @@ $(document).ready(function () {
         processing: true,
         serverSide: true,
         ajax: "{{ route('products.index') }}",
+        lengthMenu: [[10, 25, 50, 100, 500, -1], [10, 25, 50, 100, 500, "All"]],
         columns: [
             { data: 'DT_RowIndex',    name: 'DT_RowIndex',    orderable: false, searchable: false },
             { data: 'name',           name: 'name', className: 'fw-bold text-dark' },
@@ -98,7 +99,7 @@ $(document).ready(function () {
             { data: 'image',          name: 'image',          orderable: false, searchable: false },
             { data: 'purchase_price', name: 'purchase_price', className: 'fw-bold' },
             { data: 'selling_price',  name: 'selling_price', className: 'fw-bold text-success' },
-            { data: 'stock',          name: 'stock',          orderable: false, searchable: false }, // JS এ ম্যাপ করা হলো
+            { data: 'stock',          name: 'stock',          orderable: false, searchable: false }, 
             { data: 'status',         name: 'status' },
             { data: 'action',         name: 'action',         orderable: false, searchable: false, className: 'text-center' },
         ],
@@ -132,13 +133,7 @@ $(document).ready(function () {
     });
 
     // --- Delete Confirmation ---
-    $(document).on('click', '.btn-delete', function (e) {
-        e.preventDefault();
-        let form = $(this).closest('form');
-        if (confirm("Are you sure you want to delete this product? This action cannot be undone.")) {
-            form.submit();
-        }
-    });
+
 
     $(document).on('click', '.btn-show', function () {
         let id = $(this).data('id');

@@ -34,23 +34,18 @@
 {{-- CONTENT --}}
 <div class="app-content">
     <div class="container-fluid">
-
         <div class="card modern-card shadow-sm">
-
             {{-- HEADER --}}
             <div class="modern-card-header d-flex align-items-center justify-content-between">
-
                 <h4 class="card-title mb-0">
                     <i class="fa-solid fa-envelope text-muted me-2"></i>
                     All Subscriptions
                 </h4>
-
             </div>
 
             {{-- TABLE --}}
             <div class="card-body p-0">
                 <div class="p-4 table-responsive">
-
                     <table id="newsletterTable" class="table table-modern table-hover w-100">
                         <thead>
                             <tr>
@@ -60,58 +55,44 @@
                                 <th width="15%" class="text-center">Action</th>
                             </tr>
                         </thead>
-
                         <tbody>
                             @foreach($newsletters as $key => $newsletter)
                             <tr>
-
                                 <td>{{ $key + 1 }}</td>
-
                                 <td>
                                     <span class="badge bg-light text-dark px-3 py-2">
                                         {{ $newsletter->email }}
                                     </span>
                                 </td>
-
                                 <td>
                                     {{ $newsletter->created_at->format('d M, Y H:i') }}
                                 </td>
-
                                 <td class="text-center">
-
                                     {{-- VIEW --}}
                                     <button class="btn btn-sm btn-light border btn-view"
                                         data-email="{{ $newsletter->email }}"
                                         data-created="{{ $newsletter->created_at->format('d M, Y H:i') }}">
                                         <i class="fa-regular fa-eye"></i>
                                     </button>
-
                                     {{-- DELETE --}}
                                     <form class="d-inline delete-form"
                                         action="{{ route('newsletter.destroy', $newsletter->id) }}"
                                         method="POST">
                                         @csrf
                                         @method('DELETE')
-
                                         <button type="button"
                                             class="btn btn-sm btn-danger-soft btn-delete">
                                             <i class="fa-regular fa-trash-can"></i>
                                         </button>
                                     </form>
-
                                 </td>
-
                             </tr>
                             @endforeach
                         </tbody>
-
                     </table>
-
                 </div>
             </div>
-
         </div>
-
     </div>
 </div>
 
@@ -119,33 +100,25 @@
 <div class="modal fade" id="newsletterModal">
     <div class="modal-dialog modal-dialog-centered modal-md">
         <div class="modal-content modern-card">
-
             <div class="modal-header bg-dark text-white">
                 <h5 class="modal-title">Subscription Details</h5>
-                <button type="button" class="btn-close btn-close-white"
-                        data-bs-dismiss="modal"></button>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
             </div>
-
             <div class="modal-body p-4">
-
                 <div class="mb-3">
                     <div class="text-muted small">Email</div>
                     <div class="fw-bold" id="n-email"></div>
                 </div>
-
                 <div>
                     <div class="text-muted small">Subscribed At</div>
                     <div class="fw-bold" id="n-created"></div>
                 </div>
-
             </div>
-
             <div class="modal-footer">
                 <button class="btn btn-dark rounded-pill px-4" data-bs-dismiss="modal">
                     Close
                 </button>
             </div>
-
         </div>
     </div>
 </div>
@@ -159,6 +132,7 @@ $(document).ready(function () {
 
     // DATATABLE (same style as blog)
     $('#newsletterTable').DataTable({
+        lengthMenu: [[10, 25, 50, 100, 500, -1], [10, 25, 50, 100, 500, "All"]],
         dom:
             '<"row align-items-center mb-4"' +
             '<"col-md-4"l>' +

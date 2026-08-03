@@ -30,31 +30,20 @@
 
     <div class="app-content">
         <div class="container-fluid">
-
             <div class="card modern-card">
-
                 <div class="modern-card-header">
-
                     <h4 class="card-title">
                         <i class="fa-solid fa-sitemap text-muted me-2"></i>
                         All Sub Categories
                     </h4>
-
                     <button class="btn btn-dark rounded-pill px-4 fw-bold shadow-sm" id="addSubCategoryBtn">
-
                         <i class="fa-solid fa-plus me-1"></i>
                         Add Sub Category
-
                     </button>
-
                 </div>
-
                 <div class="card-body p-0">
-
                     <div class="p-4">
-
                         <table id="subCategoryTable" class="table table-modern table-hover w-100">
-
                             <thead>
                                 <tr>
                                     <th width="5%">#</th>
@@ -64,17 +53,11 @@
                                     <th width="15%" class="text-center">Action</th>
                                 </tr>
                             </thead>
-
                             <tbody></tbody>
-
                         </table>
-
                     </div>
-
                 </div>
-
             </div>
-
         </div>
     </div>
 
@@ -145,7 +128,7 @@
                 serverSide: true,
                 responsive: true,
                 ajax: "{{ route('sub-categories.index') }}",
-
+                lengthMenu: [[10, 25, 50, 100, 500, -1], [10, 25, 50, 100, 500, "All"]],
                 columns: [{
                         data: 'DT_RowIndex',
                         name: 'DT_RowIndex',

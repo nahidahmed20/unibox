@@ -78,6 +78,7 @@
             processing: true,
             serverSide: true,
             ajax: "{{ route('blocked-phones.index') }}",
+            lengthMenu: [[10, 25, 50, 100, 500, -1], [10, 25, 50, 100, 500, "All"]],
             columns: [
                 { data: 'DT_RowIndex', orderable: false, searchable: false },
                 { data: 'name', className: 'fw-bold' },

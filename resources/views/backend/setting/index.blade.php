@@ -2,12 +2,9 @@
 @section('title', 'Settings')
 
 @section('content')
-
-    {{-- HEADER (same as blog/newsletter) --}}
     <div class="app-content-header mb-4 mt-3">
         <div class="container-fluid">
             <div class="row align-items-center">
-
                 <div class="col-sm-6">
                     <h3 class="mb-0 fw-bold" style="color:#212b36;">
                         Settings
@@ -26,7 +23,6 @@
                         </li>
                     </ol>
                 </div>
-
             </div>
         </div>
     </div>
@@ -34,33 +30,22 @@
     {{-- CONTENT --}}
     <div class="app-content">
         <div class="container-fluid">
-
             <div class="card modern-card shadow-sm">
-
                 {{-- HEADER (same card style) --}}
                 <div class="modern-card-header d-flex align-items-center justify-content-between">
-
                     <h4 class="card-title mb-0">
                         <i class="fa-solid fa-gear text-muted me-2"></i>
                         Manage Settings
                     </h4>
-
                     <button type="submit" form="settingsForm" class="btn btn-dark rounded-pill px-4 fw-bold shadow-sm">
                         Save Settings
                     </button>
-
                 </div>
 
-                {{-- BODY --}}
                 <div class="card-body">
-
-                    <form id="settingsForm" action="{{ route('settings.save') }}" method="POST"
-                        enctype="multipart/form-data">
-
+                    <form id="settingsForm" action="{{ route('settings.save') }}" method="POST" enctype="multipart/form-data">
                         @csrf
-
                         <div class="row">
-
                             {{-- LOGO SECTION --}}
                             <div class="col-12 mb-3">
                                 <h5 class="fw-bold text-muted">Branding</h5>
@@ -70,7 +55,6 @@
                             <div class="col-md-6 mb-3">
                                 <label>Header Logo</label>
                                 <input type="file" name="header_logo" class="form-control">
-
                                 @if (isset($settings['header_logo']))
                                     <img src="{{ asset($settings['header_logo']) }}" width="120"
                                         class="mt-2 rounded border">
@@ -247,16 +231,10 @@
                             <div class="col-md-12 mb-3">
                                 <textarea name="google_map" class="form-control" rows="3">{{ $settings['google_map'] ?? '' }}</textarea>
                             </div>
-
                         </div>
-
                     </form>
-
                 </div>
-
             </div>
-
         </div>
     </div>
-
 @endsection
