@@ -92,7 +92,7 @@
     .product-gallary .swiper-nav-next { right: 15px; }
     .product-gallary .swiper-nav-prev { left: 15px; }
 
-    /* Size Selector Modern & Responsive Design */
+    /* Size Selector */
     .size-item {
         min-width: 55px;
         height: 44px;
@@ -177,40 +177,163 @@
 
     .stock-out-overlay.show { display: block; }
 
-    /* Layout Content */
-    .desc-wrap {
+    /* Quantity */
+    .qty-box {
+        width: 130px;
+        height: 48px;
+        background: #008a7a;
+        border-radius: 2px;
         display: flex;
-        gap: 30px;
+        align-items: center;
+        justify-content: space-between;
+        overflow: hidden;
     }
 
-    .left-content {
+    .qty-btn {
+        width: 40px;
+        height: 50px;
+        border: none;
+        background: transparent;
+        color: #fff;
+        font-size: 16px;
+        cursor: pointer;
+        transition: .3s;
+    }
+
+    .qty-btn:hover { background: rgba(255, 255, 255, .15); }
+
+    .qty-box input {
+        width: 50px;
+        border: none;
+        background: transparent;
+        color: #fff;
+        font-size: 18px;
+        font-weight: 700;
+        text-align: center;
+        outline: none;
+    }
+
+    .qty-box input::-webkit-inner-spin-button,
+    .qty-box input::-webkit-outer-spin-button {
+        -webkit-appearance: none;
+        margin: 0;
+    }
+
+    /* Cart Button */
+    .cart-btn {
         flex: 1;
-        min-width: 0; 
+        height: 50px;
+        border: 2px solid #222;
+        border-radius: 50px;
+        background: #fff;
+        color: #222;
+        font-weight: 700;
+        font-size: 16px;
+        transition: .3s;
     }
 
-    .right-content img {
-        width: 100%;
-        height: auto;
+    .cart-btn:hover {
+        background: #008a7a;
+        border-color: #008a7a;
+        color: #fff;
+    }
+
+    .product-extra-note {
+        background: #fff8e6;
+        border: 1px solid #ffe4a1;
+        color: #8a6d1a;
+        padding: 10px 14px;
         border-radius: 8px;
-        object-fit: cover;
+        font-size: 16px;
+        line-height: 1.5;
     }
 
-    .left-content * {
-        max-width: 100% !important; 
-        box-sizing: border-box !important;
+    /* =========================================
+       Aggressive WYSIWYG Responsive Fixes
+       ========================================= */
+    .product-rich-description {
+        width: 100%;
+        max-width: 100%;
+        overflow-x: hidden; 
+        color: #374151;
+        line-height: 1.8;
+        font-size: 16px;
         word-wrap: break-word !important;
-        word-break: break-word !important;
+        overflow-wrap: break-word !important;
     }
 
-    .left-content table {
+    .product-rich-description * {
+        max-width: 100% !important;
+        box-sizing: border-box !important;
+    }
+
+    .product-rich-description p, 
+    .product-rich-description span, 
+    .product-rich-description div,
+    .product-rich-description font,
+    .product-rich-description b,
+    .product-rich-description strong {
+        white-space: normal !important;
+        width: auto !important; 
+    }
+
+    .product-rich-description img,
+    .product-rich-description video,
+    .product-rich-description iframe,
+    .product-rich-description figure {
+        max-width: 100% !important;
+        width: auto !important;  
+        height: auto !important; 
+        object-fit: contain;
+        border-radius: 8px;
+        margin: 15px 0;
+    }
+
+    .product-rich-description iframe {
         width: 100% !important;
-        display: block !important;
-        overflow-x: auto !important;
-        -webkit-overflow-scrolling: touch;
-        border-collapse: collapse;
+        aspect-ratio: 16 / 9;
     }
 
-    /* Responsive Design */
+    .product-rich-description table {
+        width: 100% !important;
+        max-width: 100% !important;
+        display: block !important; 
+        overflow-x: auto !important; 
+        -webkit-overflow-scrolling: touch; 
+        border-collapse: collapse;
+        margin: 20px 0;
+        background: #fff;
+    }
+
+    .product-rich-description table tbody,
+    .product-rich-description table thead,
+    .product-rich-description table tr {
+        max-width: 100% !important;
+    }
+
+    .product-rich-description table th,
+    .product-rich-description table td {
+        padding: 10px 12px;
+        border: 1px solid #e5e7eb;
+        min-width: 120px !important; 
+        white-space: normal !important; 
+    }
+
+    .size-guide-wrapper {
+        position: sticky;
+        top: 20px;
+        text-align: center;
+    }
+    
+    .size-guide-wrapper img {
+        max-width: 100%;
+        height: auto;
+        border-radius: 12px;
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+        border: 1px solid #f3f4f6;
+    }
+
+    /* Responsive Design Adjustments */
     @media (max-width: 767px) {
         .product-slider-wrap { flex-direction: column; gap: 15px; }
         .product-gallary { width: 100% !important; }
@@ -223,103 +346,41 @@
             width: 100% !important;
             display: block;
         }
-        .desc-wrap {
-            flex-direction: column-reverse; 
-            gap: 20px;
+    }
+    /* =========================================
+       Mobile Fix: Break Inline Grid & Float Layouts
+       ========================================= */
+    @media (max-width: 767px) {
+        .product-rich-description [style*="display: grid"],
+        .product-rich-description [style*="grid-template-columns"],
+        .product-rich-description [style*="display: flex"],
+        .product-rich-description [style*="float"] {
+            display: block !important;
+            grid-template-columns: 1fr !important; 
+            width: 100% !important;
+            float: none !important;
+            margin-bottom: 20px !important;
         }
-        .right-content {
-            width: 100% !important; 
+
+        .product-rich-description img,
+        .product-rich-description figure {
+            display: block !important;
+            width: 100% !important;
+            max-width: 100% !important;
+            height: auto !important;
+            margin: 20px auto !important;
+            float: none !important;
+            object-fit: contain;
         }
-    }
-
-    /* Quantity */
-    .qty-box{
-        width: 130px;
-        height: 48px;
-        background: #008a7a;
-        border-radius: 2px;
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-        overflow: hidden;
-    }
-
-    .qty-btn{
-        width:40px;
-        height:50px;
-        border:none;
-        background:transparent;
-        color:#fff;
-        font-size:16px;
-        cursor:pointer;
-        transition:.3s;
-    }
-
-    .qty-btn:hover{
-        background:rgba(255,255,255,.15);
-    }
-
-    .qty-box input{
-        width:50px;
-        border:none;
-        background:transparent;
-        color:#fff;
-        font-size:18px;
-        font-weight:700;
-        text-align:center;
-        outline:none;
-    }
-
-    .qty-box input::-webkit-inner-spin-button,
-    .qty-box input::-webkit-outer-spin-button{
-        -webkit-appearance:none;
-        margin:0;
-    }
-
-    /* Cart Button */
-    .cart-btn{
-        flex:1;
-        height:50px;
-        border:2px solid #222;
-        border-radius:50px;
-        background:#fff;
-        color:#222;
-        font-weight:700;
-        font-size:16px;
-        transition:.3s;
-    }
-
-    .cart-btn:hover{
-        background:#008a7a;
-        border-color:#008a7a;
-        color:#fff;
-    }
-
-    .product-rich-description {
-        overflow-x: hidden; 
-        word-wrap: break-word;
-    }
-
-    .product-rich-description img {
-        max-width: 100% !important;
-        height: auto !important;
-    }
-
-    .product-rich-description table {
-        width: 100% !important;
-        max-width: 100% !important;
-        display: block;
-        overflow-x: auto; 
-        white-space: nowrap;
-    }
-    .product-extra-note {
-        background: #fff8e6;
-        border: 1px solid #ffe4a1;
-        color: #8a6d1a;
-        padding: 10px 14px;
-        border-radius: 8px;
-        font-size: 16px;
-        line-height: 1.5;
+        
+        .product-rich-description p,
+        .product-rich-description h1,
+        .product-rich-description h2,
+        .product-rich-description h3,
+        .product-rich-description h4 {
+            word-break: break-word !important;
+            text-align: left !important; 
+        }
     }
 </style>
 @endpush
@@ -332,6 +393,7 @@
     <div class="container">
         <div class="row g-4">
 
+            <!-- Product Gallery Image Section -->
             <div class="col-lg-6 col-md-12 product-details-wrap">
                 <div class="product-slider-wrap">
                     <div class="swiper product-gallary-thumb">
@@ -361,6 +423,7 @@
                 </div>
             </div>
 
+            <!-- Product Details Section -->
             <div class="col-lg-6 col-md-12">
                 <div class="product-details">
                     <div class="product-info">
@@ -398,8 +461,7 @@
                                             $stock = $product->variants->where('size_id', $targetSizeId)->sum('stock');
                                             $sizeName = $size->size->name ?? $size->name ?? 'N/A';
                                         @endphp
-                                        <span
-                                            class="size-item {{ $stock <= 0 ? 'disabled' : '' }}"
+                                        <span class="size-item {{ $stock <= 0 ? 'disabled' : '' }}"
                                             data-size-id="{{ $targetSizeId }}"
                                             data-size="{{ $sizeName }}"
                                             data-stock="{{ $stock }}">
@@ -422,8 +484,7 @@
                                             $colorStock = $product->variants->where('color_id', $targetColorId)->sum('stock');
                                             $colorImages = $color->images ?? collect();
                                         @endphp
-                                        <span
-                                            class="color-box {{ $colorStock <= 0 ? 'stock-out' : '' }}"
+                                        <span class="color-box {{ $colorStock <= 0 ? 'stock-out' : '' }}"
                                             style="background: {{ $color->color->code ?? '#ccc' }}"
                                             data-color-id="{{ $targetColorId }}" 
                                             data-color-name="{{ $color->color->name ?? '' }}"
@@ -438,26 +499,18 @@
                             <input type="hidden" id="selectedColorId">
                         </div>
                        
-
                         <div class="product-btn mt-4 d-flex gap-2 align-items-center">
                             <div class="qty-box">
                                 <button class="qty-btn qty-minus">
                                     <i class="fas fa-minus"></i>
                                 </button>
-
                                 <input type="number" id="qty" value="1" min="1">
-
                                 <button class="qty-btn qty-plus">
                                     <i class="fas fa-plus"></i>
                                 </button>
                             </div>
                             <div class="cart-btn-wrap-2">
-                                <button type="button"
-                                    class="rr-primary-btn cart-btn"
-                                    id="addToCartBtn"
-                                    data-id="{{ $product->id }}"
-                                    data-total-stock="{{ $totalStock }}"
-                                >
+                                <button type="button" class="rr-primary-btn cart-btn" id="addToCartBtn" data-id="{{ $product->id }}" data-total-stock="{{ $totalStock }}">
                                     {{ $totalStock <= 0 ? 'Stock Out' : 'Add To Cart' }}
                                 </button>
                             </div>
@@ -465,6 +518,7 @@
                         <a href="#" class="shop-details-btn rr-primary-btn mt-2 d-inline-block text-center" id="buyNowBtn" data-id="{{ $product->id }}">
                             Buy Now
                         </a>
+
                         @if($product->extra_note)
                         <div class="product-extra-note mt-3">
                             <i class="fa-solid fa-circle-info me-1"></i> {{ $product->extra_note }}
@@ -477,54 +531,42 @@
     </div>
 </section>
 
+<!-- Description & Reviews Tabs -->
 <section class="product-description pb-100">
     <div class="container">
         <ul class="nav tab-navigation" id="product-tab-navigation" role="tablist">
             <li role="presentation">
-                <button class="active" id="home-tab" data-bs-toggle="tab" data-bs-target="#home" type="button"
-                    role="tab" aria-controls="home" aria-selected="true">Description</button>
+                <button class="active" id="home-tab" data-bs-toggle="tab" data-bs-target="#home" type="button" role="tab" aria-controls="home" aria-selected="true">Description</button>
             </li>
-            {{-- <li role="presentation">
-                <button id="profile-tab" data-bs-toggle="tab" data-bs-target="#profile" type="button" role="tab"
-                    aria-controls="profile" aria-selected="false">Additional information</button>
-            </li> --}}
             <li role="presentation">
-                <button id="contact-tab" data-bs-toggle="tab" data-bs-target="#contact" type="button" role="tab"
-                    aria-controls="contact" aria-selected="false">Reviews ({{ $product->reviews->count() }})</button>
+                <button id="contact-tab" data-bs-toggle="tab" data-bs-target="#contact" type="button" role="tab" aria-controls="contact" aria-selected="false">Reviews ({{ $product->reviews->count() }})</button>
             </li>
         </ul>
 
         <div class="tab-content" id="product-tab-content">
+            
+            <!-- Description Tab -->
             <div class="tab-pane fade show active description" id="home" role="tabpanel" aria-labelledby="home-tab">
-                <div class="desc-wrap row gy-4"> 
-                    <div class="col-12 {{ $product->size_guide ? 'col-lg-8' : '' }} left-content product-rich-description">
-                        {!! $product->description !!}
+                <div class="row gy-4 align-items-start mt-2"> 
+                    <!-- Description Content -->
+                    <div class="col-12 {{ $product->size_guide ? 'col-lg-8 order-2 order-lg-1' : '' }}">
+                        <div class="product-rich-description">
+                            {!! $product->description !!}
+                        </div>
                     </div>
                     
+                    <!-- Size Guide Image -->
                     @if($product->size_guide)
-                    <div class="col-12 col-lg-4 right-content text-center">
-                        <img src="{{ asset($product->size_guide) }}" alt="{{ $product->name }}" class="img-fluid rounded">
+                    <div class="col-12 col-lg-4 order-1 order-lg-2">
+                        <div class="size-guide-wrapper">
+                            <img src="{{ asset($product->size_guide) }}" alt="Size Guide for {{ $product->name }}" class="img-fluid">
+                        </div>
                     </div>
                     @endif
-
                 </div>
             </div>
 
-            <div class="tab-pane fade" id="profile" role="tabpanel" aria-labelledby="profile-tab">
-                <table class="table product-table">
-                    <tbody>
-                        @foreach($product->sizes as $size)
-                        <tr>
-                            <td>{{ $size->size->name ?? $size->name ?? 'N/A' }}</td>
-                            <td>{{ $size->bust ?? 'N/A' }}</td>
-                            <td>{{ $size->waist ?? 'N/A' }}</td>
-                            <td>{{ $size->hip ?? 'N/A' }}</td>
-                        </tr>
-                        @endforeach
-                    </tbody>
-                </table>
-            </div>
-
+            <!-- Reviews Tab -->
             <div class="tab-pane fade review" id="contact" role="tabpanel" aria-labelledby="contact-tab">
                 <div class="row product-review gy-lg-0 gy-4">
                     <div class="col-lg-5 col-md-12">
@@ -658,105 +700,103 @@
                 currency: 'BDT'
             });
         }
-    </script>
-    <script>
+    
         $(document).ready(function () {
 
-        const productType = "{{ $product->product_type }}";
-        const hasSizeData  = {{ $product->sizes->count() > 0 ? 'true' : 'false' }};
-        const hasColorData = {{ $product->colors->count() > 0 ? 'true' : 'false' }};
-        const totalStock   = {{ $product->stock }};
+            const productType = "{{ $product->product_type }}";
+            const hasSizeData  = {{ $product->sizes->count() > 0 ? 'true' : 'false' }};
+            const hasColorData = {{ $product->colors->count() > 0 ? 'true' : 'false' }};
+            const totalStock   = {{ $product->stock }};
 
-        const hasSize  = hasSizeData && productType !== 'single';
-        const hasColor = hasColorData && productType !== 'single';
+            const hasSize  = hasSizeData && productType !== 'single';
+            const hasColor = hasColorData && productType !== 'single';
 
-        const defaultImages = @json(
-            collect([$product->image])
-                ->merge($product->images->pluck('image'))
-                ->filter()
-                ->values()
-        );
+            const defaultImages = @json(
+                collect([$product->image])
+                    ->merge($product->images->pluck('image'))
+                    ->filter()
+                    ->values()
+            );
 
-        let swiperMain = null;
-        let swiperThumbs = null;
+            let swiperMain = null;
+            let swiperThumbs = null;
 
-        function initSwipers() {
-            swiperThumbs = new Swiper(".product-gallary-thumb", {
-                spaceBetween: 10,
-                slidesPerView: 4,
-                freeMode: true,
-                watchSlidesProgress: true,
-                breakpoints: {
-                    768: { direction: 'vertical' },
-                    0: { direction: 'horizontal' }
-                }
-            });
+            function initSwipers() {
+                swiperThumbs = new Swiper(".product-gallary-thumb", {
+                    spaceBetween: 10,
+                    slidesPerView: 4,
+                    freeMode: true,
+                    watchSlidesProgress: true,
+                    breakpoints: {
+                        768: { direction: 'vertical' },
+                        0: { direction: 'horizontal' }
+                    }
+                });
 
-            swiperMain = new Swiper(".product-gallary", {
-                spaceBetween: 10,
-                navigation: {
-                    nextEl: ".swiper-nav-next",
-                    prevEl: ".swiper-nav-prev",
-                },
-                thumbs: {
-                    swiper: swiperThumbs,
-                },
-            });
-        }
-        initSwipers();
-
-        if (totalStock <= 0) {
-            $('#addToCartBtn').text('Stock Out').prop('disabled', true).css({background: '#ccc', cursor: 'not-allowed', borderColor: '#ccc'});
-            $('#buyNowBtn').text('Stock Out').css({pointerEvents: 'none', opacity: 0.6});
-            $('#stockOutOverlay').addClass('show');
-        }
-
-        window.updateGallery = function(images) {
-            if (!Array.isArray(images) || images.length === 0) images = defaultImages;
-            
-            let mainHtml = '', thumbHtml = '';
-            images.forEach(img => {
-                let src = img.startsWith('http') ? img : '/' + img.replace(/^\//, '');
-                mainHtml += `<div class="swiper-slide"><div class="gallary-item"><img src="${src}"></div></div>`;
-                thumbHtml += `<div class="swiper-slide"><div class="thumb-item"><img src="${src}"></div></div>`;
-            });
-
-            if (swiperMain) swiperMain.destroy(true, true);
-            if (swiperThumbs) swiperThumbs.destroy(true, true);
-
-            $('#mainGalleryWrapper').html(mainHtml);
-            $('#thumbWrapper').html(thumbHtml);
-
+                swiperMain = new Swiper(".product-gallary", {
+                    spaceBetween: 10,
+                    navigation: {
+                        nextEl: ".swiper-nav-next",
+                        prevEl: ".swiper-nav-prev",
+                    },
+                    thumbs: {
+                        swiper: swiperThumbs,
+                    },
+                });
+            }
             initSwipers();
-        };
 
-        $(document).on('click', '.color-box:not(.stock-out)', function () {
-            $('.color-box').removeClass('active');
-            $(this).addClass('active');
-            $('#selectedColorId').val($(this).data('color-id'));
-            $('#selectedColorName').text($(this).data('color-name'));
-            
-            let images = $(this).data('color-images');
-            if (typeof images === 'string') images = JSON.parse(images);
-            
-            updateGallery(images);
-        });
+            if (totalStock <= 0) {
+                $('#addToCartBtn').text('Stock Out').prop('disabled', true).css({background: '#ccc', cursor: 'not-allowed', borderColor: '#ccc'});
+                $('#buyNowBtn').text('Stock Out').css({pointerEvents: 'none', opacity: 0.6});
+                $('#stockOutOverlay').addClass('show');
+            }
 
-        $(document).on('click', '.size-item:not(.disabled)', function () {
-            $('.size-item').removeClass('active');
-            $(this).addClass('active');
-            $('#selectedSizeId').val($(this).data('size-id'));
-            $('#selectedSize').val($(this).data('size'));
-        });
+            window.updateGallery = function(images) {
+                if (!Array.isArray(images) || images.length === 0) images = defaultImages;
+                
+                let mainHtml = '', thumbHtml = '';
+                images.forEach(img => {
+                    let src = img.startsWith('http') ? img : '/' + img.replace(/^\//, '');
+                    mainHtml += `<div class="swiper-slide"><div class="gallary-item"><img src="${src}"></div></div>`;
+                    thumbHtml += `<div class="swiper-slide"><div class="thumb-item"><img src="${src}"></div></div>`;
+                });
 
-        function validateSelection() {
-            if (productType === 'single') return true;
-            if (hasSize && !$('#selectedSizeId').val()) { Swal.fire('Select Size', 'Please select a size', 'warning'); return false; }
-            if (hasColor && !$('#selectedColorId').val()) { Swal.fire('Select Color', 'Please select a color', 'warning'); return false; }
-            return true;
-        }
+                if (swiperMain) swiperMain.destroy(true, true);
+                if (swiperThumbs) swiperThumbs.destroy(true, true);
 
-         $(document).ready(function() {
+                $('#mainGalleryWrapper').html(mainHtml);
+                $('#thumbWrapper').html(thumbHtml);
+
+                initSwipers();
+            };
+
+            $(document).on('click', '.color-box:not(.stock-out)', function () {
+                $('.color-box').removeClass('active');
+                $(this).addClass('active');
+                $('#selectedColorId').val($(this).data('color-id'));
+                $('#selectedColorName').text($(this).data('color-name'));
+                
+                let images = $(this).data('color-images');
+                if (typeof images === 'string') images = JSON.parse(images);
+                
+                updateGallery(images);
+            });
+
+            $(document).on('click', '.size-item:not(.disabled)', function () {
+                $('.size-item').removeClass('active');
+                $(this).addClass('active');
+                $('#selectedSizeId').val($(this).data('size-id'));
+                $('#selectedSize').val($(this).data('size'));
+            });
+
+            function validateSelection() {
+                if (productType === 'single') return true;
+                if (hasSize && !$('#selectedSizeId').val()) { Swal.fire('Select Size', 'Please select a size', 'warning'); return false; }
+                if (hasColor && !$('#selectedColorId').val()) { Swal.fire('Select Color', 'Please select a color', 'warning'); return false; }
+                return true;
+            }
+
             $('.qty-plus').click(function() {
                 let input = $('#qty');
                 input.val(parseInt(input.val()) + 1);
@@ -769,63 +809,62 @@
                     input.val(val - 1);
                 }
             });
-        });
 
-        $('#addToCartBtn').on('click', function () {
-            if (!validateSelection()) return;
-            let btn = $(this);
-            btn.prop('disabled', true).text('Adding...');
+            $('#addToCartBtn').on('click', function () {
+                if (!validateSelection()) return;
+                let btn = $(this);
+                btn.prop('disabled', true).text('Adding...');
 
-            $.post("{{ url('/cart/add') }}", {
-                _token: "{{ csrf_token() }}",
-                product_id: $(this).data('id'),
-                qty: $('#qty').val(),
-                size_id: $('#selectedSizeId').val() || null,
-                color_id: $('#selectedColorId').val() || null,
-            }, function (res) {
-                if (res.success) {
-                    if (res.html) {
-                        $('#cart-section').html(res.html);
-                    }
-                    if (res.cart_count !== undefined) {
-                        $('.cart-item-count-render').text(res.cart_count);
-                        $('#cart-count').text(res.cart_count); 
-                    }
+                $.post("{{ url('/cart/add') }}", {
+                    _token: "{{ csrf_token() }}",
+                    product_id: $(this).data('id'),
+                    qty: $('#qty').val(),
+                    size_id: $('#selectedSizeId').val() || null,
+                    color_id: $('#selectedColorId').val() || null,
+                }, function (res) {
+                    if (res.success) {
+                        if (res.html) {
+                            $('#cart-section').html(res.html);
+                        }
+                        if (res.cart_count !== undefined) {
+                            $('.cart-item-count-render').text(res.cart_count);
+                            $('#cart-count').text(res.cart_count); 
+                        }
 
-                    if (res.cart_total) {
-                        $('.total-value').text('৳' + res.cart_total);
+                        if (res.cart_total) {
+                            $('.total-value').text('৳' + res.cart_total);
+                        }
+                        $('#cart-overlay, #cart-drawer').addClass('active');
+                        Swal.fire({ 
+                            icon: 'success', 
+                            title: 'Added to Cart', 
+                            timer: 1200, 
+                            showConfirmButton: false 
+                        });
                     }
-                    $('#cart-overlay, #cart-drawer').addClass('active');
-                    Swal.fire({ 
-                        icon: 'success', 
-                        title: 'Added to Cart', 
-                        timer: 1200, 
-                        showConfirmButton: false 
-                    });
-                }
-            }).always(function() {
-                btn.prop('disabled', false).text('Add To Cart');
+                }).always(function() {
+                    btn.prop('disabled', false).text('Add To Cart');
+                });
             });
-        });
 
-        $('#buyNowBtn').on('click', function (e) {
-            e.preventDefault();
-            if (!validateSelection()) return;
-            $.post("{{ url('/cart/add') }}", {
-                _token: "{{ csrf_token() }}",
-                product_id: $(this).data('id'),
-                qty: $('#qty').val(),
-                size_id: $('#selectedSizeId').val() || null,
-                color_id: $('#selectedColorId').val() || null,
-            }, function (res) {
-                if (res.success) window.location.href = "{{ url('/cart') }}";
+            $('#buyNowBtn').on('click', function (e) {
+                e.preventDefault();
+                if (!validateSelection()) return;
+                $.post("{{ url('/cart/add') }}", {
+                    _token: "{{ csrf_token() }}",
+                    product_id: $(this).data('id'),
+                    qty: $('#qty').val(),
+                    size_id: $('#selectedSizeId').val() || null,
+                    color_id: $('#selectedColorId').val() || null,
+                }, function (res) {
+                    if (res.success) window.location.href = "{{ url('/cart') }}";
+                });
             });
-        });
 
-    });
-    </script>
-    <script>
+        });
+   
         $(document).ready(function() {
+            // Star Rating Logic
             $('#star-rating li').on('click', function() {
                 let rating = $(this).data('value');
                 $('#rating-value').val(rating);
@@ -857,6 +896,23 @@
                     });
                 }
             );
+
+            $('.product-rich-description').find('*').each(function() {
+                var $this = $(this);
+                $this.removeAttr('width').removeAttr('height');
+                $this.css({
+                    'width': '',
+                    'min-width': '',
+                    'max-width': '100%'
+                });
+            });
+            $('.product-rich-description table').each(function() {
+                if (!$(this).parent().hasClass('table-responsive')) {
+                    $(this).wrap('<div class="table-responsive" style="width: 100%; overflow-x: auto; -webkit-overflow-scrolling: touch; border: 1px solid #e5e7eb; margin-bottom: 15px;"></div>');
+                }
+            });
+            /* ======================================================== */
+
         });
     </script>
 @endpush

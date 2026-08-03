@@ -353,7 +353,7 @@
                     <button type="submit" class="btn-next">Verify & Login</button>
                     
                     <a href="{{ route('user.login.cancel_otp') }}" class="change-number">
-                        <i class="fas fa-edit"></i> Change Phone / Email
+                        <i class="fas fa-edit"></i> Change Phone Number
                     </a>
                 </form>
 
@@ -379,8 +379,8 @@
                 <form method="POST" action="{{ route('user.login.send_otp') }}">
                     @csrf
                     <div class="custom-input-group">
-                        <i class="fas fa-envelope"></i> 
-                        <input type="text" name="name" value="{{ old('name') }}" placeholder="Phone Number" required autocomplete="off">
+                        <i class="fas fa-phone"></i> 
+                        <input type="text" name="name" value="{{ old('name') }}" placeholder="Mobile Number" required autocomplete="off">
                     </div>
                     @error('name')
                         <div class="text-danger mb-3" style="font-size: 13px; margin-top:-15px; font-weight: 500;">
@@ -399,8 +399,33 @@
 @endsection
 
 @push('javascript')
+
 <script>
     $(document).ready(function() {
+
+        // SweetAlert Setup - Right Side Top (top-end)
+        const Toast = Swal.mixin({
+            toast: true,
+            position: 'top-end',
+            showConfirmButton: false,
+            timer: 3000,
+            timerProgressBar: true,
+            didOpen: (toast) => {
+                toast.onmouseenter = Swal.stopTimer;
+                toast.onmouseleave = Swal.resumeTimer;
+            }
+        });
+
+        // Session Messages for SweetAlert
+        @if(session('success'))
+            Toast.fire({ icon: 'success', title: "{!! session('success') !!}" });
+        @endif
+
+        @if(session('error'))
+            Toast.fire({ icon: 'error', title: "{!! session('error') !!}" });
+        @endif
+
+        // Timer Logic Fix
         @if(session()->has('otp_login') && session()->has('otp_expires_at'))
             
             let duration = {{ max(0, session('otp_expires_at') - now()->timestamp) }};
@@ -408,10 +433,8 @@
             function formatTime(totalSeconds) {
                 let minutes = Math.floor(totalSeconds / 60);
                 let seconds = totalSeconds % 60;
-
                 minutes = minutes < 10 ? "0" + minutes : minutes;
                 seconds = seconds < 10 ? "0" + seconds : seconds;
-
                 return minutes + ":" + seconds;
             }
 
@@ -421,13 +444,15 @@
                 let timerInterval = setInterval(function() {
                     duration--; 
 
-                    if (duration > 0) {
+                    if (duration >= 0) {
                         $('#time').text(formatTime(duration));
-                    } else {
+                    }
+                    
+                    if (duration <= 0) {
                         clearInterval(timerInterval);
                         $('#timer-text').hide();
                         $('#resend-btn').fadeIn(); 
-                        $('.timer-section').css('background', 'transparent'); // Removes background when timer is done
+                        $('.timer-section').css('background', 'transparent');
                     }
                 }, 1000);
             } else {
@@ -443,12 +468,13 @@
             });
 
         @endif
-    });
 
-    $('input[name="otp"]').on('input', function() {
-        if ($(this).val().length === 4) {
-            $(this).closest('form').submit();
-        }
+        // OTP Auto Submit
+        $('input[name="otp"]').on('input', function() {
+            if ($(this).val().length === 4) {
+                $(this).closest('form').submit();
+            }
+        });
     });
 </script>
 @endpush

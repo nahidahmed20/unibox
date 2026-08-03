@@ -223,7 +223,7 @@ class HomeController extends Controller
             default:           $query->latest(); break;
         }
 
-        $products = $query->paginate(12)->appends($request->all());
+        $products = $query->paginate(15)->appends($request->all());
 
         $categories = Category::where('status', 1)->withCount(['products' => fn($q) => $q->where('status', 1)])->get();
         $brands = Brand::withCount(['products' => fn($q) => $q->where('status', 1)])->get();

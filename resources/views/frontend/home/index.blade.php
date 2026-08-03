@@ -2,86 +2,16 @@
 @section('title', 'Home')
 @section('content')
     @include('frontend.home.home-css')
-    <style>
-        .hero-list-wrap {
-            background: #ffffff;
-            border-radius: 12px; 
-            box-shadow: 0 5px 20px rgba(0,0,0,0.05); 
-            border: 1px solid #e9ecef;
-            overflow: hidden; 
-        }
+    
 
-        .category-header-custom {
-            display: flex;
-            align-items: center;
-            background-color: #f4f6f8; 
-            padding: 20px;
-            position: relative;
-            border-bottom: 1px solid #e0e0e0;
-        }
-
-        .category-header-custom::after {
-            content: '';
-            position: absolute;
-            bottom: -10px;
-            left: 30px;
-            border-width: 10px 10px 0;
-            border-style: solid;
-            border-color: #f4f6f8 transparent transparent transparent;
-            z-index: 1;
-        }
-
-        .header-icon-wrap {
-            font-size: 32px;
-            color: #00897b; 
-            margin-right: 15px;
-            line-height: 1;
-        }
-
-        .header-title-text {
-            margin: 0;
-            font-size: 20px;
-            font-weight: 800;
-            letter-spacing: 1px;
-            color: #2c3e50;
-            text-transform: uppercase;
-        }
-
-        .hero-list {
-            padding: 10px 0;
-            margin: 0;
-            max-height: 330px; 
-            overflow-y: auto;
-        }
-
-        .hero-list::-webkit-scrollbar {
-            width: 5px; 
-        }
-
-        .hero-list::-webkit-scrollbar-track {
-            background: #f4f6f8; 
-            border-radius: 10px;
-        }
-
-        .hero-list::-webkit-scrollbar-thumb {
-            background: #d1d5db; 
-            border-radius: 10px;
-        }
-
-        .hero-list::-webkit-scrollbar-thumb:hover {
-            background: #00897b; 
-        }
-    </style>
+    
 
     <section class="hero-section-2 pt-60 pb-3">
         <div class="container">
             <div class="row gy-lg-0 gy-4 justify-content-center">
                 
-                <!-- Category Sidebar -->
-                <div class="col-md-3 d-none d-md-block">
+                <div class="col-lg-3 col-md-4 d-none d-md-block">
                     <div class="hero-list-wrap">
-                        
-                        <!-- NEW BEAUTIFUL HEADER -->
                         <div class="category-header-custom">
                             <div class="header-icon-wrap">
                                 <i class="fa-solid fa-folder-open"></i>
@@ -119,7 +49,6 @@
                                         @endif
                                     </div>
 
-                                    <!-- Collapsible Subcategory List -->
                                     @if($hasSubcategories)
                                         <div class="collapse" id="collapseCat{{ $category->id }}">
                                             <ul class="sub-category-list">
@@ -145,13 +74,13 @@
                     </div>
                 </div>
 
-                <!-- Slider Section (Unchanged) -->
-                <div class="col-md-9">
+                <!-- Slider Section -->
+                <div class="col-lg-9 col-md-8 col-12">
                     <div id="heroSlider" class="carousel slide" data-bs-ride="carousel">
                         <div class="carousel-inner">
                             @foreach ($sliders as $key => $slider)
                                 <div class="carousel-item {{ $key == 0 ? 'active' : '' }}">
-                                    <div class="hero-item" style="background-image: url('{{ asset($slider->image) }}'); border-radius: 8px;">
+                                    <div class="hero-item" style="background-image: url('{{ asset($slider->image) }}');">
                                         <div class="product-overlay"></div>
                                     </div>
                                 </div>

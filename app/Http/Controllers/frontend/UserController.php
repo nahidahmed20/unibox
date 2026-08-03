@@ -53,20 +53,19 @@ class UserController extends Controller
             'name' => [
                 'required',
                 function ($attribute, $value, $fail) {
-                    $isEmail = filter_var($value, FILTER_VALIDATE_EMAIL);
                     $isPhone = preg_match('/^01[3-9][0-9]{8}$/', $value);
 
-                    if (!$isEmail && !$isPhone) {
-                        $fail('দয়া করে একটি সঠিক বাংলাদেশি ফোন নাম্বার (১১ ডিজিট) বা ইমেইল প্রদান করুন।');
+                    if (!$isPhone) {
+                        $fail('দয়া করে একটি সঠিক বাংলাদেশি ফোন নাম্বার (১১ ডিজিট) প্রদান করুন।');
                     }
                 },
             ],
         ], [
-            'name.required' => 'ফোন নাম্বার বা ইমেইল দেওয়া বাধ্যতামূলক।',
+            'name.required' => 'ফোন নাম্বার দেওয়া বাধ্যতামূলক।',
         ]);
 
         $login = trim($request->name);
-        $field = filter_var($login, FILTER_VALIDATE_EMAIL) ? 'email' : 'phone';
+        $field = 'phone'; 
 
         $otp = rand(1000, 9999); 
         
@@ -75,20 +74,16 @@ class UserController extends Controller
         session()->put('otp_field', $field);
         session()->put('otp_expires_at', now()->addMinutes(2)->timestamp);
 
-        if ($field === 'phone') {
-            $message = "Your OTP code is: {$otp}. Valid for 2 minutes.";
-            
-            $isSent = SmsService::send($login, $message);
+        $message = "Your OTP code is: {$otp}. Valid for 2 minutes.";
+        
+        $isSent = SmsService::send($login, $message);
 
-            if (!$isSent) {
-                Log::error("Failed to send OTP SMS to: {$login}");
-                return back()->withErrors(['name' => 'এসএমএস পাঠাতে ব্যর্থ হয়েছে। দয়া করে আবার চেষ্টা করুন।']);
-            }
-        } else {
-            Log::info("OTP for Email [{$login}] is: {$otp}");
+        if (!$isSent) {
+            Log::error("Failed to send OTP SMS to: {$login}");
+            return back()->withErrors(['name' => 'এসএমএস পাঠাতে ব্যর্থ হয়েছে। দয়া করে আবার চেষ্টা করুন।']);
         }
 
-        return back()->with('success', 'আপনার প্রদত্ত নাম্বারে/ইমেইলে ওটিপি পাঠানো হয়েছে।');
+        return back()->with('success', 'আপনার প্রদত্ত নাম্বারে ওটিপি পাঠানো হয়েছে।');
     }
 
     public function verifyOtp(Request $request)
