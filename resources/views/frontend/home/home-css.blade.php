@@ -185,7 +185,7 @@
 /* Subcategory */
 .sub-category-list {
     list-style: none;
-    padding: 5px 15px 15px 35px;
+    padding: 5px 15px 15px 15px;
     margin: 0;
     background: #fcfcfc;
 }
@@ -203,7 +203,7 @@
     display: flex;
     justify-content: space-between;
     align-items: center;
-    padding: 8px 12px;
+    padding: 13px 8px !important;
     color: #555;
     text-decoration: none;
     font-size: 14px;

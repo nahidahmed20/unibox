@@ -4701,7 +4701,7 @@ START: Header CSS
 .hero-list li a {
   font-size: 16px;
   font-weight: 500;
-  padding: 20px 25px;
+  padding: 17px 10px;
 }
 
 .hero-list li a:hover {

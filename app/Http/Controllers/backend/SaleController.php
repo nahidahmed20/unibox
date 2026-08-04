@@ -429,10 +429,6 @@ class SaleController extends Controller implements HasMiddleware
                         }
                     }
 
-                    $detailsQuery = PurchaseDetail::where('product_id', $item->product_id);
-                    if ($item->color_id) $detailsQuery->where('color_id', $item->color_id);
-                    if ($item->size_id)  $detailsQuery->where('size_id', $item->size_id);
-                    $detailsQuery->update(['is_sale' => 0]);
                 }
 
                 $sale->items()->delete();
@@ -440,7 +436,6 @@ class SaleController extends Controller implements HasMiddleware
                 if ($sale->payment) {
                     $sale->payment->delete();
                 }
-
                 $sale->delete();
             });
 
