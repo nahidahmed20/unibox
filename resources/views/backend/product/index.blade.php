@@ -21,9 +21,9 @@
 
 <div class="app-content">
     <div class="container-fluid">
-        <div class="card modern-card">
-            <div class="modern-card-header">
-                <h4 class="card-title"><i class="fa-solid fa-list-ul text-muted me-2"></i> All Products</h4>
+        <div class="card modern-card border-0 shadow-sm rounded-4">
+            <div class="modern-card-header bg-white border-bottom p-4 rounded-top-4 d-flex justify-content-between align-items-center">
+                <h4 class="card-title m-0 fw-bold"><i class="fa-solid fa-list-ul text-muted me-2"></i> All Products</h4>
                 <a href="{{ route('products.create') }}" class="btn btn-dark rounded-pill px-4 fw-bold shadow-sm">
                     <i class="fa-solid fa-plus me-1"></i> Add Product
                 </a>
@@ -41,7 +41,8 @@
                                 <th>Image</th>
                                 <th>Cost (<span class="taka-symbol">৳</span>)</th>
                                 <th>Selling (<span class="taka-symbol">৳</span>)</th>
-                                <th>Stock</th> <th>Status</th>
+                                <th>Stock</th> 
+                                <th>Status</th>
                                 <th width="12%" class="text-center">Action</th>
                             </tr>
                         </thead>
@@ -61,18 +62,20 @@
     </div>
 </div>
 
+<!-- Product Details Modal -->
 <div class="modal fade" id="productModal" tabindex="-1" aria-hidden="true">
-    <div class="modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable">
-        <div class="modal-content">
-            <div class="modal-header modal-header-modern">
-                <h5 class="modal-title modal-title-modern">
+    <div class="modal-dialog modal-xl modal-dialog-centered modal-dialog-scrollable">
+        <div class="modal-content border-0 shadow-lg rounded-4">
+            <div class="modal-header bg-light border-bottom-0 p-4">
+                <h5 class="modal-title fw-bold text-dark">
                     <i class="fa-solid fa-box-open text-muted me-2"></i> Product Details
                 </h5>
                 <button type="button" class="btn-close shadow-none" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
-            <div class="modal-body" id="productModalBody">
-                </div>
-            <div class="modal-footer border-top-0 bg-light">
+            <div class="modal-body p-4 bg-light" id="productModalBody">
+                <!-- Data will be loaded here via AJAX -->
+            </div>
+            <div class="modal-footer border-top-0 bg-light p-4">
                 <button type="button" class="btn btn-secondary px-4 rounded-pill fw-bold" data-bs-dismiss="modal">Close</button>
             </div>
         </div>
@@ -132,9 +135,36 @@ $(document).ready(function () {
         }
     });
 
-    // --- Delete Confirmation ---
+    // --- Delete Confirmation (AJAX) ---
+    $(document).on('click', '.btn-delete', function (e) {
+        e.preventDefault();
+        let form = $(this).closest('form');
+        let url = form.attr('action');
 
+        if (confirm('Are you sure you want to delete this product? This action cannot be undone.')) {
+            $.ajax({
+                url: url,
+                type: 'POST',
+                data: form.serialize(),
+                success: function (res) {
+                    if (res.status === 'success') {
+                        toastr.success(res.message);
+                        table.ajax.reload(null, false);
+                    } else {
+                        toastr.error(res.message);
+                    }
+                },
+                error: function (xhr) {
+                    let errorMessage = xhr.responseJSON && xhr.responseJSON.message 
+                        ? xhr.responseJSON.message 
+                        : 'Something went wrong!';
+                    toastr.error(errorMessage);
+                }
+            });
+        }
+    });
 
+    // --- Show Product Details (Modal) ---
     $(document).on('click', '.btn-show', function () {
         let id = $(this).data('id');
         let btn = $(this);
@@ -159,6 +189,18 @@ $(document).ready(function () {
                 let multipleImagesHtml = (res.images && res.images.length)
                     ? res.images.map(img => `<img src="${img}" class="img-thumbnail rounded-3 shadow-sm me-2 mb-2" style="width:70px; height:70px; object-fit:cover;">`).join('')
                     : '<span class="text-muted fst-italic">No gallery images</span>';
+
+                // Specifications HTML Building
+                let specsHtml = '';
+                if (res.specifications && res.specifications.length > 0) {
+                    specsHtml += `<div class="d-flex flex-wrap gap-2">`;
+                    res.specifications.forEach(attr => {
+                        specsHtml += `<span class="badge bg-light text-dark border px-3 py-2 fw-bold">${attr.name}</span>`;
+                    });
+                    specsHtml += `</div>`;
+                } else {
+                    specsHtml = '<span class="text-muted fst-italic">No attributes assigned for calculator.</span>';
+                }
 
                 let colorImagesHtml = (res.colors && res.colors.length)
                     ? res.colors.map(c => {
@@ -305,6 +347,12 @@ $(document).ready(function () {
                                 </table>
                             </div>
 
+                            <!-- New Dynamic Specifications Card -->
+                            <div class="bg-white rounded-4 p-4 border shadow-sm mb-4">
+                                <h6 class="fw-bold text-uppercase text-muted mb-3" style="font-size: 12px; letter-spacing: 1px;"><i class="fa-solid fa-list-check me-2"></i> Specifications & Attributes</h6>
+                                ${specsHtml}
+                            </div>
+
                             <div class="bg-white rounded-4 p-4 border shadow-sm mb-4">
                                 <h6 class="fw-bold text-uppercase text-muted mb-3" style="font-size: 12px; letter-spacing: 1px;">Color Specific Images</h6>
                                 ${colorImagesHtml}
@@ -336,11 +384,10 @@ $(document).ready(function () {
             },
             error: function () {
                 btn.prop('disabled', false).html(originalHtml);
-                alert('Failed to load product details.');
+                toastr.error('Failed to load product details.');
             }
         });
     });
-
 
 });
 </script>

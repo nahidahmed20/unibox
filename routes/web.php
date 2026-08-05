@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\backend\AboutUsController;
+use App\Http\Controllers\Backend\AttributeController;
 use App\Http\Controllers\backend\BlockedPhoneController;
 use App\Http\Controllers\backend\BlogCategoryController;
 use App\Http\Controllers\backend\BlogController;
@@ -31,6 +32,7 @@ use App\Http\Controllers\backend\SettingController;
 use App\Http\Controllers\backend\ShippingController;
 use App\Http\Controllers\backend\SizeController;
 use App\Http\Controllers\backend\SliderController;
+use App\Http\Controllers\backend\SpecificationController;
 use App\Http\Controllers\backend\SubCategoryController;
 use App\Http\Controllers\backend\SupplierController;
 use App\Http\Controllers\backend\TeamController;
@@ -191,7 +193,7 @@ Route::middleware('auth')->prefix('admin')->group(function () {
     Route::get('/orders/{id}/invoice', [OrderController::class, 'invoice'])->name('orders.invoice');
     Route::get('/order/pending-count', [OrderController::class, 'getPendingCount']);
 
-   
+    Route::resource('attributes', AttributeController::class);
 
     Route::resource('teams',TeamController::class);
     Route::resource('testimonials',TestimonialController::class);

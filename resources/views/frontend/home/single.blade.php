@@ -4,336 +4,64 @@
 @section('content')
 @push('css')
 <style>
-    .product-slider-wrap {
-        display: flex;
-        gap: 20px;
-        align-items: flex-start;
-    }
+    .product-slider-wrap { display: flex; gap: 20px; align-items: flex-start; }
+    .product-gallary-thumb { width: 90px !important; flex-shrink: 0; height: 450px; }
+    .thumb-item { border-radius: 8px; overflow: hidden; border: 2px solid transparent; cursor: pointer; transition: all 0.3s ease; background: #fff; padding: 2px; }
+    .swiper-slide-thumb-active .thumb-item { border-color: #008a7a; box-shadow: 0 4px 10px rgba(0, 138, 122, 0.2); }
+    .thumb-item img { width: 100%; height: 100%; aspect-ratio: 1/1; object-fit: cover; border-radius: 6px; }
+    .product-gallary { position: relative; flex: 1; border: 1px solid #f0f0f0; border-radius: 12px; overflow: hidden; background: #fff; box-shadow: 0 5px 15px rgba(0,0,0,0.05); }
+    .gallary-item img { width: 100%; height: auto; aspect-ratio: 1/1; object-fit: cover; transition: transform 0.5s ease; }
+    .gallary-item:hover img { transform: scale(1.03); }
+    .product-gallary .swiper-nav-next, .product-gallary .swiper-nav-prev { position: absolute; top: 50%; transform: translateY(-50%); z-index: 10; cursor: pointer; width: 45px; height: 45px; background: rgba(255, 255, 255, 0.95); display: flex; align-items: center; justify-content: center; border-radius: 50%; box-shadow: 0 4px 12px rgba(0,0,0,0.15); transition: all 0.3s; }
+    .product-gallary .swiper-nav-next:hover, .product-gallary .swiper-nav-prev:hover { background: #008a7a; color: #fff; transform: translateY(-50%) scale(1.1); }
+    .product-gallary .swiper-nav-next { right: 15px; } .product-gallary .swiper-nav-prev { left: 15px; }
 
-    /* Thumbnail Section */
-    .product-gallary-thumb {
-        width: 90px !important;
-        flex-shrink: 0;
-        height: 450px;
-    }
+    .size-item { min-width: 55px; height: 44px; padding: 0 15px; display: inline-flex; flex-direction: column; align-items: center; justify-content: center; border: 1px solid #008a7a; border-radius: 6px; cursor: pointer; font-weight: 600; font-size: 14px; transition: all 0.3s; white-space: nowrap; position: relative; }
+    .size-item:hover:not(.disabled) { background: #008a7a; color: #fff; }
+    .size-item.active { background: #008a7a; color: #fff; box-shadow: 0 4px 8px rgba(0, 138, 122, 0.3); }
+    .size-item.disabled { border-color: #e2e8f0; color: #a0aec0; background: #f7fafc; cursor: not-allowed; padding-bottom: 10px; }
+    .size-item.disabled::after { content: 'Out'; font-size: 9px; color: #ef4444; font-weight: 700; position: absolute; bottom: 2px; }
 
-    .thumb-item {
-        border-radius: 8px;
-        overflow: hidden;
-        border: 2px solid transparent;
-        cursor: pointer;
-        transition: all 0.3s ease;
-        background: #fff;
-        padding: 2px;
-    }
-
-    .swiper-slide-thumb-active .thumb-item {
-        border-color: #008a7a;
-        box-shadow: 0 4px 10px rgba(0, 138, 122, 0.2);
-    }
-
-    .thumb-item img {
-        width: 100%;
-        height: 100%;
-        aspect-ratio: 1/1;
-        object-fit: cover;
-        border-radius: 6px;
-    }
-
-    /* Main Gallery Section */
-    .product-gallary {
-        position: relative;
-        flex: 1;
-        border: 1px solid #f0f0f0;
-        border-radius: 12px;
-        overflow: hidden;
-        background: #fff;
-        box-shadow: 0 5px 15px rgba(0,0,0,0.05);
-    }
-
-    .gallary-item img {
-        width: 100%;
-        height: auto;
-        aspect-ratio: 1/1;
-        object-fit: cover;
-        transition: transform 0.5s ease;
-    }
-
-    .gallary-item:hover img {
-        transform: scale(1.03);
-    }
-
-    /* Slider Navigation UI */
-    .product-gallary .swiper-nav-next,
-    .product-gallary .swiper-nav-prev {
-        position: absolute;
-        top: 50%;
-        transform: translateY(-50%);
-        z-index: 10;
-        cursor: pointer;
-        width: 45px;
-        height: 45px;
-        background: rgba(255, 255, 255, 0.95);
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        border-radius: 50%;
-        box-shadow: 0 4px 12px rgba(0,0,0,0.15);
-        transition: all 0.3s;
-    }
-
-    .product-gallary .swiper-nav-next:hover,
-    .product-gallary .swiper-nav-prev:hover {
-        background: #008a7a;
-        color: #fff;
-        transform: translateY(-50%) scale(1.1);
-    }
-
-    .product-gallary .swiper-nav-next { right: 15px; }
-    .product-gallary .swiper-nav-prev { left: 15px; }
-
-    /* Size Selector */
-    .size-item {
-        min-width: 55px;
-        height: 44px;
-        padding: 0 15px;
-        display: inline-flex;
-        flex-direction: column;
-        align-items: center;
-        justify-content: center;
-        border: 1px solid #008a7a;
-        border-radius: 6px;
-        cursor: pointer;
-        font-weight: 600;
-        font-size: 14px;
-        transition: all 0.3s;
-        white-space: nowrap;
-        position: relative;
-    }
-
-    .size-item:hover:not(.disabled) {
-        background: #008a7a;
-        color: #fff;
-    }
-
-    .size-item.active {
-        background: #008a7a;
-        color: #fff;
-        box-shadow: 0 4px 8px rgba(0, 138, 122, 0.3);
-    }
-
-    .size-item.disabled {
-        border-color: #e2e8f0;
-        color: #a0aec0;
-        background: #f7fafc;
-        cursor: not-allowed;
-        padding-bottom: 10px;
-    }
-
-    .size-item.disabled::after {
-        content: 'Out';
-        font-size: 9px;
-        color: #ef4444;
-        font-weight: 700;
-        position: absolute;
-        bottom: 2px;
-    }
-
-    /* Color Selector */
-    .color-box {
-        width: 36px;
-        height: 36px;
-        display: inline-block;
-        border-radius: 50%;
-        border: 2px solid #fff;
-        box-shadow: 0 0 0 1px #cbd5e0;
-        cursor: pointer;
-        transition: all 0.3s;
-    }
-
+    .color-box { width: 36px; height: 36px; display: inline-block; border-radius: 50%; border: 2px solid #fff; box-shadow: 0 0 0 1px #cbd5e0; cursor: pointer; transition: all 0.3s; }
     .color-box:hover { transform: scale(1.1); }
-
-    .color-box.active {
-        box-shadow: 0 0 0 2px #008a7a;
-        transform: scale(1.15);
-    }
-
+    .color-box.active { box-shadow: 0 0 0 2px #008a7a; transform: scale(1.15); }
     .color-box.stock-out { opacity: 0.4; cursor: not-allowed; }
-
-    /* Stock Out Overlay */
-    .stock-out-overlay {
-        display: none;
-        position: absolute;
-        top: 20px;
-        left: 20px;
-        background: #ef4444;
-        color: #fff;
-        padding: 6px 14px;
-        border-radius: 6px;
-        font-weight: 700;
-        letter-spacing: 0.5px;
-        z-index: 20;
-    }
-
+    
+    .stock-out-overlay { display: none; position: absolute; top: 20px; left: 20px; background: #ef4444; color: #fff; padding: 6px 14px; border-radius: 6px; font-weight: 700; letter-spacing: 0.5px; z-index: 20; }
     .stock-out-overlay.show { display: block; }
 
-    /* Quantity */
-    .qty-box {
-        width: 130px;
-        height: 48px;
-        background: #008a7a;
-        border-radius: 2px;
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-        overflow: hidden;
-    }
-
-    .qty-btn {
-        width: 40px;
-        height: 50px;
-        border: none;
-        background: transparent;
-        color: #fff;
-        font-size: 16px;
-        cursor: pointer;
-        transition: .3s;
-    }
-
+    .qty-box { width: 130px; height: 48px; background: #008a7a; border-radius: 2px; display: flex; align-items: center; justify-content: space-between; overflow: hidden; }
+    .qty-btn { width: 40px; height: 50px; border: none; background: transparent; color: #fff; font-size: 16px; cursor: pointer; transition: .3s; }
     .qty-btn:hover { background: rgba(255, 255, 255, .15); }
+    .qty-box input { width: 50px; border: none; background: transparent; color: #fff; font-size: 18px; font-weight: 700; text-align: center; outline: none; }
+    .qty-box input::-webkit-inner-spin-button, .qty-box input::-webkit-outer-spin-button { -webkit-appearance: none; margin: 0; }
 
-    .qty-box input {
-        width: 50px;
-        border: none;
-        background: transparent;
-        color: #fff;
-        font-size: 18px;
-        font-weight: 700;
-        text-align: center;
-        outline: none;
+    .cart-btn { flex: 1; height: 50px; border: 2px solid #222; border-radius: 50px; background: #fff; color: #222; font-weight: 700; font-size: 16px; transition: .3s; }
+    .cart-btn:hover { background: #008a7a; border-color: #008a7a; color: #fff; }
+    .product-extra-note { background: #fff8e6; border: 1px solid #ffe4a1; color: #8a6d1a; padding: 10px 14px; border-radius: 8px; font-size: 16px; line-height: 1.5; }
+
+    /* Specification Summary Custom Grid */
+    .specs-grid-summary {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 10px 20px;
+        font-size: 14px;
+    }
+    @media (max-width: 575px) {
+        .specs-grid-summary { grid-template-columns: 1fr; }
     }
 
-    .qty-box input::-webkit-inner-spin-button,
-    .qty-box input::-webkit-outer-spin-button {
-        -webkit-appearance: none;
-        margin: 0;
-    }
+    .product-rich-description { width: 100%; max-width: 100%; overflow-x: hidden; color: #374151; line-height: 1.8; font-size: 16px; word-wrap: break-word !important; overflow-wrap: break-word !important; }
+    .product-rich-description * { max-width: 100% !important; box-sizing: border-box !important; }
+    .product-rich-description p, .product-rich-description span, .product-rich-description div, .product-rich-description font, .product-rich-description b, .product-rich-description strong { white-space: normal !important; width: auto !important; }
+    .product-rich-description img, .product-rich-description video, .product-rich-description iframe, .product-rich-description figure { max-width: 100% !important; width: auto !important; height: auto !important; object-fit: contain; border-radius: 8px; margin: 15px 0; }
+    .product-rich-description iframe { width: 100% !important; aspect-ratio: 16 / 9; }
+    .product-rich-description table { width: 100% !important; max-width: 100% !important; display: block !important; overflow-x: auto !important; -webkit-overflow-scrolling: touch; border-collapse: collapse; margin: 20px 0; background: #fff; }
+    .product-rich-description table th, .product-rich-description table td { padding: 10px 12px; border: 1px solid #e5e7eb; min-width: 120px !important; white-space: normal !important; }
 
-    /* Cart Button */
-    .cart-btn {
-        flex: 1;
-        height: 50px;
-        border: 2px solid #222;
-        border-radius: 50px;
-        background: #fff;
-        color: #222;
-        font-weight: 700;
-        font-size: 16px;
-        transition: .3s;
-    }
+    .size-guide-wrapper { position: sticky; top: 20px; text-align: center; }
+    .size-guide-wrapper img { max-width: 100%; height: auto; border-radius: 12px; box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05); border: 1px solid #f3f4f6; }
 
-    .cart-btn:hover {
-        background: #008a7a;
-        border-color: #008a7a;
-        color: #fff;
-    }
-
-    .product-extra-note {
-        background: #fff8e6;
-        border: 1px solid #ffe4a1;
-        color: #8a6d1a;
-        padding: 10px 14px;
-        border-radius: 8px;
-        font-size: 16px;
-        line-height: 1.5;
-    }
-
-    /* =========================================
-       Aggressive WYSIWYG Responsive Fixes
-       ========================================= */
-    .product-rich-description {
-        width: 100%;
-        max-width: 100%;
-        overflow-x: hidden; 
-        color: #374151;
-        line-height: 1.8;
-        font-size: 16px;
-        word-wrap: break-word !important;
-        overflow-wrap: break-word !important;
-    }
-
-    .product-rich-description * {
-        max-width: 100% !important;
-        box-sizing: border-box !important;
-    }
-
-    .product-rich-description p, 
-    .product-rich-description span, 
-    .product-rich-description div,
-    .product-rich-description font,
-    .product-rich-description b,
-    .product-rich-description strong {
-        white-space: normal !important;
-        width: auto !important; 
-    }
-
-    .product-rich-description img,
-    .product-rich-description video,
-    .product-rich-description iframe,
-    .product-rich-description figure {
-        max-width: 100% !important;
-        width: auto !important;  
-        height: auto !important; 
-        object-fit: contain;
-        border-radius: 8px;
-        margin: 15px 0;
-    }
-
-    .product-rich-description iframe {
-        width: 100% !important;
-        aspect-ratio: 16 / 9;
-    }
-
-    .product-rich-description table {
-        width: 100% !important;
-        max-width: 100% !important;
-        display: block !important; 
-        overflow-x: auto !important; 
-        -webkit-overflow-scrolling: touch; 
-        border-collapse: collapse;
-        margin: 20px 0;
-        background: #fff;
-    }
-
-    .product-rich-description table tbody,
-    .product-rich-description table thead,
-    .product-rich-description table tr {
-        max-width: 100% !important;
-    }
-
-    .product-rich-description table th,
-    .product-rich-description table td {
-        padding: 10px 12px;
-        border: 1px solid #e5e7eb;
-        min-width: 120px !important; 
-        white-space: normal !important; 
-    }
-
-    .size-guide-wrapper {
-        position: sticky;
-        top: 20px;
-        text-align: center;
-    }
-    
-    .size-guide-wrapper img {
-        max-width: 100%;
-        height: auto;
-        border-radius: 12px;
-        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
-        border: 1px solid #f3f4f6;
-    }
-
-    /* Responsive Design Adjustments */
     @media (max-width: 767px) {
         .product-slider-wrap { flex-direction: column; gap: 15px; }
         .product-gallary { width: 100% !important; }
@@ -342,45 +70,10 @@
         .thumb-item { width: 70px; height: 70px; }
         .qty-box input { width: 100% !important; text-align: center; }
         .product-btn { flex-wrap: wrap; gap: 10px !important; }
-        .qty-box, .cart-btn-wrap-2, #addToCartBtn, #buyNowBtn {
-            width: 100% !important;
-            display: block;
-        }
-    }
-    /* =========================================
-       Mobile Fix: Break Inline Grid & Float Layouts
-       ========================================= */
-    @media (max-width: 767px) {
-        .product-rich-description [style*="display: grid"],
-        .product-rich-description [style*="grid-template-columns"],
-        .product-rich-description [style*="display: flex"],
-        .product-rich-description [style*="float"] {
-            display: block !important;
-            grid-template-columns: 1fr !important; 
-            width: 100% !important;
-            float: none !important;
-            margin-bottom: 20px !important;
-        }
-
-        .product-rich-description img,
-        .product-rich-description figure {
-            display: block !important;
-            width: 100% !important;
-            max-width: 100% !important;
-            height: auto !important;
-            margin: 20px auto !important;
-            float: none !important;
-            object-fit: contain;
-        }
-        
-        .product-rich-description p,
-        .product-rich-description h1,
-        .product-rich-description h2,
-        .product-rich-description h3,
-        .product-rich-description h4 {
-            word-break: break-word !important;
-            text-align: left !important; 
-        }
+        .qty-box, .cart-btn-wrap-2, #addToCartBtn, #buyNowBtn { width: 100% !important; display: block; }
+        .product-rich-description [style*="display: grid"], .product-rich-description [style*="grid-template-columns"], .product-rich-description [style*="display: flex"], .product-rich-description [style*="float"] { display: block !important; grid-template-columns: 1fr !important; width: 100% !important; float: none !important; margin-bottom: 20px !important; }
+        .product-rich-description img, .product-rich-description figure { display: block !important; width: 100% !important; max-width: 100% !important; height: auto !important; margin: 20px auto !important; float: none !important; object-fit: contain; }
+        .product-rich-description p, .product-rich-description h1, .product-rich-description h2, .product-rich-description h3, .product-rich-description h4 { word-break: break-word !important; text-align: left !important; }
     }
 </style>
 @endpush
@@ -498,7 +191,31 @@
                             @endif
                             <input type="hidden" id="selectedColorId">
                         </div>
-                       
+                        
+                        <!-- 🟢 Dynamic Attributes Summary Box 🟢 -->
+                        @if($product->attributes && $product->attributes->count() > 0)
+                        <div class="product-specs-summary mt-4 mb-4 p-3 bg-light rounded-3 border">
+                            <h6 class="fw-bold text-uppercase mb-3 text-dark" style="font-size: 13px; letter-spacing: 0.5px;">
+                                <i class="fa-solid fa-list-check me-2 text-secondary"></i> Key Specifications & Attributes
+                            </h6>
+                            <ul class="list-unstyled mb-0 specs-grid-summary">
+                                @foreach($product->attributes as $attr)
+                                <li>
+                                    <strong class="text-dark">{{ $attr->name }}:</strong> 
+                                    <span class="text-muted ms-1">
+                                        @if($attr->options && $attr->options->count() > 0)
+                                            {{ $attr->options->pluck('name')->implode(', ') }}
+                                        @else
+                                            <span class="fst-italic text-secondary">N/A</span>
+                                        @endif
+                                    </span>
+                                </li>
+                                @endforeach
+                            </ul>
+                        </div>
+                        @endif
+                        <!-- ============================================== -->
+
                         <div class="product-btn mt-4 d-flex gap-2 align-items-center">
                             <div class="qty-box">
                                 <button class="qty-btn qty-minus">
@@ -538,6 +255,14 @@
             <li role="presentation">
                 <button class="active" id="home-tab" data-bs-toggle="tab" data-bs-target="#home" type="button" role="tab" aria-controls="home" aria-selected="true">Description</button>
             </li>
+            
+            <!-- 🟢 Specifications Tab Button 🟢 -->
+            @if($product->attributes && $product->attributes->count() > 0)
+            <li role="presentation">
+                <button id="specs-tab" data-bs-toggle="tab" data-bs-target="#specs" type="button" role="tab" aria-controls="specs" aria-selected="false">Specifications</button>
+            </li>
+            @endif
+
             <li role="presentation">
                 <button id="contact-tab" data-bs-toggle="tab" data-bs-target="#contact" type="button" role="tab" aria-controls="contact" aria-selected="false">Reviews ({{ $product->reviews->count() }})</button>
             </li>
@@ -548,14 +273,11 @@
             <!-- Description Tab -->
             <div class="tab-pane fade show active description" id="home" role="tabpanel" aria-labelledby="home-tab">
                 <div class="row gy-4 align-items-start mt-2"> 
-                    <!-- Description Content -->
                     <div class="col-12 {{ $product->size_guide ? 'col-lg-8 order-2 order-lg-1' : '' }}">
                         <div class="product-rich-description">
                             {!! $product->description !!}
                         </div>
                     </div>
-                    
-                    <!-- Size Guide Image -->
                     @if($product->size_guide)
                     <div class="col-12 col-lg-4 order-1 order-lg-2">
                         <div class="size-guide-wrapper">
@@ -565,6 +287,37 @@
                     @endif
                 </div>
             </div>
+
+            <!-- 🟢 Specifications Tab Content 🟢 -->
+            @if($product->attributes && $product->attributes->count() > 0)
+            <div class="tab-pane fade description" id="specs" role="tabpanel" aria-labelledby="specs-tab">
+                <div class="row mt-4">
+                    <div class="col-lg-8">
+                        <h4 class="mb-4">Product Specifications & Attributes</h4>
+                        <div class="table-responsive border rounded-3">
+                            <table class="table table-striped table-hover mb-0">
+                                <tbody>
+                                    @foreach($product->attributes as $attr)
+                                    <tr>
+                                        <th width="35%" class="text-muted fw-semibold py-3 px-4">{{ $attr->name }}</th>
+                                        <td class="text-dark fw-medium py-3 px-4">
+                                            @if($attr->options && $attr->options->count() > 0)
+                                                @foreach($attr->options as $opt)
+                                                    <span class="badge bg-light text-dark border px-2 py-1 me-1">{{ $opt->name }}</span>
+                                                @endforeach
+                                            @else
+                                                <span class="text-muted">—</span>
+                                            @endif
+                                        </td>
+                                    </tr>
+                                    @endforeach
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            @endif
 
             <!-- Reviews Tab -->
             <div class="tab-pane fade review" id="contact" role="tabpanel" aria-labelledby="contact-tab">
@@ -911,8 +664,6 @@
                     $(this).wrap('<div class="table-responsive" style="width: 100%; overflow-x: auto; -webkit-overflow-scrolling: touch; border: 1px solid #e5e7eb; margin-bottom: 15px;"></div>');
                 }
             });
-            /* ======================================================== */
-
         });
     </script>
 @endpush

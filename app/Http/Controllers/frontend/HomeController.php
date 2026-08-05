@@ -252,18 +252,18 @@ class HomeController extends Controller
             ->with([
                 'images',
                 'category',
-                'brand',         
+                'brand',        
                 'colors.color',
                 'colors.images',
                 'variants.size', 
-                'variants.color' 
+                'variants.color',
+                'attributes.options' 
             ])
             ->firstOrFail();
 
         $uniqueSizes = $product->variants->pluck('size')->filter()->unique('id');
-
         $product->setRelation('sizes', $uniqueSizes);
-// dd($product);
+
         return view('frontend.home.single', compact('product'));
     }
 

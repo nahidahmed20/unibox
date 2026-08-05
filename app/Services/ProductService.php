@@ -2,16 +2,11 @@
 
 namespace App\Services;
 
-use App\Models\PriceHistory;
 use App\Models\Product;
-use App\Models\ProductColor;
-use App\Models\ProductColorImage;
-use App\Models\ProductImage;
-use App\Models\ProductStock;
-use App\Models\ProductVariant;
+use App\Models\PriceHistory;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\File; 
+use Illuminate\Support\Facades\File;
 use Illuminate\Support\Str;
 
 class ProductService
@@ -43,6 +38,12 @@ class ProductService
                 'vendor_id'         => !empty($data['vendor_id']) ? $data['vendor_id'] : null,
                 'unit_id'           => !empty($data['unit_id']) ? $data['unit_id'] : null,
                 'variation_id'      => !empty($data['variation_id']) ? $data['variation_id'] : null,
+            
+                // Custom Calculator & Dynamic Attributes Data
+                'is_calculator'     => $data['is_calculator'] ?? 0,
+                'price_per_sqft'    => $data['price_per_sqft'] ?? 0,
+                'specifications'    => !empty($data['specs']) ? json_encode($data['specs']) : null,
+
                 'purchase_price'    => $data['purchase_price'] ?? 0,
                 'selling_price'     => $data['selling_price'] ?? 0,
                 'discount_type'     => !empty($data['discount_type']) ? $data['discount_type'] : null,
@@ -68,6 +69,21 @@ class ProductService
                 'status'            => $data['status'] ?? 1,
             ]);
 
+            // Assign Attributes for Calculator/Product
+            $attributeIds = $data['attribute_ids'] ?? $request->attribute_ids ?? [];
+                if (!empty($attributeIds)) {
+                    $product->productAttributes()->delete();
+
+                    foreach ($attributeIds as $attrId) {
+                        \App\Models\ProductAttribute::create([
+                            'product_id'   => $product->id,
+                            `attribute_id` => $attrId,
+                        ]);
+                    }
+                } else {
+                    $product->productAttributes()->delete();
+                }
+
             if ($request->hasFile('images')) {
                 $galleryPath = public_path('uploads/products');
                 if (!File::exists($galleryPath)) {
@@ -85,14 +101,13 @@ class ProductService
                 }
             }
 
-            /* ================= NEW VARIANT MATRIX SAVE ================= */
             if (($data['product_type'] ?? '') === 'multiple' && !empty($data['variants'])) {
                 $totalVariantStock = 0; 
 
                 foreach ($data['variants'] as $variantData) {
-                    $variant = $product->variants()->create([
+                    $product->variants()->create([
                         'color_id'       => !empty($variantData['color_id']) ? $variantData['color_id'] : null,
-                        'size_id'        => !empty($variantData['size_id']) ? $variantData['size_id'] : null, // এখানে size_id করা হয়েছে
+                        'size_id'        => !empty($variantData['size_id']) ? $variantData['size_id'] : null,
                         'sku'            => !empty($variantData['sku']) ? $variantData['sku'] : $sku . '-' . strtoupper(Str::random(4)),
                         'purchase_price' => $variantData['purchase_price'] ?? 0,
                         'selling_price'  => $variantData['selling_price'] ?? 0,
@@ -177,10 +192,9 @@ class ProductService
     public function handleUpdate($id, array $data, $request)
     {
         return DB::transaction(function () use ($id, $data, $request) {
-            $product = Product::with(['images', 'colors.images', 'variants'])->findOrFail($id);
+            $product = Product::with(['images', 'colors.images', 'variants', 'attributes'])->findOrFail($id);
             $slug = Str::slug($data['name']);
 
-            /* ================= MAIN IMAGE UPDATE ================= */
             $mainImage = $product->image;
             if ($request->hasFile('image')) {
                 if ($product->image && File::exists(public_path($product->image))) {
@@ -189,7 +203,6 @@ class ProductService
                 $mainImage = $this->uploadFile($request, 'image', 'uploads/products');
             }
 
-            /* ================= SIZE GUIDE UPDATE ================= */
             $sizeGuide = $product->size_guide;
             if ($request->hasFile('size_guide')) {
                 if ($product->size_guide && File::exists(public_path($product->size_guide))) {
@@ -198,7 +211,6 @@ class ProductService
                 $sizeGuide = $this->uploadFile($request, 'size_guide', 'uploads/products');
             }
 
-            /* ================= DISCOUNT CALCULATION ================= */
             $discountValue = $this->calculateDiscount(
                 $data['main_price'] ?? 0, 
                 $data['selling_price'] ?? 0, 
@@ -215,6 +227,12 @@ class ProductService
                 'vendor_id'         => !empty($data['vendor_id']) ? $data['vendor_id'] : null,
                 'unit_id'           => !empty($data['unit_id']) ? $data['unit_id'] : null,
                 'variation_id'      => !empty($data['variation_id']) ? $data['variation_id'] : null,
+                
+                // Custom Calculator & Dynamic Attributes Data Update
+                'is_calculator'     => $data['is_calculator'] ?? 0,
+                'price_per_sqft'    => $data['price_per_sqft'] ?? 0,
+                'specifications'    => !empty($data['specs']) ? json_encode($data['specs']) : null,
+
                 'purchase_price'    => $data['purchase_price'] ?? 0,
                 'selling_price'     => $data['selling_price'] ?? 0,
                 'discount_type'     => !empty($data['discount_type']) ? $data['discount_type'] : null,
@@ -237,9 +255,22 @@ class ProductService
                 'is_trending'       => $data['is_trending'] ?? 0,
                 'product_type'      => $data['product_type'] ?? 'single',
                 'status'            => $data['status'] ?? 1,
+                
             ]);
 
-            /* ================= PRODUCT GALLERY IMAGES ================= */
+            // Sync Attributes
+            if ($request->has('attribute_ids') && !empty($request->attribute_ids)) {
+                $product->productAttributes()->delete();
+                foreach ($request->attribute_ids as $attrId) {
+                    \App\Models\ProductAttribute::create([
+                        'product_id'   => $product->id,
+                        'attribute_id' => $attrId,
+                    ]);
+                }
+            } else {
+                $product->productAttributes()->delete();
+            }
+
             if ($request->hasFile('images')) {
                 foreach ($product->images as $oldImage) {
                     if ($oldImage->image && File::exists(public_path($oldImage->image))) {
@@ -264,7 +295,6 @@ class ProductService
                 }
             }
 
-            /* ================= NEW VARIANT MATRIX SAVE/UPDATE ================= */
             if (($data['product_type'] ?? '') === 'multiple' && !empty($data['variants'])) {
                 $product->variants()->forceDelete(); 
                 $totalVariantStock = 0;
@@ -272,7 +302,7 @@ class ProductService
                 foreach ($data['variants'] as $variantData) {
                     $product->variants()->create([
                         'color_id'       => !empty($variantData['color_id']) ? $variantData['color_id'] : null, 
-                        'size_id'        => !empty($variantData['size_id']) ? $variantData['size_id'] : null, // এখানে size_id করা হয়েছে    
+                        'size_id'        => !empty($variantData['size_id']) ? $variantData['size_id'] : null,
                         'sku'            => !empty($variantData['sku']) ? $variantData['sku'] : $product->sku . '-' . strtoupper(Str::random(4)),     
                         'purchase_price' => $variantData['purchase_price'] ?? 0,
                         'selling_price'  => $variantData['selling_price'] ?? 0,
@@ -289,7 +319,6 @@ class ProductService
                 $product->update(['stock' => $data['stock'] ?? 0]);
             }
 
-            /* ================= COLOR SPECIFIC IMAGES ================= */
             $colorIds = $data['color_image_ids'] ?? $data['color_image_names'] ?? [];
             if (!empty($colorIds)) {
                 $colorPath = public_path('uploads/product_colors');
@@ -334,36 +363,4 @@ class ProductService
         });
     }
 
-    public function bulkPriceUpdate(array $data)
-    {
-        return DB::transaction(function () use ($data) {
-            $query = Product::query();
-
-            if (!empty($data['category_id'])) $query->where('category_id', $data['category_id']);
-            if (!empty($data['brand_id']))    $query->where('brand_id', $data['brand_id']);
-
-            $products = $query->get();
-
-            foreach ($products as $product) {
-                $oldPrice = $product->selling_price;
-
-                $newPrice = $data['type'] === 'percent'
-                    ? $oldPrice + ($oldPrice * $data['value'] / 100)
-                    : $oldPrice + $data['value'];
-
-                $newPrice = max(0, round($newPrice, 2));
-
-                $product->update(['selling_price' => $newPrice]);
-
-                PriceHistory::create([
-                    'product_id' => $product->id,
-                    'old_price'  => $oldPrice,
-                    'new_price'  => $newPrice,
-                    'changed_by' => auth()->id(),
-                ]);
-            }
-
-            return $products->count();
-        });
-    }
 }

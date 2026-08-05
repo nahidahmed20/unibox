@@ -47,6 +47,9 @@ return new class extends Migration
             $table->tinyInteger('is_bestseller')->default(0);
             $table->tinyInteger('is_trending')->default(0);
             $table->string('product_type',100)->nullable();
+            $table->tinyInteger('is_calculator')->default(0);
+            $table->decimal('price_per_sqft', 15, 2)->default(0);
+            $table->json('specifications')->nullable();
             $table->tinyInteger('status')->default(1);
             $table->timestamps();
             $table->softDeletes();

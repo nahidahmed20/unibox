@@ -143,6 +143,7 @@
         background-color: #000;
         color: #fff;
     }
+
     .premium-variation-wrapper {
         background: #fafafa;
         border-radius: 12px;
@@ -160,7 +161,6 @@
         display: block;
     }
 
-    /* Premium Size Pill Styling */
     .premium-size-btn {
         display: inline-flex;
         align-items: center;
@@ -179,15 +179,13 @@
         user-select: none;
     }
 
-    /* Hover Effect */
     .premium-size-btn:hover {
         border-color: #ced4da;
         background-color: #f8f9fa;
     }
 
-    /* Active/Checked Effect */
     .btn-check:checked + .premium-size-btn {
-        background-color: #111827; /* Deep Dark Color */
+        background-color: #111827;
         border-color: #111827;
         color: #ffffff;
         box-shadow: 0 8px 16px rgba(17, 24, 39, 0.2);
@@ -236,7 +234,7 @@
                     <div class="card-body">
                         <div class="mb-4">
                             <label class="form-label">Product Title</label>
-                            <input type="text" class="form-control form-control-lg" id="name" name="name" value="{{ old('name') }}" placeholder="e.g. Premium Cotton T-Shirt">
+                            <input type="text" class="form-control form-control-lg" id="name" name="name" value="{{ old('name') }}" placeholder="e.g. Acrylic Nameplate">
                             @error('name')<small class="text-danger mt-1 d-block">{{ $message }}</small>@enderror
                         </div>
 
@@ -260,11 +258,59 @@
                         </div>
                         <div class="mt-4">
                             <label class="form-label">Extra Note <span class="text-muted fw-normal">(Product Page - Optional)</span></label>
-                            <textarea name="extra_note" class="form-control" rows="2" placeholder="বিশেষ নোট">{{ old('extra_note', $product->extra_note ?? '') }}</textarea>
+                            <textarea name="extra_note" class="form-control" rows="2" placeholder="বিশেষ নোট">{{ old('extra_note') }}</textarea>
                             <small class="text-muted d-block mt-1">
-                                <i class="fa-solid fa-circle-info me-1"></i> এই মেসেজ শুধু এই প্রোডাক্টের পেজে "Add to Cart" বাটনের নিচে দেখাবে। খালি রাখলে কিছু দেখাবে না।
+                                <i class="fa-solid fa-circle-info me-1"></i> এই মেসেজ শুধু এই প্রোডাক্টের পেজে "Add to Cart" বাটনের নিচে দেখাবে।
                             </small>
-                            @error('extra_note')<small class="text-danger mt-1 d-block">{{ $message }}</small>@enderror
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Custom Calculator Setup Card -->
+                <div class="card modern-card border-warning">
+                    <div class="modern-card-header bg-light">
+                        <h5 class="text-dark"><i class="fa-solid fa-calculator text-warning me-2"></i> Custom Product Calculator Setup</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="mb-3 form-check">
+                            <input type="checkbox" class="form-check-input" id="is_calculator" name="is_calculator" value="1" {{ old('is_calculator', $product->is_calculator ?? 0) == 1 ? 'checked' : '' }}>
+                            <label class="form-check-label fw-bold" for="is_calculator">Enable Dynamic Price Calculator (Square Feet / Step Selection)</label>
+                        </div>
+
+                        <div class="mb-3 calculator-price-box" style="display: none;">
+                            <label class="form-label">Price Per Square Feet (৳) <span class="text-danger">*</span></label>
+                            <input type="number" step="0.01" class="form-control fw-bold text-success" name="price_per_sqft" value="{{ old('price_per_sqft', $product->price_per_sqft ?? 0) }}" placeholder="e.g. 150">
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Assign Attributes for Calculator -->
+                <div class="card modern-card">
+                    <div class="modern-card-header">
+                        <h5><i class="fa-solid fa-list-check text-muted me-2"></i> Assign Attributes for Calculator</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="row">
+                            @php
+                                $allAttributes = \App\Models\Attribute::where('status', 1)->get();
+                                $assignedAttr = isset($selectedAttributes) ? $selectedAttributes : [];
+                            @endphp
+                            @if($allAttributes->count() > 0)
+                                @foreach($allAttributes as $attr)
+                                    <div class="col-md-4 mb-2">
+                                        <div class="form-check">
+                                            <input class="form-check-input" type="checkbox" name="attribute_ids[]" value="{{ $attr->id }}" id="attr_{{ $attr->id }}" {{ in_array($attr->id, old('attribute_ids', $assignedAttr)) ? 'checked' : '' }}>
+                                            <label class="form-check-label fw-bold" for="attr_{{ $attr->id }}">
+                                                {{ $attr->name }}
+                                            </label>
+                                        </div>
+                                    </div>
+                                @endforeach
+                            @else
+                                <div class="col-12 text-muted text-center py-2">
+                                    No attributes found. Please create attributes first.
+                                </div>
+                            @endif
                         </div>
                     </div>
                 </div>
@@ -288,13 +334,13 @@
                             <div class="col-md-12">
                                 <label class="form-label">Product Gallery</label>
                                 <input type="file" class="form-control" name="images[]" multiple>
-                                <small class="text-muted d-block mt-2"><i class="fa-solid fa-circle-info me-1"></i> You can select multiple images by holding CTRL.</small>
-                                @error('images')<small class="text-danger">{{ $message }}</small>@enderror
+                                <small class="text-muted d-block mt-2"><i class="fa-solid fa-circle-info me-1"></i> You can select multiple images.</small>
                             </div>
                         </div>
                     </div>
                 </div>
 
+                <!-- Product Variations Section -->
                 <div class="card modern-card">
                     <div class="modern-card-header">
                         <h5><i class="fa-solid fa-layer-group text-muted"></i> Product Variations</h5>
@@ -330,8 +376,7 @@
                                             <label class="premium-variation-label">
                                                 <i class="fa-solid fa-gem text-dark me-1"></i> Available Sizes
                                             </label>
-                                            <div id="variationSizes" class="d-flex flex-wrap gap-3 align-items-center">
-                                                </div>
+                                            <div id="variationSizes" class="d-flex flex-wrap gap-3 align-items-center"></div>
                                         </div>
                                     </div>
                                 </div>
@@ -369,21 +414,18 @@
                                                     <th>Stock <span class="text-danger">*</span></th>
                                                 </tr>
                                             </thead>
-                                            <tbody id="variantCombinationsTableBody">
-                                                </tbody>
+                                            <tbody id="variantCombinationsTableBody"></tbody>
                                         </table>
                                     </div>
                                 </div>
-
                             </div>
                         </div>
                     </div>
                 </div>
-
             </div>
 
+            <!-- Right Sidebar -->
             <div class="col-lg-4">
-                
                 <div class="card modern-card">
                     <div class="modern-card-header">
                         <h5><i class="fa-solid fa-tag text-muted"></i> Pricing & Inventory</h5>
@@ -391,59 +433,51 @@
                     <div class="card-body">
                         <div class="row">
                             <div class="col-6 mb-3">
-                                <label class="form-label">Selling Price (Min) (৳) <span class="text-danger">*</span></label>
-                                <input type="number" step="0.01" class="form-control fs-5 fw-bold text-success" name="selling_price" id="selling_price" value="{{ old('selling_price') }}" placeholder="e.g. 5000">
+                                <label class="form-label">Selling Price (৳) <span class="text-danger">*</span></label>
+                                <input type="number" step="0.01" class="form-control fs-5 fw-bold text-success" name="selling_price" id="selling_price" value="{{ old('selling_price', 0) }}">
                                 @error('selling_price')<small class="text-danger">{{ $message }}</small>@enderror
                             </div>
-                            
                             <div class="col-6 mb-3">
-                                <label class="form-label">Maximum Price (৳) <small class="text-muted fw-normal">(Optional)</small></label>
-                                <input type="number" step="0.01" class="form-control fs-5 fw-bold text-primary" name="max_price" id="max_price" value="{{ old('max_price') }}" placeholder="e.g. 7000">
-                                @error('max_price')<small class="text-danger">{{ $message }}</small>@enderror
+                                <label class="form-label">Maximum Price</label>
+                                <input type="number" step="0.01" class="form-control fs-5 fw-bold text-primary" name="max_price" id="max_price" value="{{ old('max_price', 0) }}">
                             </div>
                         </div>
                         
                         <div class="row">
                             <div class="col-6 mb-3">
                                 <label class="form-label">Cost Price</label>
-                                <input type="number" step="0.01" class="form-control" name="purchase_price" id="base_purchase_price" value="{{ old('purchase_price') }}" placeholder="0.00">
+                                <input type="number" step="0.01" class="form-control" name="purchase_price" id="base_purchase_price" value="{{ old('purchase_price', 0) }}">
                             </div>
                             <div class="col-6 mb-3">
                                 <label class="form-label">Discount Price</label>
-                                <input type="number" step="0.01" class="form-control" name="main_price" value="{{ old('main_price') }}" placeholder="0.00">
+                                <input type="number" step="0.01" class="form-control" name="main_price" value="{{ old('main_price', 0) }}">
                             </div>
                         </div>
 
                         <div class="mb-3">
                             <label class="form-label">Discount Type</label>
-                            <select name="discount_type" id="discount_type" class="form-select">
-                                <option value="" {{ old('discount_type') == '' ? 'selected' : '' }}>No Discount</option>
-                                <option value="percent" {{ old('discount_type') == 'percent' ? 'selected' : '' }}>Percentage (%)</option>
-                                <option value="fixed" {{ old('discount_type') == 'fixed' ? 'selected' : '' }}>Fixed Amount</option>
+                            <select name="discount_type" class="form-select">
+                                <option value="">No Discount</option>
+                                <option value="percent">Percentage (%)</option>
+                                <option value="fixed">Fixed Amount</option>
                             </select>
                         </div>
 
                         <hr class="text-muted my-4">
 
                         <div class="mb-3">
-                            <label class="form-label">SKU (Stock Keeping Unit)</label>
-                            <input type="text" class="form-control font-monospace" id="sku" name="sku" value="{{ old('sku') }}" placeholder="Auto-generated" readonly>
-                        </div>
-                        
-                        <div class="mb-3">
-                            <label class="form-label">Barcode</label>
-                            <input type="text" class="form-control" name="barcode" value="{{ old('barcode') }}" placeholder="Optional">
+                            <label class="form-label">SKU</label>
+                            <input type="text" class="form-control font-monospace" id="sku" name="sku" value="{{ old('sku') }}" readonly>
                         </div>
 
                         <div class="row">
                             <div class="col-6 mb-3">
                                 <label class="form-label">Alert Qty</label>
-                                <input type="number" class="form-control" name="alert_quantity" value="{{ old('alert_quantity') }}" placeholder="e.g. 5">
+                                <input type="number" class="form-control" name="alert_quantity" value="{{ old('alert_quantity', 5) }}">
                             </div>
                             <div class="col-6 mb-3" id="singleProductStockWrapper">
-                                <label class="form-label">Opening Stock <span class="text-danger">*</span></label>
-                                <input type="number" class="form-control fw-bold" name="stock" value="{{ old('stock', 0) }}" placeholder="e.g. 50">
-                                <small class="text-muted">For single product</small>
+                                <label class="form-label">Stock <span class="text-danger">*</span></label>
+                                <input type="number" class="form-control fw-bold" name="stock" value="{{ old('stock', 100) }}">
                             </div>
                         </div>
                     </div>
@@ -456,18 +490,17 @@
                     <div class="card-body">
                         <div class="mb-3">
                             <label class="form-label">Category</label>
-                            <select name="category_id" id="category_id" class="form-select">
-                                <option value="">Search Category...</option>
+                            <select name="category_id" id="category_id" class="form-select" required>
+                                <option value="">Select Category</option>
                                 @foreach($categories as $cat)
                                     <option value="{{ $cat->id }}" {{ old('category_id') == $cat->id ? 'selected' : '' }}>{{ $cat->name }}</option>
                                 @endforeach
                             </select>
-                            @error('category_id')<small class="text-danger">{{ $message }}</small>@enderror
                         </div>
 
                         <div class="mb-3">
                             <label class="form-label">Subcategory</label>
-                            <select name="subcategory_id" id="subcategory_id" class="form-select" data-old="{{ old('subcategory_id') }}">
+                            <select name="subcategory_id" id="subcategory_id" class="form-select">
                                 <option value="">Select Subcategory</option>
                             </select>
                         </div>
@@ -485,7 +518,7 @@
                         <div class="mb-0">
                             <label class="form-label">Unit</label>
                             <select name="unit_id" class="form-select">
-                                <option value="">Select Unit (Piece, Kg, etc)</option>
+                                <option value="">Select Unit</option>
                                 @foreach($units as $unit)
                                     <option value="{{ $unit->id }}" {{ old('unit_id') == $unit->id ? 'selected' : '' }}>{{ $unit->name }}</option>
                                 @endforeach
@@ -494,64 +527,14 @@
                     </div>
                 </div>
 
-                <div class="card modern-card">
-                    <div class="modern-card-header">
-                        <h5><i class="fa-regular fa-eye text-muted"></i> Visibility</h5>
-                    </div>
-                    <div class="card-body">
-                        <div class="row">
-                            <div class="col-6 mb-3">
-                                <label class="form-label">Featured</label>
-                                <select name="is_featured" class="form-select">
-                                    <option value="1" {{ old('is_featured') == '1' ? 'selected' : '' }}>Yes</option>
-                                    <option value="0" {{ old('is_featured', '0') == '0' ? 'selected' : '' }}>No</option>
-                                </select>
-                            </div>
-                            
-                            <div class="col-6 mb-3">
-                                <label class="form-label">New Arrival</label>
-                                <select name="is_new" class="form-select">
-                                    <option value="1" {{ old('is_new', '1') == '1' ? 'selected' : '' }}>Yes</option>
-                                    <option value="0" {{ old('is_new') == '0' ? 'selected' : '' }}>No</option>
-                                </select>
-                            </div>
-
-                            <div class="col-6 mb-3">
-                                <label class="form-label">Best Seller</label>
-                                <select name="is_bestseller" class="form-select">
-                                    <option value="1" {{ old('is_bestseller') == '1' ? 'selected' : '' }}>Yes</option>
-                                    <option value="0" {{ old('is_bestseller', '0') == '0' ? 'selected' : '' }}>No</option>
-                                </select>
-                            </div>
-
-                            <div class="col-6 mb-3">
-                                <label class="form-label">Trending</label>
-                                <select name="is_trending" class="form-select">
-                                    <option value="1" {{ old('is_trending') == '1' ? 'selected' : '' }}>Yes</option>
-                                    <option value="0" {{ old('is_trending', '0') == '0' ? 'selected' : '' }}>No</option>
-                                </select>
-                            </div>
-
-                            <div class="col-12 mt-2">
-                                <label class="form-label">Status</label>
-                                <select name="status" class="form-select {{ old('status', '1') == '1' ? 'bg-success text-white border-0' : 'bg-secondary text-white border-0' }}" id="statusSelect">
-                                    <option value="1" {{ old('status', '1') == '1' ? 'selected' : '' }}>Active (Published)</option>
-                                    <option value="0" {{ old('status') == '0' ? 'selected' : '' }}>Inactive (Draft)</option>
-                                </select>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
                 <div class="card modern-card bg-transparent shadow-none">
                     <div class="sticky-footer rounded-4 shadow-sm border">
-                        <a href="{{ route('dashboard') }}" class="btn btn-light px-4 border rounded-3 fw-bold">Discard</a>
+                        <a href="{{ route('products.index') }}" class="btn btn-light px-4 border rounded-3 fw-bold">Cancel</a>
                         <button type="submit" id="submitBtn" class="btn btn-modern-primary">
                             <i class="fa-solid fa-check me-2"></i> Save Product
                         </button>
                     </div>
                 </div>
-
             </div>
         </form>
     </div>
@@ -561,12 +544,22 @@
 @push('scripts')
 <script>
     $(document).ready(function() {
-        // Initialize Summernote
         if ($('.summernote').length > 0) {
             $('.summernote').summernote({ height: 250 });
         }
 
-        // Auto Generate Slug & SKU from Product Title
+        // Calculator Box Toggle Logic
+        function toggleCalculatorBox() {
+            if ($('#is_calculator').is(':checked')) {
+                $('.calculator-price-box').slideDown();
+            } else {
+                $('.calculator-price-box').slideUp();
+            }
+        }
+        toggleCalculatorBox();
+        $('#is_calculator').on('change', toggleCalculatorBox);
+
+        // Auto Generate Slug & SKU
         $('#name').on('keyup', function() {
             let name = $(this).val().trim();
             let slug = name.toLowerCase().replace(/[^a-z0-9]+/g, '-');
@@ -577,13 +570,6 @@
             } else {
                 $('#sku').val('');
             }
-            if($('#product_type').val() === 'multiple') {
-                generateVariantMatrix();
-            }
-        });
-
-        // Live update Matrix Selling Price when Main Selling Price changes
-        $('#selling_price').on('keyup change', function() {
             if($('#product_type').val() === 'multiple') {
                 generateVariantMatrix();
             }
@@ -612,49 +598,7 @@
         toggleProductOptions();
         $('#product_type').on('change', toggleProductOptions);
 
-        // Status Select Color Toggle
-        $('#statusSelect').on('change', function(){
-            if($(this).val() == '1'){
-                $(this).removeClass('bg-secondary').addClass('bg-success text-white');
-            } else {
-                $(this).removeClass('bg-success').addClass('bg-secondary text-white');
-            }
-        });
-
-        // Unique Color Selection & Live Matrix Trigger
-        let selectedColors = [];
-        $(document).on('change', '.color-select', function () {
-            let value = $(this).val();
-            let prevValue = $(this).data('prev');
-            
-            if (prevValue) {
-                selectedColors = selectedColors.filter(c => c !== prevValue);
-            }
-            if (value !== '') {
-                let isDuplicate = false;
-                let currentSelect = this;
-                $('.color-select').not(currentSelect).each(function() {
-                    if($(this).val() === value) {
-                        isDuplicate = true;
-                    }
-                });
-
-                if (isDuplicate) {
-                    alert('This color is already selected!');
-                    $(this).val('');
-                    $(this).data('prev', '');
-                    generateVariantMatrix();
-                    return;
-                }
-                selectedColors.push(value);
-                $(this).data('prev', value);
-            } else {
-                $(this).data('prev', '');
-            }
-            generateVariantMatrix();
-        });
-
-        // Add Dynamic Color Row
+        // Dynamic Color Row Addition
         let colorImageIndex = 1;
         $(document).on('click', '.addColorImage', function () {
             let index = colorImageIndex++;
@@ -679,15 +623,8 @@
             $('#colorImageWrapper').append(html);
         });
 
-        // Remove Color Row
         $(document).on('click', '.removeColorImage', function () {
-            let group = $(this).closest('.color-image-group');
-            let select = group.find('.color-select');
-            let value = select.val();
-            if (value && selectedColors.includes(value)) {
-                selectedColors = selectedColors.filter(c => c !== value);
-            }
-            group.slideUp(300, function(){ 
+            $(this).closest('.color-image-group').slideUp(300, function(){ 
                 $(this).remove(); 
                 generateVariantMatrix(); 
             });
@@ -719,7 +656,7 @@
             }
         });
 
-        // --- FIXED SIZE OPTIONS GENERATOR ---
+        // Variation Sizes Generator
         $(document).on('change', '#variation_select', function () {
             let option = $(this).find(':selected');
             let values = option.data('values') || option.attr('data-values');
@@ -743,25 +680,13 @@
                 let html = ``;
                 
                 values.forEach(function (item, index) {
-                    let displayValue = '';
-                    let sizeId = '';
-                    
-                    if (item !== null && typeof item === 'object') {
-                        displayValue = item.value || item.name || item.text;
-                        sizeId = item.id; // Size ID
-                    } else {
-                        displayValue = item;
-                        sizeId = item;
-                    }
-
-                    if (!displayValue || displayValue.toString().trim() === "") return;
+                    let displayValue = item.value || item.name || item.text || item;
+                    let sizeId = item.id || item;
 
                     html += `
                         <div class="position-relative">
                             <input type="checkbox" class="btn-check size-check-input" name="variation_sizes[]" value="${sizeId}" data-name="${displayValue}" id="size_${index}" autocomplete="off">
-                            <label class="premium-size-btn" for="size_${index}">
-                                ${displayValue}
-                            </label>
+                            <label class="premium-size-btn" for="size_${index}">${displayValue}</label>
                         </div>
                     `;
                 });
@@ -771,12 +696,12 @@
             }
             generateVariantMatrix();
         });
-        // Re-trigger Matrix Table on size check change
-        $(document).on('change', '.size-check-input', function() {
+
+        $(document).on('change', '.size-check-input, .color-select', function() {
             generateVariantMatrix();
         });
 
-        // --- FIXED VARIATION MATRIX GENERATOR ---
+        // Variant Matrix Generator
         function generateVariantMatrix() {
             if($('#product_type').val() === 'single') {
                 $('#variantCombinationsWrapper').hide();
@@ -785,10 +710,7 @@
 
             let selectedSizes = [];
             $('.size-check-input:checked').each(function() {
-                selectedSizes.push({
-                    id: $(this).val(),        // size_id
-                    name: $(this).data('name') // size_name (for label)
-                });
+                selectedSizes.push({ id: $(this).val(), name: $(this).data('name') });
             });
 
             let selectedColors = [];
@@ -828,7 +750,7 @@
                 combinations.forEach((variant, index) => {
                     let variantName = '';
                     let colorVal = variant.color ? variant.color.id : '';
-                    let sizeVal = variant.size ? variant.size.id : ''; // size_id
+                    let sizeVal = variant.size ? variant.size.id : '';
                     
                     if (variant.color) variantName += variant.color.name;
                     if (variant.color && variant.size) variantName += ' - ';
@@ -836,7 +758,6 @@
 
                     let colorCode = variant.color ? variant.color.name.substring(0,3).toUpperCase() : '';
                     let sizeCode = variant.size ? variant.size.name.toString().replace(/[^a-zA-Z0-9]/g, '').toUpperCase() : '';
-                    
                     let variantSku = baseSku + (colorCode ? '-' + colorCode : '') + (sizeCode ? '-' + sizeCode : '');
 
                     let row = `
@@ -858,12 +779,7 @@
                 $('#variantCombinationsWrapper').hide();
             }
         }
-        // Auto fadeout error alert
-        setTimeout(function () {
-            $('#errorAlert').fadeOut('slow', function(){ $(this).remove(); });
-        }, 5000); 
 
-        // Button submission loader
         $('#productForm').on('submit', function() {
             let $btn = $('#submitBtn');
             $btn.html('<i class="fa-solid fa-spinner fa-spin me-2"></i> Saving...');

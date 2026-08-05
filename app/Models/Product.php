@@ -88,9 +88,14 @@ class Product extends Model
         return $this->selling_price;
     }
 
-    public function priceHistories()
+    public function attributes()
     {
-        return $this->hasMany(PriceHistory::class);
+        return $this->belongsToMany(Attribute::class, 'product_attributes', 'product_id', 'attribute_id');
+    }
+
+    public function productAttributes()
+    {
+        return $this->hasMany(ProductAttribute::class, 'product_id');
     }
     
 }

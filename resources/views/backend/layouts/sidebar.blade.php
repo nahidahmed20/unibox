@@ -150,16 +150,16 @@
                 {{-- ==========================================
                     ২. Catalog (Products, Categories, Brands, etc.)
                 ========================================== --}}
-                @canany(['products.all', 'product.view', 'product.create', 'product.bulk-product', 'category.view', 'sub-category.view', 'brand.view', 'unit.view', 'color.view', 'size.view', 'variation.view'])
-                    <li class="nav-item {{ request()->routeIs('products.*', 'categories.*', 'sub-categories.*', 'brands.*', 'units.*', 'colors.*', 'sizes.*', 'variations.*') ? 'menu-open' : '' }}">
-                        <a href="#" class="nav-link {{ request()->routeIs('products.*', 'categories.*', 'sub-categories.*', 'brands.*', 'units.*', 'colors.*', 'sizes.*', 'variations.*') ? 'active' : '' }}">
+                @canany(['products.all', 'product.view', 'product.create', 'product.bulk-product', 'category.view', 'sub-category.view', 'brand.view', 'unit.view', 'color.view', 'size.view', 'variation.view', 'attribute.view', 'view product'])
+                    <li class="nav-item {{ request()->routeIs('products.*', 'categories.*', 'sub-categories.*', 'brands.*', 'units.*', 'colors.*', 'sizes.*', 'variations.*', 'attributes.*') ? 'menu-open' : '' }}">
+                        <a href="#" class="nav-link {{ request()->routeIs('products.*', 'categories.*', 'sub-categories.*', 'brands.*', 'units.*', 'colors.*', 'sizes.*', 'variations.*', 'attributes.*') ? 'active' : '' }}">
                             <i class="nav-icon bi bi-box-seam-fill"></i>
                             <p>
                                 Catalog Setup
                                 <i class="nav-arrow bi bi-chevron-right ms-auto"></i>
                             </p>
                         </a>
-                        <ul class="nav nav-treeview" style="{{ request()->routeIs('products.*', 'categories.*', 'sub-categories.*', 'brands.*', 'units.*', 'colors.*', 'sizes.*', 'variations.*') ? 'display: block;' : 'display: none;' }}">
+                        <ul class="nav nav-treeview" style="{{ request()->routeIs('products.*', 'categories.*', 'sub-categories.*', 'brands.*', 'units.*', 'colors.*', 'sizes.*', 'variations.*', 'attributes.*') ? 'display: block;' : 'display: none;' }}">
                             @can('product.view')
                                 <li class="nav-item"><a href="{{ route('products.index') }}" class="nav-link {{ request()->routeIs('products.index') ? 'active' : '' }}"><i class="bi bi-list-ul"></i><p>Product List</p></a></li>
                             @endcan
@@ -187,6 +187,10 @@
                             @can('size.view')
                                 <li class="nav-item"><a href="{{ route('sizes.index') }}" class="nav-link {{ request()->routeIs('sizes.index') ? 'active' : '' }}"><i class="bi bi-rulers"></i><p>Size List</p></a></li>
                             @endcan
+                            @can('attribute.view')
+                                <li class="nav-item"><a href="{{ route('attributes.index') }}" class="nav-link {{ request()->routeIs('attributes.index') ? 'active' : '' }}"><i class="bi bi-list-check"></i><p>Attribute List</p></a></li> 
+                            @endcan
+                            
                             @can('variation.view')
                                 <li class="nav-item"><a href="{{ route('variations.index') }}" class="nav-link {{ request()->routeIs('variations.index') ? 'active' : '' }}"><i class="bi bi-sliders"></i><p>Variation List</p></a></li>
                             @endcan

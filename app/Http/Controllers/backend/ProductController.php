@@ -23,6 +23,7 @@ use App\Models\StockAdjustmentItem;
 use App\Models\SubCategory;
 use App\Models\Unit;
 use App\Models\Variation;
+use App\Models\Attribute; 
 use App\Services\ProductService;
 use Exception;
 use Illuminate\Http\Request;
@@ -108,7 +109,10 @@ class ProductController extends Controller implements HasMiddleware
         $variations = Variation::with('sizes')->where('status', 1)->get();
         $colors = Color::all();
 
-        return view('backend.product.create', compact('categories', 'brands', 'units', 'variations', 'colors'));
+        $attributes = Attribute::with('options')->where('status', 1)->get();
+        $selectedAttributes = [];
+
+        return view('backend.product.create', compact('categories', 'brands', 'units', 'variations', 'colors', 'attributes', 'selectedAttributes'));
     }
    
     public function store(StoreProductRequest $request)
@@ -163,7 +167,8 @@ class ProductController extends Controller implements HasMiddleware
             'colors.color',
             'colors.images',
             'variants.color', 
-            'variants.size' // 👈 পরিবর্তন ১: সাইজ রিলেশনটি লোড করা হলো
+            'variants.size',
+            'attributes.options' 
         ])->find($id);
 
         if (!$product) {
@@ -172,9 +177,9 @@ class ProductController extends Controller implements HasMiddleware
 
         $colorImages = $product->colors->map(function ($pColor) {
             return [
-                'id'     => $pColor->color->id ?? '',
-                'name'   => $pColor->color->name ?? '',
-                'code'   => $pColor->color->code ?? '',
+                'id'    => $pColor->color->id ?? '',
+                'name'  => $pColor->color->name ?? '',
+                'code'  => $pColor->color->code ?? '',
                 'images' => $pColor->images->pluck('image')->map(fn($img) => asset($img))->toArray(),
             ];
         });
@@ -201,6 +206,14 @@ class ProductController extends Controller implements HasMiddleware
             ];
         })->values();
 
+        $productAttributes = $product->attributes->map(function ($attr) {
+            return [
+                'id' => $attr->id,
+                'name' => $attr->name,
+                'type' => $attr->type,
+            ];
+        });
+
         return response()->json([
             'id'                => $product->id,
             'name'              => $product->name,
@@ -223,6 +236,10 @@ class ProductController extends Controller implements HasMiddleware
             'is_bestseller'     => $product->is_bestseller,
             'is_trending'       => $product->is_trending,
             'status'            => $product->status,
+            'is_calculator'     => $product->is_calculator, 
+            'price_per_sqft'    => $product->price_per_sqft, 
+            'specifications'    => $productAttributes, 
+            'attributes'        => $product->attributes,
             'image'             => $product->image ? asset($product->image) : null,
             'size_guide'        => $product->size_guide ? asset($product->size_guide) : null,
             'images'            => $product->images->pluck('image')->map(fn($img) => asset($img))->toArray(),
@@ -242,7 +259,8 @@ class ProductController extends Controller implements HasMiddleware
             'variants.color', 
             'variants.size', 
             'colors.images',
-            'images'
+            'images',
+            'attributes' 
         ])->findOrFail($id);
 
         $categories = Category::all();
@@ -251,7 +269,9 @@ class ProductController extends Controller implements HasMiddleware
         $units = Unit::all();
         $colors = Color::all();
         $variations = Variation::where('status', 1)->get();
-
+        $attributes = Attribute::with('options')->where('status', 1)->get();
+        $selectedAttributes = $product->attributes->pluck('id')->toArray();
+// dd($selectedAttributes);
         $selectedVariationId = $product->variation_id ?? null;
 
         return view('backend.product.edit', compact( 
@@ -262,7 +282,9 @@ class ProductController extends Controller implements HasMiddleware
             'units',
             'variations',
             'colors',
-            'selectedVariationId'
+            'selectedVariationId',
+            'attributes',
+            'selectedAttributes'
         ));
     }
 
@@ -402,7 +424,7 @@ class ProductController extends Controller implements HasMiddleware
     public function stockAdjustmentcreate()
     {
         $products = Product::select('id', 'name', 'sku')->where('status', 1)->get();
-        $variations = Variation::where('status', 1)->get(); // ভ্যারিয়েশন লিস্ট পাঠানো হলো যাতে ডাইনামিকালি সাইজ চুজ করা যায়
+        $variations = Variation::where('status', 1)->get(); 
         $colors = DB::table('colors')->select('id', 'name')->get();
 
         return view('backend.stock_adjustments.create', compact('products', 'variations', 'colors'));
@@ -608,7 +630,6 @@ class ProductController extends Controller implements HasMiddleware
 
         return view('backend.product.barcode', compact('products'));
     }
-
 
     public function barcodePrint(Request $request)
     {

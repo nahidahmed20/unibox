@@ -6,23 +6,144 @@
 @push('styles')
 <style>
     /* Modern E-commerce Dashboard UI */
-    .app-content { background-color: #f4f6f8; padding-bottom: 50px; }
-    .modern-card { border: none; box-shadow: 0 2px 12px rgba(0, 0, 0, 0.04); border-radius: 12px; background: #ffffff; margin-bottom: 24px; overflow: hidden; }
-    .modern-card-header { background: #ffffff; border-bottom: 1px solid #f0f2f5; padding: 18px 24px; }
-    .modern-card-header h5 { margin: 0; font-size: 16px; font-weight: 600; color: #212b36; display: flex; align-items: center; gap: 8px; }
-    .card-body { padding: 24px; }
-    .form-label { font-size: 13px; font-weight: 600; color: #637381; margin-bottom: 6px; }
-    .form-control, .form-select { border-radius: 8px; border: 1px solid transparent; background-color: #f4f6f8; padding: 10px 16px; font-size: 14px; color: #212b36; transition: all 0.2s; }
-    .form-control:focus, .form-select:focus { background-color: #ffffff; border-color: #0d6efd; box-shadow: 0 0 0 3px rgba(13, 110, 253, 0.1); }
-    .size-checkbox-wrapper { display: flex; flex-wrap: wrap; gap: 10px; }
-    .size-check-input { display: none; }
-    .size-check-label { padding: 8px 20px; background-color: #f4f6f8; border: 1px solid transparent; border-radius: 8px; font-size: 14px; font-weight: 600; cursor: pointer; transition: all 0.2s ease; color: #637381; }
-    .size-check-label:hover { background-color: #e2e8f0; }
-    .size-check-input:checked + .size-check-label { background-color: #212b36; color: #ffffff; box-shadow: 0 4px 8px rgba(33, 43, 54, 0.2); }
-    .color-image-group { background: #ffffff; padding: 15px; border-radius: 10px; border: 1px dashed #ced4da; transition: all 0.3s; }
-    .sticky-footer { position: sticky; bottom: 0; z-index: 10; background: rgba(255, 255, 255, 0.9); backdrop-filter: blur(10px); padding: 15px 24px; border-top: 1px solid #f0f2f5; border-radius: 0 0 12px 12px; display: flex; justify-content: flex-end; gap: 12px; }
-    .btn-modern-primary { background-color: #212b36; color: #fff; border-radius: 8px; padding: 10px 24px; font-weight: 600; border: none; }
-    /* Premium Variation Wrapper */
+    .app-content {
+        background-color: #f4f6f8; 
+        padding-bottom: 50px;
+    }
+
+    .modern-card {
+        border: none;
+        box-shadow: 0 2px 12px rgba(0, 0, 0, 0.04);
+        border-radius: 12px;
+        background: #ffffff;
+        margin-bottom: 24px;
+        overflow: hidden;
+    }
+
+    .modern-card-header {
+        background: #ffffff;
+        border-bottom: 1px solid #f0f2f5;
+        padding: 18px 24px;
+    }
+
+    .modern-card-header h5 {
+        margin: 0;
+        font-size: 16px;
+        font-weight: 600;
+        color: #212b36;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+
+    .card-body {
+        padding: 24px;
+    }
+
+    .form-label {
+        font-size: 13px;
+        font-weight: 600;
+        color: #637381;
+        margin-bottom: 6px;
+    }
+
+    /* Modern Input Fields */
+    .form-control, .form-select {
+        border-radius: 8px;
+        border: 1px solid transparent;
+        background-color: #f4f6f8;
+        padding: 10px 16px;
+        font-size: 14px;
+        color: #212b36;
+        transition: all 0.2s ease-in-out;
+    }
+
+    .form-control:focus, .form-select:focus {
+        background-color: #ffffff;
+        border-color: #0d6efd;
+        box-shadow: 0 0 0 3px rgba(13, 110, 253, 0.1);
+    }
+
+    .form-control::placeholder {
+        color: #919eab;
+    }
+
+    /* Pill Checkboxes for Sizes */
+    .size-checkbox-wrapper {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 10px;
+    }
+
+    .size-check-input {
+        display: none;
+    }
+
+    .size-check-label {
+        padding: 8px 20px;
+        background-color: #f4f6f8;
+        border: 1px solid transparent;
+        border-radius: 8px;
+        font-size: 14px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.2s ease;
+        color: #637381;
+    }
+
+    .size-check-label:hover {
+        background-color: #e2e8f0;
+    }
+
+    .size-check-input:checked + .size-check-label {
+        background-color: #212b36;
+        color: #ffffff;
+        box-shadow: 0 4px 8px rgba(33, 43, 54, 0.2);
+    }
+
+    /* Color Group Styling */
+    .color-image-group {
+        background: #ffffff;
+        padding: 15px;
+        border-radius: 10px;
+        border: 1px dashed #ced4da;
+        transition: all 0.3s;
+    }
+    
+    .color-image-group:hover {
+        border-color: #adb5bd;
+        background: #f8f9fa;
+    }
+
+    /* Sticky Footer */
+    .sticky-footer {
+        position: sticky;
+        bottom: 0;
+        z-index: 10;
+        background: rgba(255, 255, 255, 0.9);
+        backdrop-filter: blur(10px);
+        padding: 15px 24px;
+        border-top: 1px solid #f0f2f5;
+        border-radius: 0 0 12px 12px;
+        display: flex;
+        justify-content: flex-end;
+        gap: 12px;
+    }
+    
+    .btn-modern-primary {
+        background-color: #212b36;
+        color: #fff;
+        border-radius: 8px;
+        padding: 10px 24px;
+        font-weight: 600;
+        border: none;
+    }
+    
+    .btn-modern-primary:hover {
+        background-color: #000;
+        color: #fff;
+    }
+
     .premium-variation-wrapper {
         background: #fafafa;
         border-radius: 12px;
@@ -40,7 +161,6 @@
         display: block;
     }
 
-    /* Premium Size Pill Styling */
     .premium-size-btn {
         display: inline-flex;
         align-items: center;
@@ -59,13 +179,11 @@
         user-select: none;
     }
 
-    /* Hover Effect */
     .premium-size-btn:hover {
         border-color: #ced4da;
         background-color: #f8f9fa;
     }
 
-    /* Active/Checked Effect */
     .btn-check:checked + .premium-size-btn {
         background-color: #111827;
         border-color: #111827;
@@ -95,17 +213,19 @@
 <div class="app-content">
     <div class="container-fluid">
         @if ($errors->any())
-            <div class="alert alert-danger shadow-sm border-0 rounded-3 mb-4">
+            <div class="alert alert-danger shadow-sm border-0 rounded-3 mb-4" id="errorAlert">
                 <strong class="mb-2 d-block"><i class="fa-solid fa-triangle-exclamation me-2"></i>Please review the errors below:</strong>
                 <ul class="mb-0 ps-3">
-                    @foreach ($errors->all() as $error) <li>{{ $error }}</li> @endforeach
+                    @foreach ($errors->all() as $error)
+                        <li>{{ $error }}</li>
+                    @endforeach
                 </ul>
             </div>
         @endif
 
         <form id="productForm" enctype="multipart/form-data" action="{{ route('products.update', $product->id) }}" method="POST" class="row">
             @csrf
-            @method('PUT') 
+            @method('PUT')
             
             <div class="col-lg-8">
                 <div class="card modern-card">
@@ -115,31 +235,84 @@
                     <div class="card-body">
                         <div class="mb-4">
                             <label class="form-label">Product Title</label>
-                            <input type="text" class="form-control form-control-lg" id="name" name="name" value="{{ old('name', $product->name) }}">
+                            <input type="text" class="form-control form-control-lg" id="name" name="name" value="{{ old('name', $product->name) }}" placeholder="e.g. Acrylic Nameplate">
+                            @error('name')<small class="text-danger mt-1 d-block">{{ $message }}</small>@enderror
                         </div>
 
                         <div class="row mb-4">
                             <div class="col-md-6">
                                 <label class="form-label">Product Slug</label>
-                                <input type="text" class="form-control" id="slug" name="slug" value="{{ old('slug', $product->slug) }}" readonly>
+                                <input type="text" class="form-control" id="slug" name="slug" value="{{ old('slug', $product->slug) }}" placeholder="auto-generated-slug" readonly>
+                                @error('slug')<small class="text-danger">{{ $message }}</small>@enderror
                             </div>
                             <div class="col-md-6">
                                 <label class="form-label">Short Description</label>
-                                <textarea name="short_description" class="form-control" rows="1">{{ old('short_description', $product->short_description) }}</textarea>
+                                <textarea name="short_description" class="form-control" rows="1" placeholder="Brief summary...">{{ old('short_description', $product->short_description) }}</textarea>
+                                @error('short_description')<small class="text-danger">{{ $message }}</small>@enderror
                             </div>
                         </div>
 
                         <div>
                             <label class="form-label">Full Description</label>
                             <textarea name="description" class="form-control summernote">{{ old('description', $product->description) }}</textarea>
+                            @error('description')<small class="text-danger">{{ $message }}</small>@enderror
                         </div>
                         <div class="mt-4">
                             <label class="form-label">Extra Note <span class="text-muted fw-normal">(Product Page - Optional)</span></label>
-                            <textarea name="extra_note" class="form-control" rows="2" placeholder="বিশেষ নোট">{{ old('extra_note', $product->extra_note ?? '') }}</textarea>
+                            <textarea name="extra_note" class="form-control" rows="2" placeholder="বিশেষ নোট">{{ old('extra_note', $product->extra_note) }}</textarea>
                             <small class="text-muted d-block mt-1">
-                                <i class="fa-solid fa-circle-info me-1"></i> এই মেসেজ শুধু এই প্রোডাক্টের পেজে "Add to Cart" বাটনের নিচে দেখাবে। খালি রাখলে কিছু দেখাবে না।
+                                <i class="fa-solid fa-circle-info me-1"></i> এই মেসেজ শুধু এই প্রোডাক্টের পেজে "Add to Cart" বাটনের নিচে দেখাবে।
                             </small>
-                            @error('extra_note')<small class="text-danger mt-1 d-block">{{ $message }}</small>@enderror
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 🟢 Custom Calculator Setup Card -->
+                <div class="card modern-card border-warning">
+                    <div class="modern-card-header bg-light">
+                        <h5 class="text-dark"><i class="fa-solid fa-calculator text-warning me-2"></i> Custom Product Calculator Setup</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="mb-3 form-check">
+                            <input type="checkbox" class="form-check-input" id="is_calculator" name="is_calculator" value="1" {{ old('is_calculator', $product->is_calculator) == 1 ? 'checked' : '' }}>
+                            <label class="form-check-label fw-bold" for="is_calculator">Enable Dynamic Price Calculator (Square Feet / Step Selection)</label>
+                        </div>
+
+                        <div class="mb-3 calculator-price-box" style="display: none;">
+                            <label class="form-label">Price Per Square Feet (৳) <span class="text-danger">*</span></label>
+                            <input type="number" step="0.01" class="form-control fw-bold text-success" name="price_per_sqft" value="{{ old('price_per_sqft', $product->price_per_sqft) }}" placeholder="e.g. 150">
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 🟢 Assign Attributes for Calculator -->
+                <div class="card modern-card">
+                    <div class="modern-card-header">
+                        <h5><i class="fa-solid fa-list-check text-muted me-2"></i> Assign Attributes for Calculator</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="row">
+                            @php
+                                $allAttributes = \App\Models\Attribute::where('status', 1)->get();
+                                $assignedIds = isset($selectedAttributes) ? collect($selectedAttributes)->map(fn($id) => (string)$id)->toArray() : [];
+                                
+                            @endphp
+                            @if($allAttributes->count() > 0)
+                                @foreach($allAttributes as $attr)
+                                    <div class="col-md-4 mb-2">
+                                        <div class="form-check">
+                                            <input class="form-check-input" type="checkbox" name="attribute_ids[]" value="{{ $attr->id }}" id="attr_{{ $attr->id }}" {{ in_array((string)$attr->id, old('attribute_ids', $assignedIds)) ? 'checked' : '' }}>
+                                            <label class="form-check-label fw-bold" for="attr_{{ $attr->id }}">
+                                                {{ $attr->name }}
+                                            </label>
+                                        </div>
+                                    </div>
+                                @endforeach
+                            @else
+                                <div class="col-12 text-muted text-center py-2">
+                                    No attributes found. Please create attributes first.
+                                </div>
+                            @endif
                         </div>
                     </div>
                 </div>
@@ -154,30 +327,38 @@
                                 <label class="form-label">Main Thumbnail</label>
                                 <input type="file" class="form-control" name="image">
                                 @if($product->image)
-                                    <img src="{{ asset($product->image) }}" class="img-thumbnail mt-2" style="max-height:80px;">
+                                    <div class="mt-2">
+                                        <img src="{{ asset($product->image) }}" class="img-thumbnail" style="height: 60px; width: 60px; object-fit: cover;">
+                                    </div>
                                 @endif
+                                @error('image')<small class="text-danger">{{ $message }}</small>@enderror
                             </div>
                             <div class="col-md-6 mb-4">
                                 <label class="form-label">Size Guide Image (Optional)</label>
                                 <input type="file" class="form-control" name="size_guide">
                                 @if($product->size_guide)
-                                    <img src="{{ asset($product->size_guide) }}" class="img-thumbnail mt-2" style="max-height:80px;">
+                                    <div class="mt-2">
+                                        <img src="{{ asset($product->size_guide) }}" class="img-thumbnail" style="height: 60px; width: 60px; object-fit: cover;">
+                                    </div>
                                 @endif
+                                @error('size_guide')<small class="text-danger">{{ $message }}</small>@enderror
                             </div>
                             <div class="col-md-12">
                                 <label class="form-label">Product Gallery</label>
                                 <input type="file" class="form-control" name="images[]" multiple>
-                                <small class="text-muted d-block mt-2">Uploading new images will replace existing ones.</small>
-                                <div class="d-flex flex-wrap gap-2 mt-2">
-                                    @foreach($product->images as $img)
-                                        <img src="{{ asset($img->image) }}" class="img-thumbnail shadow-sm" style="height:60px; width:60px; object-fit:cover;">
-                                    @endforeach
-                                </div>
+                                @if($product->images->count() > 0)
+                                    <div class="d-flex flex-wrap gap-2 mt-2">
+                                        @foreach($product->images as $img)
+                                            <img src="{{ asset($img->image) }}" class="img-thumbnail" style="height: 50px; width: 50px; object-fit: cover;">
+                                        @endforeach
+                                    </div>
+                                @endif
                             </div>
                         </div>
                     </div>
                 </div>
 
+                <!-- Product Variations Section -->
                 <div class="card modern-card">
                     <div class="modern-card-header">
                         <h5><i class="fa-solid fa-layer-group text-muted"></i> Product Variations</h5>
@@ -192,14 +373,14 @@
                                 </select>
                             </div>
 
-                            <div class="col-md-12 product-options" style="display: none;">
+                            <div class="col-md-12 product-options" style="display: {{ $product->product_type == 'multiple' ? 'block' : 'none' }};">
                                 <hr class="text-muted mb-4">
                                 
                                 <div class="row">
                                     <div class="col-md-4 mb-4">
                                         <label class="form-label">Variation Group (e.g., Sizes)</label>
-                                        <select id="variation_select" class="form-select" name="variation_id">
-                                            <option value="">Select Variation Base</option>
+                                        <select name="variation_id" id="variation_select" class="form-select rounded-3">
+                                            <option value="">Select Variation Group</option>
                                             @foreach($variations as $variation)
                                                 <option value="{{ $variation->id }}" data-values="{{ json_encode($variation->sizes) }}" {{ old('variation_id', $product->variation_id) == $variation->id ? 'selected' : '' }}>
                                                     {{ $variation->name }}
@@ -217,12 +398,10 @@
                                         </div>
                                     </div>
                                 </div>
-                                
 
                                 <div>
                                     <label class="form-label d-flex justify-content-between align-items-center mb-3">
                                         <span>Color Variants & Specific Images</span>
-                                        <button type="button" class="btn btn-sm btn-dark addColorImage"><i class="fa fa-plus"></i> Add Color</button>
                                     </label>
                                     <div id="colorImageWrapper">
                                         @if($product->colors->count() > 0)
@@ -234,17 +413,16 @@
                                                             <option value="{{ $color->id }}" {{ $pColor->color_id == $color->id ? 'selected' : '' }}>{{ $color->name }}</option>
                                                         @endforeach
                                                     </select>
-                                                    <div class="flex-grow-1">
-                                                        <input type="file" name="color_images[{{ $index }}][]" class="form-control" multiple>
-                                                        @if($pColor->images->count() > 0)
-                                                            <div class="d-flex gap-1 mt-1">
-                                                                @foreach($pColor->images as $cImg)
-                                                                    <img src="{{ asset($cImg->image) }}" class="rounded" style="height:30px; width:30px; object-fit:cover;">
-                                                                @endforeach
-                                                            </div>
-                                                        @endif
-                                                    </div>
-                                                    <button type="button" class="btn btn-outline-danger removeColorImage text-nowrap rounded-3"><i class="fa fa-trash"></i></button>
+                                                    <input type="file" name="color_images[{{ $index }}][]" class="form-control" multiple>
+                                                    @if($index > 0)
+                                                        <button type="button" class="btn btn-outline-danger removeColorImage text-nowrap rounded-3">
+                                                            <i class="fa fa-trash"></i> Remove
+                                                        </button>
+                                                    @else
+                                                        <button type="button" class="btn btn-dark addColorImage text-nowrap rounded-3">
+                                                            <i class="fa fa-plus me-1"></i> Add
+                                                        </button>
+                                                    @endif
                                                 </div>
                                             @endforeach
                                         @else
@@ -256,7 +434,9 @@
                                                     @endforeach
                                                 </select>
                                                 <input type="file" name="color_images[0][]" class="form-control" multiple>
-                                                <button type="button" class="btn btn-outline-danger removeColorImage text-nowrap rounded-3"><i class="fa fa-trash"></i></button>
+                                                <button type="button" class="btn btn-dark addColorImage text-nowrap rounded-3">
+                                                    <i class="fa fa-plus me-1"></i> Add
+                                                </button>
                                             </div>
                                         @endif
                                     </div>
@@ -275,19 +455,17 @@
                                                     <th>Stock <span class="text-danger">*</span></th>
                                                 </tr>
                                             </thead>
-                                            <tbody id="variantCombinationsTableBody">
-                                            </tbody>
+                                            <tbody id="variantCombinationsTableBody"></tbody>
                                         </table>
                                     </div>
                                 </div>
-
                             </div>
                         </div>
                     </div>
                 </div>
-
             </div>
 
+            <!-- Right Sidebar -->
             <div class="col-lg-4">
                 <div class="card modern-card">
                     <div class="modern-card-header">
@@ -296,19 +474,20 @@
                     <div class="card-body">
                         <div class="row">
                             <div class="col-6 mb-3">
-                                <label class="form-label">Selling Price (Min)</label>
+                                <label class="form-label">Selling Price (৳) <span class="text-danger">*</span></label>
                                 <input type="number" step="0.01" class="form-control fs-5 fw-bold text-success" name="selling_price" id="selling_price" value="{{ old('selling_price', $product->selling_price) }}">
+                                @error('selling_price')<small class="text-danger">{{ $message }}</small>@enderror
                             </div>
                             <div class="col-6 mb-3">
                                 <label class="form-label">Maximum Price</label>
-                                <input type="number" step="0.01" class="form-control fs-5 fw-bold text-primary" name="max_price" value="{{ old('max_price', $product->max_price) }}">
+                                <input type="number" step="0.01" class="form-control fs-5 fw-bold text-primary" name="max_price" id="max_price" value="{{ old('max_price', $product->max_price) }}">
                             </div>
                         </div>
                         
                         <div class="row">
                             <div class="col-6 mb-3">
                                 <label class="form-label">Cost Price</label>
-                                <input type="number" step="0.01" class="form-control" name="purchase_price" value="{{ old('purchase_price', $product->purchase_price) }}">
+                                <input type="number" step="0.01" class="form-control" name="purchase_price" id="base_purchase_price" value="{{ old('purchase_price', $product->purchase_price) }}">
                             </div>
                             <div class="col-6 mb-3">
                                 <label class="form-label">Discount Price</label>
@@ -334,17 +513,12 @@
 
                         <div class="row">
                             <div class="col-6 mb-3">
-                                <label class="form-label">Barcode</label>
-                                <input type="text" class="form-control" name="barcode" value="{{ old('barcode', $product->barcode) }}">
-                            </div>
-                            <div class="col-6 mb-3">
                                 <label class="form-label">Alert Qty</label>
                                 <input type="number" class="form-control" name="alert_quantity" value="{{ old('alert_quantity', $product->alert_quantity) }}">
                             </div>
-                            <div class="col-12 mb-3" id="singleProductStockWrapper">
-                                <label class="form-label">Current Stock <span class="text-danger">*</span></label>
+                            <div class="col-6 mb-3" id="singleProductStockWrapper" style="display: {{ $product->product_type == 'single' ? 'block' : 'none' }};">
+                                <label class="form-label">Stock <span class="text-danger">*</span></label>
                                 <input type="number" class="form-control fw-bold" name="stock" value="{{ old('stock', $product->stock) }}">
-                                <small class="text-muted">For single product</small>
                             </div>
                         </div>
                     </div>
@@ -357,8 +531,8 @@
                     <div class="card-body">
                         <div class="mb-3">
                             <label class="form-label">Category</label>
-                            <select name="category_id" id="category_id" class="form-select">
-                                <option value="">Search Category...</option>
+                            <select name="category_id" id="category_id" class="form-select" required>
+                                <option value="">Select Category</option>
                                 @foreach($categories as $cat)
                                     <option value="{{ $cat->id }}" {{ old('category_id', $product->category_id) == $cat->id ? 'selected' : '' }}>{{ $cat->name }}</option>
                                 @endforeach
@@ -367,11 +541,8 @@
 
                         <div class="mb-3">
                             <label class="form-label">Subcategory</label>
-                            <select name="subcategory_id" id="subcategory_id" class="form-select">
+                            <select name="subcategory_id" id="subcategory_id" class="form-select" data-old="{{ old('subcategory_id', $product->subcategory_id) }}">
                                 <option value="">Select Subcategory</option>
-                                @foreach($subcategories as $subcat)
-                                    <option value="{{ $subcat->id }}" {{ old('subcategory_id', $product->subcategory_id) == $subcat->id ? 'selected' : '' }}>{{ $subcat->name }}</option>
-                                @endforeach
                             </select>
                         </div>
 
@@ -397,64 +568,10 @@
                     </div>
                 </div>
 
-                <div class="card modern-card">
-                    <div class="modern-card-header">
-                        <h5><i class="fa-regular fa-eye text-muted"></i> Visibility</h5>
-                    </div>
-                    <div class="card-body">
-                        <div class="row">
-                            {{-- Featured --}}
-                            <div class="col-6 mb-3">
-                                <label class="form-label">Featured</label>
-                                <select name="is_featured" class="form-select">
-                                    <option value="1" {{ old('is_featured', $product->is_featured) == '1' ? 'selected' : '' }}>Yes</option>
-                                    <option value="0" {{ old('is_featured', $product->is_featured) == '0' ? 'selected' : '' }}>No</option>
-                                </select>
-                            </div>
-                            
-                            {{-- New Arrival --}}
-                            <div class="col-6 mb-3">
-                                <label class="form-label">New Arrival</label>
-                                <select name="is_new" class="form-select">
-                                    <option value="1" {{ old('is_new', $product->is_new) == '1' ? 'selected' : '' }}>Yes</option>
-                                    <option value="0" {{ old('is_new', $product->is_new) == '0' ? 'selected' : '' }}>No</option>
-                                </select>
-                            </div>
-
-                            {{-- Best Seller --}}
-                            <div class="col-6 mb-3">
-                                <label class="form-label">Best Seller</label>
-                                <select name="is_bestseller" class="form-select">
-                                    <option value="1" {{ old('is_bestseller', $product->is_bestseller) == '1' ? 'selected' : '' }}>Yes</option>
-                                    <option value="0" {{ old('is_bestseller', $product->is_bestseller) == '0' ? 'selected' : '' }}>No</option>
-                                </select>
-                            </div>
-
-                            {{-- Trending --}}
-                            <div class="col-6 mb-3">
-                                <label class="form-label">Trending</label>
-                                <select name="is_trending" class="form-select">
-                                    <option value="1" {{ old('is_trending', $product->is_trending) == '1' ? 'selected' : '' }}>Yes</option>
-                                    <option value="0" {{ old('is_trending', $product->is_trending) == '0' ? 'selected' : '' }}>No</option>
-                                </select>
-                            </div>
-
-                            {{-- Status --}}
-                            <div class="col-12 mt-2">
-                                <label class="form-label">Status</label>
-                                <select name="status" class="form-select {{ old('status', $product->status) == '1' ? 'bg-success text-white border-0' : 'bg-secondary text-white border-0' }}" id="statusSelect">
-                                    <option value="1" {{ old('status', $product->status) == '1' ? 'selected' : '' }}>Active (Published)</option>
-                                    <option value="0" {{ old('status', $product->status) == '0' ? 'selected' : '' }}>Inactive (Draft)</option>
-                                </select>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
                 <div class="card modern-card bg-transparent shadow-none">
                     <div class="sticky-footer rounded-4 shadow-sm border">
                         <a href="{{ route('products.index') }}" class="btn btn-light px-4 border rounded-3 fw-bold">Cancel</a>
-                        <button type="submit" class="btn btn-modern-primary">
+                        <button type="submit" id="submitBtn" class="btn btn-modern-primary">
                             <i class="fa-solid fa-check me-2"></i> Update Product
                         </button>
                     </div>
@@ -472,166 +589,143 @@
             $('.summernote').summernote({ height: 250 });
         }
 
-        let existingVariants = @json($product->variants ?? []);
-        let existingSizes = @json($product->variants->pluck('size_id')->filter()->unique()->values() ?? []);
-        let savedVariationId = "{{ $product->variation_id }}";
+        // Calculator Box Toggle Logic (Updated for Edit Page Load)
+        function toggleCalculatorBox() {
+            if ($('#is_calculator').is(':checked')) {
+                $('.calculator-price-box').show(); 
+            } else {
+                $('.calculator-price-box').hide(); 
+            }
+        }
+        toggleCalculatorBox();
+        
+        $('#is_calculator').on('change', function() {
+            if ($(this).is(':checked')) {
+                $('.calculator-price-box').slideDown();
+            } else {
+                $('.calculator-price-box').slideUp();
+            }
+        });
 
-        // Toggle Product Options
+        // Auto Generate Slug
+        $('#name').on('keyup', function() {
+            let name = $(this).val().trim();
+            let slug = name.toLowerCase().replace(/[^a-z0-9]+/g, '-');
+            $('#slug').val(slug);
+        });
+
+        // Toggle Single vs Variable Products view
         function toggleProductOptions() {
             if($('#product_type').val() === 'single') {
                 $('.product-options').slideUp(300);
                 $('#variantCombinationsWrapper').slideUp(300);
                 $('#singleProductStockWrapper').slideDown(300);
-                
-                $('#variation_select').prop('disabled', true);
-                $('.color-select').prop('disabled', true);
-                $('.size-check-input').prop('disabled', true);
             } else {
                 $('.product-options').slideDown(300);
                 $('#singleProductStockWrapper').slideUp(300);
-                
-                $('#variation_select').prop('disabled', false);
-                $('.color-select').prop('disabled', false);
-                $('.size-check-input').prop('disabled', false);
+                generateVariantMatrix();
             }
         }
         
-        toggleProductOptions();
-        $('#product_type').on('change', toggleProductOptions);
-
-        // Color Handling
-        let selectedColors = [];
-        function refreshColorList() {
-            selectedColors = [];
-            $('.color-select').each(function() {
-                let colorId = $(this).val();
-                if(colorId && colorId !== "") {
-                    selectedColors.push({ id: colorId, name: $(this).find('option:selected').text() });
-                    $(this).data('prev', colorId);
-                }
-            });
-        }
-        refreshColorList();
-
-        $(document).on('change', '.color-select', function () {
-            let value = $(this).val();
-            let prevValue = $(this).data('prev');
-            let isDuplicate = false;
-
-            $('.color-select').not(this).each(function() {
-                if ($(this).val() === value && value !== "") isDuplicate = true;
-            });
-
-            if (isDuplicate) {
-                alert('This color is already selected!');
-                $(this).val(prevValue); 
-                return;
-            }
-
-            $(this).data('prev', value);
-            refreshColorList();
-            generateVariantMatrix();
-        });
-
-        // Add/Remove Colors
-        let colorImageIndex = {{ max(1, $product->colors->count()) }};
-        $(document).on('click', '.addColorImage', function () {
-            let index = colorImageIndex++;
-            let options = `<option value="">Select Color</option>
-                @foreach($colors as $color)
-                    <option value="{{ $color->id }}">{{ $color->name }}</option>
-                @endforeach`;
-
-            let html = `
-                <div class="color-image-group d-flex align-items-center gap-3 mb-3" data-index="${index}">
-                    <select name="color_image_names[${index}]" class="form-select color-select" style="max-width:180px;">${options}</select>
-                    <div class="flex-grow-1">
-                        <input type="file" name="color_images[${index}][]" class="form-control" multiple>
-                    </div>
-                    <button type="button" class="btn btn-outline-danger removeColorImage text-nowrap rounded-3"><i class="fa fa-trash"></i></button>
-                </div>
-            `;
-            $('#colorImageWrapper').append(html);
-        });
-
-        $(document).on('click', '.removeColorImage', function () {
-            let group = $(this).closest('.color-image-group');
-            group.slideUp(300, function(){ 
-                $(this).remove(); 
-                refreshColorList();
-                generateVariantMatrix(); 
-            });
-        });
-
-        // Category -> Subcategory AJAX
-        $('select[name="category_id"]').on('change', function(){
-            let category_id = $(this).val();
-            let subDropdown = $('select[name="subcategory_id"]');
-            subDropdown.empty().append('<option value="">Loading...</option>');
-            if(category_id){
+        // Trigger subcategory load on edit mode
+        function loadSubcategories(categoryId, oldSubCatId = null) {
+            let subDropdown = $('#subcategory_id');
+            if(categoryId) {
                 $.ajax({
-                    url: '/admin/get-subcategories/' + category_id,
+                    url: '/admin/get-subcategories/' + categoryId,
                     type: "GET",
                     dataType: "json",
-                    success:function(data){
+                    success: function(data) {
                         subDropdown.empty().append('<option value="">Select Subcategory</option>');
-                        $.each(data, function(key, value){
-                            subDropdown.append('<option value="'+value.id+'">'+value.name+'</option>');
+                        $.each(data, function(key, value) {
+                            let selected = (oldSubCatId && oldSubCatId == value.id) ? 'selected' : '';
+                            subDropdown.append('<option value="'+value.id+'" '+selected+'>'+value.name+'</option>');
                         });
                     }
                 });
             } else {
                 subDropdown.empty().append('<option value="">Select Subcategory</option>');
             }
+        }
+
+        let initialCatId = $('#category_id').val();
+        let initialSubCatId = $('#subcategory_id').data('old');
+        if(initialCatId) {
+            loadSubcategories(initialCatId, initialSubCatId);
+        }
+
+        $('#category_id').on('change', function() {
+            loadSubcategories($(this).val());
         });
 
-        // Variation (Sizes) Select
-        $(document).on('change', '#variation_select', function () {
-            let option = $(this).find(':selected');
-            let valuesStr = option.attr('data-values') || option.data('values');
+        $('#product_type').on('change', toggleProductOptions);
+
+        // Dynamic Color Row Addition
+        let colorImageIndex = {{ $product->colors->count() > 0 ? $product->colors->count() : 1 }};
+        $(document).on('click', '.addColorImage', function () {
+            let index = colorImageIndex++;
+            let options = `
+                <option value="">Select Color</option>
+                @foreach($colors as $color)
+                    <option value="{{ $color->id }}">{{ $color->name }}</option>
+                @endforeach
+            `;
+
+            let html = `
+                <div class="color-image-group d-flex align-items-center gap-3 mb-3" data-index="${index}">
+                    <select name="color_image_names[${index}]" class="form-select color-select" style="max-width:180px;">
+                        ${options}
+                    </select>
+                    <input type="file" name="color_images[${index}][]" class="form-control" multiple>
+                    <button type="button" class="btn btn-outline-danger removeColorImage text-nowrap rounded-3">
+                        <i class="fa fa-trash"></i> Remove
+                    </button>
+                </div>
+            `;
+            $('#colorImageWrapper').append(html);
+        });
+
+        $(document).on('click', '.removeColorImage', function () {
+            $(this).closest('.color-image-group').slideUp(300, function(){ 
+                $(this).remove(); 
+                generateVariantMatrix(); 
+            });
+        });
+
+        // Trigger Variation Sizes on Edit
+        function loadVariationSizes() {
+            let option = $('#variation_select').find(':selected');
+            let values = option.data('values') || option.attr('data-values');
             let wrapper = $('#variationSizes');
             let mainWrapper = $('#variationSizesWrapper');
+            
             wrapper.empty();
 
-            if (!valuesStr || valuesStr === "") {
+            if (!values || values === "") {
                 mainWrapper.hide();
                 generateVariantMatrix();
                 return;
             }
 
-            let values = [];
-            if (typeof valuesStr === 'string') {
-                try { values = JSON.parse(valuesStr); } catch (e) { values = []; }
-            } else {
-                values = valuesStr;
+            if (typeof values === 'string') {
+                try { values = JSON.parse(values); } catch (e) { values = []; }
             }
+
+            let existingVariantSizes = @json($product->variants->pluck('size_id')->toArray());
 
             if (Array.isArray(values) && values.length > 0) {
                 mainWrapper.fadeIn();
                 let html = ``;
                 
                 values.forEach(function (item, index) {
-                    let displayValue = '';
-                    let sizeId = '';
-                    if (item !== null && typeof item === 'object') {
-                        displayValue = item.value || item.name || item.text;
-                        sizeId = item.id;
-                    } else {
-                        displayValue = item;
-                        sizeId = item;
-                    }
+                    let displayValue = item.value || item.name || item.text || item;
+                    let sizeId = item.id || item;
+                    let isChecked = existingVariantSizes.includes(parseInt(sizeId)) ? 'checked' : '';
 
-                    if (!displayValue || displayValue.toString().trim() === "") return;
-                    
-                    // existingSizes এর ভেতরে size_id আছে কিনা তা চেক করছে
-                    let isChecked = existingSizes.some(id => String(id) === String(sizeId)) ? 'checked' : '';
-                    
-                    html += `
+                    html = html + `
                         <div class="position-relative">
-                            <input type="checkbox" class="btn-check size-check-input" name="variation_sizes[]" value="${sizeId}" data-name="${displayValue}" id="size_${index}" ${isChecked}>
-                            <label class="premium-size-btn" for="size_${index}">
-                                ${displayValue}
-                            </label>
+                            <input type="checkbox" class="btn-check size-check-input" name="variation_sizes[]" value="${sizeId}" data-name="${displayValue}" id="size_${index}" autocomplete="off" ${isChecked}>
+                            <label class="premium-size-btn" for="size_${index}">${displayValue}</label>
                         </div>
                     `;
                 });
@@ -640,23 +734,39 @@
                 mainWrapper.hide();
             }
             generateVariantMatrix();
+        }
+
+        if($('#product_type').val() === 'multiple') {
+            loadVariationSizes();
+        }
+
+        $('#variation_select').on('change', function() {
+            loadVariationSizes();
         });
 
-        $(document).on('change', '.size-check-input', function() {
+        $(document).on('change', '.size-check-input, .color-select', function() {
             generateVariantMatrix();
         });
 
-        // Generate Matrix Table
         function generateVariantMatrix() {
+            if($('#product_type').val() === 'single') {
+                $('#variantCombinationsWrapper').hide();
+                return;
+            }
+
             let selectedSizes = [];
-            $('.size-check-input:checked').each(function() { 
-                selectedSizes.push({
-                    id: $(this).val(),
-                    name: $(this).data('name')
-                }); 
+            $('.size-check-input:checked').each(function() {
+                selectedSizes.push({ id: $(this).val(), name: $(this).data('name') });
             });
 
-            refreshColorList();
+            let selectedColors = [];
+            $('.color-select').each(function() {
+                let colorId = $(this).val();
+                let colorName = $(this).find('option:selected').text().trim();
+                if (colorId && colorId !== "" && colorName !== "Select Color") {
+                    selectedColors.push({ id: colorId, name: colorName });
+                }
+            });
 
             let tbody = $('#variantCombinationsTableBody');
             tbody.empty();
@@ -668,52 +778,53 @@
 
             let combinations = [];
             if (selectedColors.length > 0 && selectedSizes.length > 0) {
-                selectedColors.forEach(c => { selectedSizes.forEach(s => { combinations.push({ color: c, size: s }); }); });
+                selectedColors.forEach(color => {
+                    selectedSizes.forEach(size => { combinations.push({ color: color, size: size }); });
+                });
             } else if (selectedColors.length > 0) {
-                selectedColors.forEach(c => { combinations.push({ color: c, size: null }); });
+                selectedColors.forEach(color => { combinations.push({ color: color, size: null }); });
             } else if (selectedSizes.length > 0) {
-                selectedSizes.forEach(s => { combinations.push({ color: null, size: s }); });
+                selectedSizes.forEach(size => { combinations.push({ color: null, size: size }); });
             }
 
             if (combinations.length > 0) {
                 $('#variantCombinationsWrapper').fadeIn();
                 let baseSku = $('#sku').val() || 'PROD';
                 let defaultSellingPrice = $('#selling_price').val() || '';
+                let defaultPurchasePrice = $('#base_purchase_price').val() || '';
+
+                let existingVariants = @json($product->variants);
 
                 combinations.forEach((variant, index) => {
-                    let colorVal = variant.color ? variant.color.id : null;
-                    let sizeVal = variant.size ? variant.size.id : null; // size_id string out
-
-                    let dbMatch = existingVariants.find(v => {
-                        let matchColor = (v.color_id == colorVal) || (!v.color_id && !colorVal);
-                        let matchSize = (v.size_id == sizeVal) || (!v.size_id && !sizeVal); // size_id check
-                        return matchColor && matchSize;
-                    });
-
                     let variantName = '';
+                    let colorVal = variant.color ? variant.color.id : null;
+                    let sizeVal = variant.size ? variant.size.id : null;
+                    
                     if (variant.color) variantName += variant.color.name;
                     if (variant.color && variant.size) variantName += ' - ';
                     if (variant.size) variantName += variant.size.name;
 
-                    let colorCode = variant.color ? variant.color.name.substring(0,3).toUpperCase() : '';
-                    let sizeCode = variant.size ? variant.size.name.toString().replace(/[^a-zA-Z0-9]/g, '').toUpperCase() : '';
-                    
-                    let finalSku = dbMatch ? dbMatch.sku : (baseSku + (colorCode ? '-'+colorCode : '') + (sizeCode ? '-'+sizeCode : ''));
-                    let finalPurchase = dbMatch ? dbMatch.purchase_price : '';
-                    let finalSelling = dbMatch ? dbMatch.selling_price : defaultSellingPrice;
-                    let finalStock = dbMatch ? dbMatch.stock : 0;
+                    let foundVariant = existingVariants.find(v => 
+                        (colorVal ? v.color_id == colorVal : v.color_id == null) && 
+                        (sizeVal ? v.size_id == sizeVal : v.size_id == null)
+                    );
+
+                    let vSku = foundVariant ? foundVariant.sku : (baseSku + '-' + index);
+                    let vPurPrice = foundVariant ? foundVariant.purchase_price : defaultPurchasePrice;
+                    let vSelPrice = foundVariant ? foundVariant.selling_price : defaultSellingPrice;
+                    let vStock = foundVariant ? foundVariant.stock : 1;
 
                     let row = `
                         <tr>
-                            <td class="fw-bold text-secondary">
-                                ${variantName}
+                            <td>
+                                <span class="badge bg-light text-dark border px-3 py-2 rounded-2 fw-bold">${variantName}</span>
                                 <input type="hidden" name="variants[${index}][color_id]" value="${colorVal || ''}">
                                 <input type="hidden" name="variants[${index}][size_id]" value="${sizeVal || ''}">
                             </td>
-                            <td><input type="text" name="variants[${index}][sku]" class="form-control font-monospace form-control-sm" value="${finalSku}" required></td>
-                            <td><input type="number" step="0.01" name="variants[${index}][purchase_price]" class="form-control form-control-sm" value="${finalPurchase}"></td>
-                            <td><input type="number" step="0.01" name="variants[${index}][selling_price]" class="form-control font-monospace form-control-sm text-success fw-bold" value="${finalSelling}" required></td>
-                            <td><input type="number" name="variants[${index}][stock]" class="form-control form-control-sm" value="${finalStock}" required></td>
+                            <td><input type="text" name="variants[${index}][sku]" class="form-control font-monospace form-control-sm" value="${vSku}" required></td>
+                            <td><input type="number" step="0.01" name="variants[${index}][purchase_price]" class="form-control form-control-sm" value="${vPurPrice}"></td>
+                            <td><input type="number" step="0.01" name="variants[${index}][selling_price]" class="form-control form-control-sm text-success fw-bold" value="${vSelPrice}" required></td>
+                            <td><input type="number" name="variants[${index}][stock]" class="form-control form-control-sm" value="${vStock}" required></td>
                         </tr>
                     `;
                     tbody.append(row);
@@ -722,12 +833,17 @@
                 $('#variantCombinationsWrapper').hide();
             }
         }
-        // Initialize Data on Page Load
-        if (savedVariationId && $('#product_type').val() === 'multiple') {
-            $('#variation_select').val(savedVariationId).trigger('change');
-        } else if ($('#product_type').val() === 'multiple') {
+
+        // Also trigger variant matrix generation on edit load if multiple
+        if($('#product_type').val() === 'multiple') {
             generateVariantMatrix();
         }
+
+        $('#productForm').on('submit', function() {
+            let $btn = $('#submitBtn');
+            $btn.html('<i class="fa-solid fa-spinner fa-spin me-2"></i> Updating...');
+            $btn.prop('disabled', true); 
+        });
     });
 </script>
 @endpush
