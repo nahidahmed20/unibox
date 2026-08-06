@@ -357,5 +357,40 @@
                 $('#modalQty').val(currentQty - 1);
             }
         });
+
+    });
+    // --- Mobile Category Swipe Arrow Logic ---
+   // --- Horizontal Scroll & Arrow Logic (Mobile & Desktop) ---
+    $(document).ready(function () {
+        // ১. অ্যারো আইকন অ্যাড করা হলো (HTML এ হাত না দিয়ে)
+        if ($('.heading-space .swipe-indicator').length === 0) {
+            $('.heading-space').append('<div class="swipe-indicator"><i class="fa-solid fa-chevron-right"></i></div>');
+        }
+
+        // ২. ডেস্কটপে মাউসের চাকা (Wheel) দিয়ে স্ক্রল করার লজিক
+        const projectFilter = document.querySelector('.project-filter');
+        if (projectFilter) {
+            projectFilter.addEventListener('wheel', function(e) {
+                if ($(window).width() >= 768) {
+                    if (e.deltaY !== 0) {
+                        e.preventDefault();
+                        this.scrollLeft += (e.deltaY > 0 ? 50 : -50);
+                    }
+                }
+            }, { passive: false });
+        }
+
+        // ৩. স্ক্রল করে একদম শেষে গেলে অ্যারো হাইড (Fade out) হয়ে যাবে
+        $('.project-filter').on('scroll', function() {
+            let scrollLeft = $(this).scrollLeft();
+            let maxScroll = $(this)[0].scrollWidth - $(this)[0].clientWidth;
+            
+            // যদি স্ক্রল একদম শেষে চলে আসে
+            if (scrollLeft >= maxScroll - 5) {
+                $('.swipe-indicator').css('opacity', '0');
+            } else {
+                $('.swipe-indicator').css('opacity', '1');
+            }
+        });
     });
 </script>

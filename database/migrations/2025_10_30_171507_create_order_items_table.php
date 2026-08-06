@@ -20,6 +20,7 @@ return new class extends Migration
             $table->unsignedBigInteger('size_id')->nullable();
             $table->decimal('price', 15, 2)->nullable();
             $table->integer('quantity')->nullable();
+            $table->json('attributes')->nullable();
             $table->decimal('total', 15, 2)->nullable();
             $table->timestamps();
         });

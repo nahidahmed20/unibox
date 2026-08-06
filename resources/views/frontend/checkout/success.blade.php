@@ -10,6 +10,11 @@
         if(!empty($item->size->name)) $variantParts[] = $item->size->name;
         if(!empty($item->color->name)) $variantParts[] = $item->color->name;
         
+        $itemAttributes = is_string($item->attributes) ? json_decode($item->attributes, true) : $item->attributes;
+        if(!empty($itemAttributes) && is_array($itemAttributes)) {
+            $variantParts[] = implode(', ', $itemAttributes);
+        }
+        
         $unitPrice = $item->price ?? ($item->quantity > 0 ? ($item->total / $item->quantity) : 0);
 
         $dataLayerItems[] = [
@@ -236,6 +241,15 @@
                                         @endif
                                         @if(!empty($item->size->name))
                                             <span class="variation-tag">Size: {{ $item->size->name }}</span>
+                                        @endif
+                                        
+                                        @php
+                                            $itemAttributes = is_string($item->attributes) ? json_decode($item->attributes, true) : $item->attributes;
+                                        @endphp
+                                        @if(!empty($itemAttributes) && is_array($itemAttributes))
+                                            @foreach($itemAttributes as $attr)
+                                                <span class="variation-tag">{{ $attr }}</span>
+                                            @endforeach
                                         @endif
                                     </div>
                                 </div>

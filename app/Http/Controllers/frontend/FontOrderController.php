@@ -86,7 +86,7 @@ class FontOrderController extends Controller
         $shipping = session('shipping_cost', 0);
         
         if (count($cart) == 0) {
-            return redirect()->route('checkout')->with('error', 'Cart is empty');
+            return redirect()->route('cart.index')->with('error', 'Cart is empty');
         }
 
         $userId = auth('customer')->id() ?? auth()->id();
@@ -135,6 +135,8 @@ class FontOrderController extends Controller
                     $sizeId = Size::where('name', $item['size'])->value('id'); 
                 }
 
+                $itemAttributes = !empty($item['attributes']) ? json_encode($item['attributes']) : null;
+
                 OrderItem::create([
                     'order_id'     => $order->id,
                     'product_id'   => $item['product_id'] ?? null,
@@ -145,6 +147,7 @@ class FontOrderController extends Controller
                     'price'        => $item['price'],
                     'quantity'     => $item['quantity'],
                     'total'        => $item['price'] * $item['quantity'],
+                    'attributes'   => $itemAttributes, 
                 ]);
 
                 $mainProduct = Product::find($item['product_id']);

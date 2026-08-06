@@ -28,17 +28,28 @@
                 <!-- INFO -->
                 <div class="cart-info">
                     <h5>{{ $item['name'] }}</h5>
-                        @if(!empty($item['size']))
-                            <p class="size">
-                                Size: {{ $item['size'] }}
-                            </p>
-                        @endif
-                        {{-- COLOR --}}
-                        @if(!empty($item['color']))
-                            <p class="color">
-                                Color: {{ $item['color'] }}
-                            </p>
-                        @endif
+                    
+                    {{-- SIZE --}}
+                    @if(!empty($item['size']))
+                        <p class="size">
+                            Size: {{ $item['size'] }}
+                        </p>
+                    @endif
+                    
+                    {{-- COLOR --}}
+                    @if(!empty($item['color']))
+                        <p class="color">
+                            Color: {{ $item['color'] }}
+                        </p>
+                    @endif
+
+                    {{-- 🟢 CUSTOM ATTRIBUTES / SPECIFICATIONS 🟢 --}}
+                    @if(!empty($item['attributes']))
+                        <p class="attribute" style="font-size: 13px; color: #6c757d; line-height: 1.4; margin-bottom: 5px;">
+                            <strong>Spec:</strong> {{ implode(', ', $item['attributes']) }}
+                        </p>
+                    @endif
+
                     <p class="qty">Qty: {{ $item['quantity'] }}</p>
                     <p class="price">
                         ৳{{ number_format($item['price'], 2) }}

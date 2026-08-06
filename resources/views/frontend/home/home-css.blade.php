@@ -868,6 +868,8 @@
         padding-bottom: 30px !important;
     }
 
+    
+
     /* Modal Responsive */
     .custom-modal-img-container {
         padding: 20px 15px 5px 15px !important;
@@ -945,6 +947,135 @@
         padding: 0 !important;
     }
 }
+/* ==========================================
+   CATEGORY FILTER SCROLL (MOBILE & DESKTOP)
+   ========================================== */
+.heading-space {
+    position: relative;
+}
+
+/* 🟢 Desktop Header Alignment (Screenshot_1 Design) 🟢 */
+@media (min-width: 768px) {
+    .heading-space {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        margin-bottom: 35px !important;
+    }
+    .heading-space .product-top-content.text-start {
+        margin-bottom: 0 !important;
+        flex-shrink: 0;
+        margin-right: 30px;
+    }
+    .heading-space .section-title {
+        text-transform: uppercase;
+        font-size: 24px;
+        font-weight: 800;
+    }
+}
+
+@media (max-width: 767px) {
+    .heading-space {
+        padding-bottom: 10px;
+    }
+}
+
+/* 🟢 Shared Scrollable Filter (Pill Shape) 🟢 */
+.project-filter {
+    display: flex !important;
+    flex-wrap: nowrap !important;
+    overflow-x: auto !important;
+    justify-content: flex-start !important; 
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+    align-items: center;
+    gap: 12px;
+    margin: 0;
+    padding-left: 15px; 
+    scroll-behavior: smooth;
+    -webkit-overflow-scrolling: touch;
+}
+
+.project-filter::-webkit-scrollbar {
+    display: none;
+}
+
+.project-filter li {
+    white-space: nowrap;
+    padding: 8px 24px !important;
+    border: 1px solid #e5e7eb !important;
+    border-radius: 50px !important; /* Pill Shape */
+    color: #4b5563;
+    background: #ffffff;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    font-weight: 500;
+    margin: 0 !important;
+    flex-shrink: 0;
+}
+
+@media (max-width: 767px) {
+    .project-filter li {
+        font-size: 13px !important;
+        padding: 8px 16px !important;
+    }
+}
+
+.project-filter li.active,
+.project-filter li:hover {
+    background: var(--rr-color-theme-primary) !important;
+    border-color: var(--rr-color-theme-primary) !important;
+    color: #ffffff !important;
+}
+
+/* 🟢 Smart Swipe Arrow (Desktop & Mobile) 🟢 */
+/* 🟢 Base Swipe Arrow (Hidden on Desktop, Visible on Mobile) 🟢 */
+.swipe-indicator {
+    position: absolute;
+    right: 0;
+    bottom: 0;
+    height: 100%;
+    min-height: 40px;
+    width: 60px;
+    background: linear-gradient(to right, rgba(244,246,248,0) 0%, #f4f6f8 60%); 
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    padding-right: 5px;
+    color: #111;
+    font-size: 14px;
+    font-weight: bold;
+    z-index: 10;
+    pointer-events: none;
+    transition: opacity 0.3s ease;
+}
+
+/* 🟢 Mobile Specific Styling 🟢 */
+@media (max-width: 767px) {
+    .swipe-indicator {
+        height: 40px;
+        bottom: 8px;
+        color: #008a7a;
+    }
+    .swipe-indicator i {
+        animation: swipeBounce 1.2s infinite;
+    }
+}
+
+/* 🟢 Hide Swipe Arrow on Desktop 🟢 */
+@media (min-width: 768px) {
+    .swipe-indicator {
+        display: none !important;
+    }
+}
+
+@keyframes swipeBounce {
+    0%, 100% { transform: translateX(0); }
+    50% { transform: translateX(4px); }
+}
+
+
+
 
 @media (max-width: 576px) {
     .product-btn {

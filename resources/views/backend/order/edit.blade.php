@@ -242,6 +242,16 @@
                                                         <small class="text-muted">
                                                             @if($item->color) Color: {{ $item->color }} | @endif
                                                             @if($item->size) Size: {{ $item->size }} @endif
+                                                            
+                                                            @php
+                                                                $itemAttributes = is_string($item->attributes) ? json_decode($item->attributes, true) : $item->attributes;
+                                                            @endphp
+                                                            @if(!empty($itemAttributes) && is_array($itemAttributes))
+                                                                <br>
+                                                                <span style="color: #4f46e5; font-weight: 500;">
+                                                                    Spec: {{ implode(', ', $itemAttributes) }}
+                                                                </span>
+                                                            @endif
                                                         </small>
                                                     </td>
                                                     <td width="100">

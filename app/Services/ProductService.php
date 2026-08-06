@@ -258,18 +258,10 @@ class ProductService
                 
             ]);
 
-            // Sync Attributes
-            if ($request->has('attribute_ids') && !empty($request->attribute_ids)) {
-                $product->productAttributes()->delete();
-                foreach ($request->attribute_ids as $attrId) {
-                    \App\Models\ProductAttribute::create([
-                        'product_id'   => $product->id,
-                        'attribute_id' => $attrId,
-                    ]);
-                }
-            } else {
-                $product->productAttributes()->delete();
-            }
+            // 🟢 Sync Attributes (The Laravel Way) 🟢
+            $attributeIds = $request->attribute_ids ?? $data['attribute_ids'] ?? [];
+            $product->attributes()->sync($attributeIds);
+
 
             if ($request->hasFile('images')) {
                 foreach ($product->images as $oldImage) {
@@ -285,7 +277,7 @@ class ProductService
                 }
 
                 foreach ($request->file('images') as $image) {
-                    if ($image instanceof UploadedFile && $image->isValid()) {
+                    if ($image instanceof \Illuminate\Http\UploadedFile && $image->isValid()) {
                         $imgName = time() . '_' . uniqid() . '.' . $image->getClientOriginalExtension();
                         $image->move($galleryPath, $imgName);
                         $product->images()->create([
@@ -346,7 +338,7 @@ class ProductService
                         $imagesArray = is_array($newImages) ? $newImages : [$newImages];
 
                         foreach ($imagesArray as $image) {
-                            if ($image instanceof UploadedFile && $image->isValid()) {
+                            if ($image instanceof \Illuminate\Http\UploadedFile && $image->isValid()) {
                                 $imgName = time() . '_' . uniqid() . '.' . $image->getClientOriginalExtension();
                                 $image->move($colorPath, $imgName);
                                 

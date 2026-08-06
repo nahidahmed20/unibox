@@ -74,6 +74,9 @@ class CartController extends Controller
         $qty       = (int) $request->qty;
         $colorId   = $request->color_id;
         $sizeId    = $request->size_id;
+        
+        $customAttributes = $request->custom_attributes ?? [];
+        $dimensions       = $request->dimensions ?? null;
 
         $product = Product::find($productId);
         if (!$product) {
@@ -83,11 +86,22 @@ class CartController extends Controller
             ]);
         }
 
-        $cartKey = $productId . '_' . ($colorId ?? 0) . '_' . ($sizeId ?? 0);
+        $price = $product->selling_price;
+        
+        if ($product->is_calculator == 1 && !empty($dimensions)) {
+            $sqft = (float) $dimensions['sqft'];
+            $price = $sqft * $product->price_per_sqft; 
+            
+            $dimText = "Dimension: {$dimensions['w_ft']}ft {$dimensions['w_in']}in × {$dimensions['h_ft']}ft {$dimensions['h_in']}in ({$sqft} sq.ft)";
+            $customAttributes['dimension'] = $dimText; 
+        }
+
+        $attrHash = !empty($customAttributes) ? '_' . md5(json_encode($customAttributes)) : '';
+        $cartKey = $productId . '_' . ($colorId ?? 0) . '_' . ($sizeId ?? 0) . $attrHash;
+        
         $existingQty = $cart[$cartKey]['quantity'] ?? 0;
         $requestedTotalQty = $existingQty + $qty;
 
-        $price = $product->selling_price;
         $colorName = null;
         $sizeName = null;
 
@@ -113,13 +127,14 @@ class CartController extends Controller
                 ]);
             }
 
-            $price = $variant->selling_price > 0 ? $variant->selling_price : $product->selling_price;
+            if ($product->is_calculator == 0) {
+                $price = $variant->selling_price > 0 ? $variant->selling_price : $product->selling_price;
+            }
             
             $colorName = $variant->color ? $variant->color->name : null;
             $sizeName  = $variant->size ? $variant->size->name : null;
 
-        } 
-        else {
+        } else {
             if ($requestedTotalQty > $product->stock) {
                 return response()->json([
                     'success' => false,
@@ -128,20 +143,39 @@ class CartController extends Controller
             }
         }
 
+        $extraPrice = 0;
+        if (!empty($customAttributes)) {
+            foreach ($customAttributes as $attrId => $attrValue) {
+                if ($attrId === 'dimension') continue; 
+
+                $attributeOption = \App\Models\AttributeOption::where('attribute_id', $attrId)
+                                    ->where('value', $attrValue)
+                                    ->first();
+                
+                if ($attributeOption && $attributeOption->extra_price > 0) {
+                    $extraPrice += (float) $attributeOption->extra_price;
+                }
+            }
+        }
+        
+        $finalPrice = $price + $extraPrice;
+
         $cart[$cartKey] = [
             'product_id' => $productId,
             'name'       => $product->name,
             'image'      => $product->image,
-            'price'      => $price, 
+            'price'      => $finalPrice, 
             'quantity'   => $requestedTotalQty,
             'color_id'   => $colorId,
             'size_id'    => $sizeId,
             'color'      => $colorName,
             'size'       => $sizeName,
+            'attributes' => array_values($customAttributes), 
         ];
 
         session(['cart' => $cart]);
         session()->save();
+        
         $cartCount = count($cart);
         $subtotal = collect($cart)->sum(function ($item) {
             return $item['price'] * $item['quantity'];

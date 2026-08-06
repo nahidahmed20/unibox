@@ -53,7 +53,10 @@ class UpdateProductRequest extends FormRequest
             'color_image_names'        => 'nullable|array',
             'color_images'             => 'nullable|array',
             'color_images.*.*'         => 'nullable|image|mimes:jpeg,png,jpg,gif,webp|max:2048',
-            'extra_note'                => 'nullable|string|max:1000',
+            'extra_note'               => 'nullable|string|max:1000',
+            'is_calculator'            => 'nullable|integer|in:0,1',
+            'price_per_sqft'           => 'nullable|required_if:is_calculator,1|numeric|min:0',
+            'attribute_ids'            => 'nullable|array',
         ];
     }
 }

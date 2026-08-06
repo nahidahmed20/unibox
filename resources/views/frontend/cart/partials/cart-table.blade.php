@@ -1,5 +1,3 @@
-
-
 @php
     $subtotal = 0;
 @endphp
@@ -18,8 +16,10 @@
                     </div>
                     <div>
                         <h4 class="cart-product-title">{{ $item['name'] }}</h4>
+                        
+                        {{-- Color & Size --}}
                         @if(!empty($item['color']) || !empty($item['size']))
-                            <div class="d-flex gap-2 flex-wrap">
+                            <div class="d-flex gap-2 flex-wrap mb-1">
                                 @if(!empty($item['color'])) 
                                     <span class="var-badge">Color: {{ $item['color'] }}</span> 
                                 @endif
@@ -28,6 +28,18 @@
                                 @endif
                             </div>
                         @endif
+
+                        {{-- 🟢 CUSTOM ATTRIBUTES & DIMENSION (Square Feet) 🟢 --}}
+                        @if(!empty($item['attributes']))
+                            <div class="d-flex gap-2 flex-wrap mt-1">
+                                @foreach($item['attributes'] as $attrValue)
+                                    <span class="var-badge" style="background: #e0f2fe; color: #1e3a8a; border: 1px solid #bae6fd;">
+                                        {{ $attrValue }}
+                                    </span> 
+                                @endforeach
+                            </div>
+                        @endif
+
                     </div>
                 </div>
             </td>

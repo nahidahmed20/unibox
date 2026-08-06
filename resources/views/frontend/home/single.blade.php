@@ -61,6 +61,42 @@
 
     .size-guide-wrapper { position: sticky; top: 20px; text-align: center; }
     .size-guide-wrapper img { max-width: 100%; height: auto; border-radius: 12px; box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05); border: 1px solid #f3f4f6; }
+    /* Custom Selectable Attributes (Screenshot_1 style) */
+    .product-attributes-calculator { margin-top: 25px; margin-bottom: 25px; }
+    .attributes-heading { font-size: 18px; font-weight: 700; color: #111; margin-bottom: 20px; }
+    .attribute-step-wrapper { margin-bottom: 20px; }
+    .attribute-step-title { font-weight: 600; font-size: 15px; margin-bottom: 12px; color: #000; }
+    .attribute-options-container { display: flex; flex-wrap: wrap; gap: 10px; }
+    
+    .attribute-option-label {
+        cursor: pointer;
+        border: 1px solid #e2e8f0;
+        border-radius: 6px;
+        padding: 8px 16px;
+        font-size: 14px;
+        font-weight: 600;
+        background: #fff;
+        color: #333;
+        transition: all 0.2s ease-in-out;
+        user-select: none;
+        margin-bottom: 0;
+    }
+    
+    .attribute-option-label:hover { 
+        border-color: #008a7a; 
+    }
+    
+    /* When Radio button is checked, apply style to the label */
+    .attribute-option-input:checked + .attribute-option-label {
+        border-color: #008a7a;
+        color: #008a7a;
+        box-shadow: 0 0 0 1px #008a7a;
+    }
+    
+    /* Hide the actual radio button */
+    .attribute-option-input { 
+        display: none; 
+    }
 
     @media (max-width: 767px) {
         .product-slider-wrap { flex-direction: column; gap: 15px; }
@@ -192,29 +228,64 @@
                             <input type="hidden" id="selectedColorId">
                         </div>
                         
-                        <!-- 🟢 Dynamic Attributes Summary Box 🟢 -->
+                        <!-- 🟢 Selectable Attributes Box 🟢 -->
                         @if($product->attributes && $product->attributes->count() > 0)
-                        <div class="product-specs-summary mt-4 mb-4 p-3 bg-light rounded-3 border">
-                            <h6 class="fw-bold text-uppercase mb-3 text-dark" style="font-size: 13px; letter-spacing: 0.5px;">
-                                <i class="fa-solid fa-list-check me-2 text-secondary"></i> Key Specifications & Attributes
-                            </h6>
-                            <ul class="list-unstyled mb-0 specs-grid-summary">
-                                @foreach($product->attributes as $attr)
-                                <li>
-                                    <strong class="text-dark">{{ $attr->name }}:</strong> 
-                                    <span class="text-muted ms-1">
-                                        @if($attr->options && $attr->options->count() > 0)
-                                            {{ $attr->options->pluck('name')->implode(', ') }}
-                                        @else
-                                            <span class="fst-italic text-secondary">N/A</span>
-                                        @endif
-                                    </span>
-                                </li>
-                                @endforeach
-                            </ul>
+                        <div class="product-attributes-calculator">
+                            <h4 class="attributes-heading">Choose your specifications to calculate the total cost.</h4>
+                            
+                            @foreach($product->attributes as $index => $attr)
+                            <div class="attribute-step-wrapper">
+                                <div class="attribute-step-title">
+                                    Step {{ $index + 1 }}: Select {{ $attr->name }}
+                                </div>
+                                <div class="attribute-options-container">
+                                    @foreach($attr->options as $optIndex => $opt)
+                                        <!-- Hidden Radio Input -->
+                                        <input type="radio" 
+                                            name="custom_attributes[{{ $attr->id }}]" 
+                                            id="attr_{{ $attr->id }}_opt_{{ $opt->id }}" 
+                                            value="{{ $opt->value }}" 
+                                            class="attribute-option-input"
+                                            {{ $optIndex == 0 ? 'checked' : '' }}> <!-- by default first option selected -->
+                                            
+                                        <!-- Styled Label acting as Button -->
+                                        <label for="attr_{{ $attr->id }}_opt_{{ $opt->id }}" class="attribute-option-label">
+                                            {{ $opt->value }}
+                                        </label>
+                                    @endforeach
+                                </div>
+                            </div>
+                            @endforeach
                         </div>
                         @endif
                         <!-- ============================================== -->
+
+                        <!-- 🟢 Calculator Size Dimension (Conditional) 🟢 -->
+                        @if($product->is_calculator == 1)
+                        <div class="product-attributes-calculator mt-4">
+                            <h4 class="attributes-heading">Step Select Size Dimension (Width x Height)</h4>
+                            <div class="row g-4 mt-1">
+                                <div class="col-md-6">
+                                    <label class="form-label text-muted" style="font-size: 12px; font-weight: 700; letter-spacing: 0.5px;">WIDTH (FEET & INCHES)</label>
+                                    <div class="d-flex gap-2 align-items-center">
+                                        <input type="number" id="width_ft" class="form-control text-center dim-input" value="0" min="0"> <span class="fw-bold text-muted">ft</span>
+                                        <input type="number" id="width_in" class="form-control text-center dim-input" value="0" min="0" max="11"> <span class="fw-bold text-muted">in</span>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <label class="form-label text-muted" style="font-size: 12px; font-weight: 700; letter-spacing: 0.5px;">HEIGHT (FEET & INCHES)</label>
+                                    <div class="d-flex gap-2 align-items-center">
+                                        <input type="number" id="height_ft" class="form-control text-center dim-input" value="0" min="0"> <span class="fw-bold text-muted">ft</span>
+                                        <input type="number" id="height_in" class="form-control text-center dim-input" value="0" min="0" max="11"> <span class="fw-bold text-muted">in</span>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="mt-4 p-3 bg-light border rounded text-dark" style="font-size: 16px; font-weight: 600;">
+                                = <span id="total_sqft">0.00</span> sq. ft
+                            </div>
+                            <input type="hidden" id="calc_sqft" value="0">
+                        </div>
+                        @endif
 
                         <div class="product-btn mt-4 d-flex gap-2 align-items-center">
                             <div class="qty-box">
@@ -303,7 +374,7 @@
                                         <td class="text-dark fw-medium py-3 px-4">
                                             @if($attr->options && $attr->options->count() > 0)
                                                 @foreach($attr->options as $opt)
-                                                    <span class="badge bg-light text-dark border px-2 py-1 me-1">{{ $opt->name }}</span>
+                                                    <span class="badge bg-light text-dark border px-2 py-1 me-1">{{ $opt->value }}</span>
                                                 @endforeach
                                             @else
                                                 <span class="text-muted">—</span>
@@ -461,6 +532,9 @@
             const hasColorData = {{ $product->colors->count() > 0 ? 'true' : 'false' }};
             const totalStock   = {{ $product->stock }};
 
+            const isCalculator = {{ $product->is_calculator ?? 0 }};
+            const pricePerSqft = {{ $product->price_per_sqft ?? 0 }};
+
             const hasSize  = hasSizeData && productType !== 'single';
             const hasColor = hasColorData && productType !== 'single';
 
@@ -524,6 +598,27 @@
                 initSwipers();
             };
 
+            if(isCalculator == 1) {
+                $('.dim-input').on('input', function() {
+                    let w_ft = parseFloat($('#width_ft').val()) || 0;
+                    let w_in = parseFloat($('#width_in').val()) || 0;
+                    let h_ft = parseFloat($('#height_ft').val()) || 0;
+                    let h_in = parseFloat($('#height_in').val()) || 0;
+
+                    let totalWidthFt = w_ft + (w_in / 12);
+                    let totalHeightFt = h_ft + (h_in / 12);
+                    let totalSqft = totalWidthFt * totalHeightFt;
+
+                    $('#total_sqft').text(totalSqft.toFixed(2));
+                    $('#calc_sqft').val(totalSqft.toFixed(2));
+
+                    let newPrice = totalSqft * pricePerSqft;
+                    if(newPrice > 0) {
+                        $('.price').html('৳' + newPrice.toFixed(2));
+                    }
+                });
+            }
+
             $(document).on('click', '.color-box:not(.stock-out)', function () {
                 $('.color-box').removeClass('active');
                 $(this).addClass('active');
@@ -568,13 +663,36 @@
                 let btn = $(this);
                 btn.prop('disabled', true).text('Adding...');
 
-                $.post("{{ url('/cart/add') }}", {
+                let selectedAttributes = {};
+                $('.attribute-option-input:checked').each(function() {
+                    let attrId = $(this).attr('name').match(/\d+/)[0]; 
+                    selectedAttributes[attrId] = $(this).val();
+                });
+
+                let payload = {
                     _token: "{{ csrf_token() }}",
                     product_id: $(this).data('id'),
                     qty: $('#qty').val(),
                     size_id: $('#selectedSizeId').val() || null,
                     color_id: $('#selectedColorId').val() || null,
-                }, function (res) {
+                    custom_attributes: selectedAttributes
+                };
+
+                if (isCalculator == 1) {
+                    let sqft = parseFloat($('#calc_sqft').val()) || 0;
+                    if(sqft <= 0) {
+                        Swal.fire('Dimension Required', 'Please enter valid width and height greater than 0.', 'warning');
+                        btn.prop('disabled', false).text('Add To Cart');
+                        return;
+                    }
+                    payload.dimensions = {
+                        w_ft: $('#width_ft').val(), w_in: $('#width_in').val(),
+                        h_ft: $('#height_ft').val(), h_in: $('#height_in').val(),
+                        sqft: sqft
+                    };
+                }
+
+                $.post("{{ url('/cart/add') }}", payload, function (res) {
                     if (res.success) {
                         if (res.html) {
                             $('#cart-section').html(res.html);
@@ -603,17 +721,39 @@
             $('#buyNowBtn').on('click', function (e) {
                 e.preventDefault();
                 if (!validateSelection()) return;
-                $.post("{{ url('/cart/add') }}", {
+                
+                let selectedAttributes = {};
+                $('.attribute-option-input:checked').each(function() {
+                    let attrId = $(this).attr('name').match(/\d+/)[0]; 
+                    selectedAttributes[attrId] = $(this).val();
+                });
+
+                let payload = {
                     _token: "{{ csrf_token() }}",
                     product_id: $(this).data('id'),
                     qty: $('#qty').val(),
                     size_id: $('#selectedSizeId').val() || null,
                     color_id: $('#selectedColorId').val() || null,
-                }, function (res) {
+                    custom_attributes: selectedAttributes
+                };
+
+                if (isCalculator == 1) {
+                    let sqft = parseFloat($('#calc_sqft').val()) || 0;
+                    if(sqft <= 0) {
+                        Swal.fire('Dimension Required', 'Please enter valid width and height greater than 0.', 'warning');
+                        return;
+                    }
+                    payload.dimensions = {
+                        w_ft: $('#width_ft').val(), w_in: $('#width_in').val(),
+                        h_ft: $('#height_ft').val(), h_in: $('#height_in').val(),
+                        sqft: sqft
+                    };
+                }
+
+                $.post("{{ url('/cart/add') }}", payload, function (res) {
                     if (res.success) window.location.href = "{{ url('/cart') }}";
                 });
             });
-
         });
    
         $(document).ready(function() {

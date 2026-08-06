@@ -86,6 +86,7 @@
             padding: 14px;
             font-size: 13px;
             border-bottom: 1px solid #eee;
+            text-align: left;
         }
 
         tbody tr:hover {
@@ -188,7 +189,7 @@
                 <p>{{ $order->phone }}</p>
                 <p>{{ $order->email ?? '' }}</p>
                 <p>{{ $order->address }}</p>
-                <p>{{ $order->city ?? '' }}, {{ $order->province ?? '' }}</p>
+                <p>{{ $order->city ?? '' }}{{ !empty($order->city) && !empty($order->province) ? ', ' : '' }}{{ $order->province ?? '' }}</p>
             </div>
 
             <div class="info-box">
@@ -216,7 +217,30 @@
                 @foreach ($order->items as $i => $item)
                     <tr>
                         <td>{{ $i + 1 }}</td>
-                        <td>{{ $item->product_name }}</td>
+                        
+                        {{-- 🟢 Product Name, Color, Size & Attributes 🟢 --}}
+                        <td>
+                            <span style="font-weight: 600;">{{ $item->product_name }}</span>
+                            
+                            {{-- Color and Size --}}
+                            @if(!empty($item->color) || !empty($item->size))
+                                <div style="font-size: 11px; color: #6b7280; margin-top: 4px;">
+                                    @if(!empty($item->color)) Color: {{ $item->color }} @endif
+                                    @if(!empty($item->size)) | Size: {{ $item->size }} @endif
+                                </div>
+                            @endif
+
+                            {{-- Custom Attributes / Specifications --}}
+                            @php
+                                $itemAttributes = is_string($item->attributes) ? json_decode($item->attributes, true) : $item->attributes;
+                            @endphp
+                            @if(!empty($itemAttributes) && is_array($itemAttributes))
+                                <div style="font-size: 11px; color: #4b5563; margin-top: 2px;">
+                                    <strong>Spec:</strong> {{ implode(', ', $itemAttributes) }}
+                                </div>
+                            @endif
+                        </td>
+                        
                         <td>{{ $item->quantity }}</td>
                         <td>৳{{ number_format($item->price, 2) }}</td>
                         <td>৳{{ number_format($item->total, 2) }}</td>
@@ -238,23 +262,33 @@
                     <span>Shipping</span>
                     <span>৳{{ number_format($order->shipping, 2) }}</span>
                 </div>
+                
+                @if($order->return_charge > 0)
+                <div class="total-row due">
+                    <span>Return Charge</span>
+                    <span>- ৳{{ number_format($order->return_charge, 2) }}</span>
+                </div>
+                @endif
 
                 <div class="total-row grand">
                     <span>Grand Total</span>
-                    <span>৳{{ number_format($order->total, 2) }}</span>
+                    @php
+                        $finalTotal = $order->total - ($order->return_charge ?? 0);
+                    @endphp
+                    <span>৳{{ number_format($finalTotal, 2) }}</span>
                 </div>
 
                 <div class="total-row paid">
                     <span>Paid</span>
                     <span>
-                        {{ $order->payment_status == 'paid' ? '৳' . number_format($order->total, 2) : '৳0.00' }}
+                        {{ strtolower($order->payment_status) == 'paid' ? '৳' . number_format($finalTotal, 2) : '৳0.00' }}
                     </span>
                 </div>
 
                 <div class="total-row due">
                     <span>Due</span>
                     <span>
-                        {{ $order->payment_status == 'paid' ? '৳0.00' : '৳' . number_format($order->total, 2) }}
+                        {{ strtolower($order->payment_status) == 'paid' ? '৳0.00' : '৳' . number_format($finalTotal, 2) }}
                     </span>
                 </div>
 

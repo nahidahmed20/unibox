@@ -175,6 +175,8 @@
     .order-right small {
         color: #6b7280;
         font-size: 13px;
+        line-height: 1.5;
+        display: block;
     }
     .order-price {
         font-weight: 600;
@@ -238,12 +240,15 @@
     $subtotal = collect($cart)->sum(fn($i) => $i['price'] * $i['quantity']);
     $total = $subtotal + $shippingCost;
 
-    // --- DATA LAYER এর জন্য আইটেম প্রসেসিং ---
     $dataLayerItems = [];
     foreach($cart as $item) {
         $variantParts = [];
         if(!empty($item['size'])) $variantParts[] = $item['size'];
         if(!empty($item['color'])) $variantParts[] = $item['color'];
+        
+        if(!empty($item['attributes']) && is_array($item['attributes'])) {
+            $variantParts[] = implode(', ', $item['attributes']);
+        }
         
         $dataLayerItems[] = [
             'item_id' => $item['product_id'] ?? '',
@@ -269,7 +274,7 @@
                         <div class="row">
                             {{-- NAME --}}
                             <div class="col-md-12 mb-4">
-                                <label class="form-label">Full Name *</label>
+                                <label class="form-label">Full Name <span class="front" style="color: red;">*</span></label>
                                 <input type="text" name="name" 
                                     value="{{ old('name', auth('customer')->user()?->name ?? '') }}" 
                                     class="modern-input" placeholder="Enter Your Full Name">
@@ -278,7 +283,7 @@
 
                             {{-- ADDRESS TYPE --}}
                             <div class="col-md-12 mb-2">
-                                <label class="form-label">Address Type *</label>
+                                <label class="form-label">Address Type <span class="front" style="color: red;">*</span></label>
                                 <div class="address-type-box">
                                     <div class="radio-card">
                                         <input class="address-type-radio" type="radio" name="address_type" id="home_address" value="home" checked>
@@ -293,7 +298,7 @@
 
                             {{-- ADDRESS --}}
                             <div class="col-md-12 mb-4">
-                                <label class="form-label">Street Address *</label>
+                                <label class="form-label"> Address <span class="front" style="color: red;">*</span></label>
                                 <input type="text" id="address" name="address" 
                                     value="{{ old('address', auth('customer')->user()?->address ?? '') }}" 
                                     class="modern-input" placeholder="Enter Your Home Address">
@@ -302,7 +307,7 @@
 
                             {{-- LOCATION DROPDOWNS --}}
                             <div class="col-md-4 mb-4">
-                                <label class="form-label">Division *</label>
+                                <label class="form-label">Division </label>
                                 <select name="division_id" id="division" class="modern-input select2-location">
                                     <option value="">Select Division</option>
                                     @foreach($divisions as $division)
@@ -314,14 +319,14 @@
                             </div>
 
                             <div class="col-md-4 mb-4">
-                                <label class="form-label">District *</label>
+                                <label class="form-label">District </label>
                                 <select name="district_id" id="district" class="modern-input select2-location">
                                     <option value="">Select District</option>
                                 </select>
                             </div>
 
                             <div class="col-md-4 mb-4">
-                                <label class="form-label">Upazila *</label>
+                                <label class="form-label">Upazila </label>
                                 <select name="upazila_id" id="upazila" class="modern-input select2-location">
                                     <option value="">Select Upazila</option>
                                 </select>
@@ -329,7 +334,7 @@
 
                             {{-- PHONE --}}
                             <div class="col-md-12 mb-4">
-                                <label class="form-label">Phone Number *</label>
+                                <label class="form-label">Phone Number <span class="front" style="color: red;">*</span></label>
                                 <input type="text" id="phone" name="phone" 
                                     value="{{ old('phone', auth('customer')->user()?->phone ?? '') }}" 
                                     class="modern-input" placeholder="Enter Your Phone Number">
@@ -360,10 +365,18 @@
                                         </div>
                                         <div class="order-right">
                                             <h4 class="title">{{ Str::limit($item['name'], 25) }}</h4>
-                                            <small>Qty: {{ $item['quantity'] }} 
+                                            
+                                            <small>
+                                                Qty: {{ $item['quantity'] }} 
                                                 @if(!empty($item['size'])) | Size: {{ $item['size'] }} @endif
-                                                @if(!empty($item['color_id'])) | Color: {{ $item['color'] }} @endif
+                                                @if(!empty($item['color'])) | Color: {{ $item['color'] }} @endif
+                                                
+                                                {{-- 🟢 CUSTOM ATTRIBUTES / SPECIFICATIONS 🟢 --}}
+                                                @if(!empty($item['attributes']) && is_array($item['attributes'])) 
+                                                    <br><span style="color: #008a7a; font-weight: 500;">Spec: {{ implode(', ', $item['attributes']) }}</span> 
+                                                @endif
                                             </small>
+
                                         </div>
                                     </div>
                                     <span class="order-price">৳{{ number_format($item['price'] * $item['quantity'], 2) }}</span>

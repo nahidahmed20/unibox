@@ -113,13 +113,24 @@
                                     </td>
                                     
                                     <td class="text-center">
-                                        @if(!empty($item->color->name) || !empty($item->size->name))
+                                        @php
+                                            $itemAttributes = is_string($item->attributes) ? json_decode($item->attributes, true) : $item->attributes;
+                                            $hasVariations = !empty($item->color->name) || !empty($item->size->name) || (!empty($itemAttributes) && is_array($itemAttributes));
+                                        @endphp
+
+                                        @if($hasVariations)
                                             <div class="variation-badges">
                                                 @if(!empty($item->color->name))
                                                     <span class="var-badge"><strong class="text-muted fw-normal">Color:</strong> {{ $item->color->name }}</span>
                                                 @endif
                                                 @if(!empty($item->size->name))
                                                     <span class="var-badge"><strong class="text-muted fw-normal">Size:</strong> {{ $item->size->name }}</span>
+                                                @endif
+                                                
+                                                @if(!empty($itemAttributes) && is_array($itemAttributes))
+                                                    @foreach($itemAttributes as $attr)
+                                                        <span class="var-badge"><strong class="text-muted fw-normal">Spec:</strong> {{ $attr }}</span>
+                                                    @endforeach
                                                 @endif
                                             </div>
                                         @else
