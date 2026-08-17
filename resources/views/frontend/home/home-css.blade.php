@@ -352,6 +352,8 @@
     font-size: 14px;
     font-weight: 600;
     transition: 0.3s;
+    align-items: center;
+    justify-content: center;
 }
 
 /* ==========================================
@@ -788,7 +790,7 @@
 
 @media (max-width: 767px) {
     .carousel-inner, .carousel-item {
-        height: 250px !important; /* মোবাইলে ৫০০০ পিক্সেল না রেখে রেসপনসিভ হাইট রাখা হয়েছে */
+        height: 250px !important; 
     }
 
     .hero-list-wrap {
@@ -947,14 +949,10 @@
         padding: 0 !important;
     }
 }
-/* ==========================================
-   CATEGORY FILTER SCROLL (MOBILE & DESKTOP)
-   ========================================== */
 .heading-space {
     position: relative;
 }
 
-/* 🟢 Desktop Header Alignment (Screenshot_1 Design) 🟢 */
 @media (min-width: 768px) {
     .heading-space {
         display: flex;
@@ -980,7 +978,6 @@
     }
 }
 
-/* 🟢 Shared Scrollable Filter (Pill Shape) 🟢 */
 .project-filter {
     display: flex !important;
     flex-wrap: nowrap !important;
@@ -1027,6 +1024,7 @@
     border-color: var(--rr-color-theme-primary) !important;
     color: #ffffff !important;
 }
+
 
 /* 🟢 Smart Swipe Arrow (Desktop & Mobile) 🟢 */
 /* 🟢 Base Swipe Arrow (Hidden on Desktop, Visible on Mobile) 🟢 */

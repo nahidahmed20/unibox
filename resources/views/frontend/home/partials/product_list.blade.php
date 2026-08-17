@@ -49,7 +49,7 @@
                         </div>
 
                         <div class="product-bottom">
-                            <button
+                            {{-- <button
                                 type="button"
                                 class="rr-primary-btn openCartModal {{ $product->total_quantity <= 0 ? 'disabled' : '' }}"
                                 data-id="{{ $product->id }}"
@@ -58,7 +58,11 @@
                                 data-image="{{ $product->image ? asset($product->image) : asset('frontend/assets/img/product/default.png') }}"
                                 {{ $product->total_quantity <= 0 ? 'disabled' : '' }}>
                                 Add To Cart
-                            </button>
+                            </button> --}}
+                            <a href="{{ route('product.show', $product->slug) }}" style="justify-content: center; align-items: center;"
+                            class="rr-primary-btn">
+                                Add To Cart
+                            </a>
                         </div>
                     </div>
                 </div>

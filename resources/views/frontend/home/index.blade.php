@@ -197,7 +197,7 @@
                                 </span>
                             </div>
 
-                            <div class="product-bottom">
+                            {{-- <div class="product-bottom">
                                 <button type="button" class="rr-primary-btn openCartModal"
                                     data-id="{{ $product->id }}"
                                     data-name="{{ $product->name }}"
@@ -205,6 +205,11 @@
                                     data-image="{{ $product->image ? asset($product->image) : asset('frontend/assets/img/product/default.png') }}">
                                     Add To Cart
                                 </button>
+                            </div> --}}
+                            <div class="product-bottom">
+                                <a href="{{ route('product.show', $product->slug) }}" class="rr-primary-btn">
+                                    Add To Cart
+                                </a>
                             </div>
 
                         </div>
@@ -284,7 +289,7 @@
                                 </span>
                             </div>
 
-                            <div class="product-bottom">
+                            {{-- <div class="product-bottom">
                                 <button type="button" class="rr-primary-btn openCartModal"
                                     data-id="{{ $product->id }}"
                                     data-name="{{ $product->name }}"
@@ -292,6 +297,11 @@
                                     data-image="{{ $product->image ? asset($product->image) : asset('frontend/assets/img/product/default.png') }}">
                                     Add To Cart
                                 </button>
+                            </div> --}}
+                            <div class="product-bottom">
+                                <a href="{{ route('product.show', $product->slug) }}" class="rr-primary-btn">
+                                    Add To Cart
+                                </a>
                             </div>
 
                         </div>

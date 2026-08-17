@@ -22,7 +22,6 @@ class AboutUsController extends Controller
             'image2' => 'nullable|image|max:2048',
         ]);
 
-        // প্রথম রো টা খুঁজবে, না পেলে নতুন তৈরি করবে
         $about = AboutUs::first() ?? new AboutUs();
         
         $about->title = $request->title;

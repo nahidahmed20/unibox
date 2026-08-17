@@ -51,34 +51,10 @@
                                     <th>Subject</th>
                                     <th>Phone</th>
                                     <th>Message</th>
-                                    <th width="15%" class="text-center">
-                                        Action
-                                    </th>
+                                    <th width="15%" class="text-center">Action</th>
                                 </tr>
                             </thead>
                             <tbody>
-                                @foreach ($contacts as $key => $contact)
-                                    <tr>
-                                        <td> {{ $key + 1 }} </td>
-                                        <td> {{ $contact->name }} </td>
-                                        <td> {{ $contact->email }} </td>
-                                        <td> {{ $contact->subject ?? '—' }} </td>
-                                        <td> {{ $contact->phone ?? '—' }} </td>
-                                        <td> {{ Str::limit($contact->message, 40) }} </td>
-                                        <td class="text-center">
-                                            <button class="btn btn-action btn-view" data-id="{{ $contact->id }}">
-                                                <i class="fa-solid fa-eye"></i>
-                                            </button>
-                                            <form class="d-inline delete-form" data-id="{{ $contact->id }}">
-                                                @csrf
-                                                @method('DELETE')
-                                                <button type="button" class="btn btn-action btn-delete-custom btn-delete">
-                                                    <i class="fa-solid fa-trash"></i>
-                                                </button>
-                                            </form>
-                                        </td>
-                                    </tr>
-                                @endforeach
                             </tbody>
                         </table>
                     </div>
@@ -267,60 +243,55 @@
 @endpush
 
 @push('scripts')
-    <script>
-        $(document).ready(function() {
-            let table = $('#contactTable').DataTable({
-                processing: true,
-                language: {
-                    search: "_INPUT_",
-                    searchPlaceholder: "Search messages...",
-                    paginate: {
-                        previous: '<i class="fa-solid fa-angle-left"></i>',
-                        next: '<i class="fa-solid fa-angle-right"></i>'
-                    }
-                },
-                dom: '<"row align-items-center mb-4"' +
-                    '<"col-md-4"l>' +
-                    '<"col-md-4 d-flex justify-content-center"B>' +
-                    '<"col-md-4 d-flex justify-content-end"f>' +
-                    '>rt' +
-                    '<"d-flex justify-content-between mt-4"ip>',
-                buttons: [
-                    {
-                        extend: 'copy',
-                        text: '<i class="fa-regular fa-copy"></i> Copy'
-                    },
-                    {
-                        extend: 'excel',
-                        text: '<i class="fa-regular fa-file-excel"></i> Excel'
-                    },
-                    {
-                        extend: 'csv',
-                        text: '<i class="fa-solid fa-file-csv"></i> CSV'
-                    },
-                    {
-                        extend: 'pdf',
-                        text: '<i class="fa-regular fa-file-pdf"></i> PDF'
-                    },
-                    {
-                        extend: 'print',
-                        text: '<i class="fa-solid fa-print"></i> Print'
-                    }
-                ]
-            });
+   <script>
+    $(document).ready(function() {
+    let table = $('#contactTable').DataTable({
+        processing: true,
+        serverSide: true, 
+        ajax: "{{ route('contact.us.data') }}",
+        columns: [
+            {data: 'DT_RowIndex', name: 'DT_RowIndex', orderable: false, searchable: false},
+            {data: 'name', name: 'name'},
+            {data: 'email', name: 'email'},
+            {data: 'subject', name: 'subject'},
+            {data: 'phone', name: 'phone'},
+            {data: 'message', name: 'message'},
+            {data: 'action', name: 'action', orderable: false, searchable: false, className: 'text-center'},
+        ],
+        language: {
+            search: "_INPUT_",
+            searchPlaceholder: "Search messages...",
+            paginate: {
+                previous: '<i class="fa-solid fa-angle-left"></i>',
+                next: '<i class="fa-solid fa-angle-right"></i>'
+            }
+        },
+        dom: '<"row align-items-center mb-4"' +
+            '<"col-md-4"l>' +
+            '<"col-md-4 d-flex justify-content-center"B>' +
+            '<"col-md-4 d-flex justify-content-end"f>' +
+            '>rt' +
+            '<"d-flex justify-content-between mt-4"ip>',
+        buttons: [
+            { extend: 'copy', text: '<i class="fa-regular fa-copy"></i> Copy' },
+            { extend: 'excel', text: '<i class="fa-regular fa-file-excel"></i> Excel' },
+            { extend: 'csv', text: '<i class="fa-solid fa-file-csv"></i> CSV' },
+            { extend: 'pdf', text: '<i class="fa-regular fa-file-pdf"></i> PDF' },
+            { extend: 'print', text: '<i class="fa-solid fa-print"></i> Print' }
+        ]
+    });
 
-            // VIEW
-            $(document).on('click', '.btn-view', function() {
-                let id = $(this).data('id');
-                $.get("{{ url('/admin/contacts') }}/" + id, function(data) {
-                    $('#c-name').text(data.name);
-                    $('#c-email').text(data.email ?? 'N/A');
-                    $('#c-phone').text(data.phone ?? 'N/A');
-                    $('#c-subject').text(data.subject ?? 'N/A');
-                    $('#c-message').text(data.message);
-                    $('#contactModal').modal('show');
-                });
-            });
+    $(document).on('click', '.btn-view', function() {
+        let id = $(this).data('id');
+        $.get("{{ url('/admin/contacts') }}/" + id, function(data) {
+            $('#c-name').text(data.name);
+            $('#c-email').text(data.email ?? 'N/A');
+            $('#c-phone').text(data.phone ?? 'N/A');
+            $('#c-subject').text(data.subject ?? 'N/A');
+            $('#c-message').text(data.message);
+            $('#contactModal').modal('show');
         });
-    </script>
+    });
+});
+   </script>
 @endpush
